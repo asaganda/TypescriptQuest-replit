@@ -1,0 +1,79 @@
+You are an expert React + TypeScript + Supabase developer. Build a web application that is a gamified learning platform to teach TypeScript in React.
+
+Tech stack:
+- Frontend: React + TypeScript (you can use Vite with TS)
+- Backend: Supabase (auth + Postgres DB)
+- Styling: simple, clean, responsive UI (you can use basic CSS or a simple utility framework)
+
+Core requirements:
+
+1. Authentication & user profile
+- Email + password signup/login using Supabase auth.
+- Store a user profile row for each user (id, email, displayName, createdAt).
+- Protect the main app so only logged-in users can access the learning content.
+
+2. Levels, lessons, and challenges
+- Data model in Supabase for:
+  - levels (id, name, description, order)
+  - lessons (id, levelId, title, shortDescription, content, order)
+  - challenges (id, lessonId, type, prompt, starterCode, solutionCode, order)
+- Seed the database (or hardcode temporarily) with a few example levels:
+  - Level 1: basic types, interfaces
+  - Level 2: functions, generics
+  - Level 3: React + TypeScript basics (typed props, state)
+- Each lesson should show some explanation text plus at least one challenge.
+
+3. Gamification & progress tracking
+- For each user, track:
+  - which lessons they’ve completed
+  - which challenges they’ve completed
+  - total XP
+  - current level unlocked
+- Add a simple scoring system:
+  - Completing a lesson: +20 XP
+  - Completing a challenge: +30 XP
+- When a user reaches certain XP thresholds, unlock the next level.
+- Show a progress bar for the current level and total XP on a “Dashboard” page.
+- Add a simple “badge” concept:
+  - Example badges like “Completed First Lesson”, “No Hints Used” (can just be boolean flags in the DB or derived).
+
+4. Challenge types
+- Support at least two types of challenges:
+  - Multiple-choice quiz (question, 4 options, correct answer).
+  - Code challenge with a small in-browser code editor (it can be a basic textarea instead of a full editor if simpler).
+- For multiple-choice:
+  - Show feedback immediately (correct/incorrect).
+- For code challenges:
+  - Simulate validation by checking if the user’s answer contains certain substrings (e.g., “interface”, “type”, or certain function name) rather than running arbitrary code.
+
+5. UI structure
+- Main layout with:
+  - Top navigation (App name, Dashboard, Levels, Profile, Logout).
+- Pages:
+  - Auth page (login/signup).
+  - Dashboard: show XP, level progress, number of lessons/challenges completed, badges.
+  - Levels page: list all levels with lock/unlock status and completion percentage.
+  - Lesson detail page: lesson content + its challenges + progress state.
+  - Profile page: basic user info and stats.
+
+6. Implementation details
+- Use Supabase client on the frontend for auth and data.
+- Create clear React components for:
+  - Auth forms
+  - Dashboard
+  - Levels list
+  - Lesson/challenge views
+  - Multiple-choice challenge UI
+  - Code challenge UI
+- Use TypeScript interfaces/types for:
+  - UserProfile
+  - Level
+  - Lesson
+  - Challenge
+  - UserProgress
+- Include basic error handling and loading states.
+
+Please:
+- Generate the full project structure.
+- Include example seed data for at least 2–3 levels, a few lessons, and several challenges.
+- Add comments explaining key parts of the code and how to extend the app later with more levels and more advanced features (like daily streaks or leaderboards).
