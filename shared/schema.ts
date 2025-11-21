@@ -31,7 +31,7 @@ export type Level = typeof levels.$inferSelect;
 // Lessons table
 export const lessons = pgTable("lessons", {
   id: varchar("id").primaryKey(),
-  levelId: varchar("level_id").notNull(),
+  levelId: varchar("level_id").notNull().references(() => levels.id),
   title: text("title").notNull(),
   description: text("description").notNull(),
   content: text("content").notNull(),
@@ -46,7 +46,7 @@ export type Lesson = typeof lessons.$inferSelect;
 // Challenges table
 export const challenges = pgTable("challenges", {
   id: varchar("id").primaryKey(),
-  lessonId: varchar("lesson_id").notNull(),
+  lessonId: varchar("lesson_id").notNull().references(() => lessons.id),
   type: text("type").notNull(), // "multiple-choice" | "code"
   prompt: text("prompt").notNull(),
   order: integer("order").notNull(),
@@ -70,9 +70,9 @@ export type Challenge = typeof challenges.$inferSelect;
 // User Progress table
 export const userProgress = pgTable("user_progress", {
   id: varchar("id").primaryKey(),
-  userId: varchar("user_id").notNull(),
-  lessonId: varchar("lesson_id"),
-  challengeId: varchar("challenge_id"),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  lessonId: varchar("lesson_id").references(() => lessons.id),
+  challengeId: varchar("challenge_id").references(() => challenges.id),
   completedAt: timestamp("completed_at").defaultNow().notNull(),
   usedHint: boolean("used_hint").default(false),
 });
@@ -86,7 +86,7 @@ export type UserProgress = typeof userProgress.$inferSelect;
 
 // User Stats (aggregated data for each user)
 export const userStats = pgTable("user_stats", {
-  userId: varchar("user_id").primaryKey(),
+  userId: varchar("user_id").primaryKey().references(() => users.id),
   totalXP: integer("total_xp").notNull().default(0),
   currentLevel: integer("current_level").notNull().default(1),
   lessonsCompleted: integer("lessons_completed").notNull().default(0),
@@ -112,8 +112,8 @@ export type Badge = typeof badges.$inferSelect;
 // User Badges junction table
 export const userBadges = pgTable("user_badges", {
   id: varchar("id").primaryKey(),
-  userId: varchar("user_id").notNull(),
-  badgeId: varchar("badge_id").notNull(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  badgeId: varchar("badge_id").notNull().references(() => badges.id),
   earnedAt: timestamp("earned_at").defaultNow().notNull(),
 });
 

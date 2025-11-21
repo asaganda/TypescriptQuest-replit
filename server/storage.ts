@@ -14,9 +14,19 @@ import {
   type Badge,
   type InsertBadge,
   type UserBadge,
-  type InsertUserBadge
+  type InsertUserBadge,
+  users,
+  levels,
+  lessons,
+  challenges,
+  userProgress as userProgressTable,
+  userStats as userStatsTable,
+  badges,
+  userBadges as userBadgesTable
 } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { db } from "./db";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -51,6 +61,153 @@ export interface IStorage {
   getAllBadges(): Promise<Badge[]>;
   getUserBadges(userId: string): Promise<UserBadge[]>;
   awardBadge(userBadge: InsertUserBadge): Promise<UserBadge>;
+}
+
+export class DatabaseStorage implements IStorage {
+  // User methods
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    return await db.transaction(async (tx) => {
+      const id = randomUUID();
+      const [user] = await tx.insert(users).values({ ...insertUser, id }).returning();
+      
+      // Initialize user stats
+      await tx.insert(userStatsTable).values({
+        userId: id,
+        totalXP: 0,
+        currentLevel: 1,
+        lessonsCompleted: 0,
+        challengesCompleted: 0,
+      });
+      
+      return user;
+    });
+  }
+
+  // Level methods
+  async getAllLevels(): Promise<Level[]> {
+    return await db.select().from(levels).orderBy(levels.order);
+  }
+
+  async getLevel(id: string): Promise<Level | undefined> {
+    const [level] = await db.select().from(levels).where(eq(levels.id, id));
+    return level;
+  }
+
+  // Lesson methods
+  async getLessonsByLevel(levelId: string): Promise<Lesson[]> {
+    return await db.select().from(lessons).where(eq(lessons.levelId, levelId)).orderBy(lessons.order);
+  }
+
+  async getLesson(id: string): Promise<Lesson | undefined> {
+    const [lesson] = await db.select().from(lessons).where(eq(lessons.id, id));
+    return lesson;
+  }
+
+  // Challenge methods
+  async getChallengesByLesson(lessonId: string): Promise<Challenge[]> {
+    return await db.select().from(challenges).where(eq(challenges.lessonId, lessonId)).orderBy(challenges.order);
+  }
+
+  async getChallenge(id: string): Promise<Challenge | undefined> {
+    const [challenge] = await db.select().from(challenges).where(eq(challenges.id, id));
+    return challenge;
+  }
+
+  // Progress methods
+  async getUserProgress(userId: string): Promise<UserProgress[]> {
+    return await db.select().from(userProgressTable).where(eq(userProgressTable.userId, userId));
+  }
+
+  async hasCompletedLesson(userId: string, lessonId: string): Promise<boolean> {
+    const [progress] = await db.select().from(userProgressTable)
+      .where(and(
+        eq(userProgressTable.userId, userId),
+        eq(userProgressTable.lessonId, lessonId)
+      ));
+    return !!progress;
+  }
+
+  async hasCompletedChallenge(userId: string, challengeId: string): Promise<boolean> {
+    const [progress] = await db.select().from(userProgressTable)
+      .where(and(
+        eq(userProgressTable.userId, userId),
+        eq(userProgressTable.challengeId, challengeId)
+      ));
+    return !!progress;
+  }
+
+  async createProgress(insertProgress: InsertUserProgress): Promise<UserProgress> {
+    const id = randomUUID();
+    const [progress] = await db.insert(userProgressTable)
+      .values({ ...insertProgress, id })
+      .returning();
+    return progress;
+  }
+
+  // User Stats methods
+  async getUserStats(userId: string): Promise<UserStats | undefined> {
+    const [stats] = await db.select().from(userStatsTable).where(eq(userStatsTable.userId, userId));
+    return stats;
+  }
+
+  async createUserStats(insertStats: InsertUserStats): Promise<UserStats> {
+    // Default missing fields to match MemStorage behavior
+    const statsWithDefaults = {
+      totalXP: insertStats.totalXP ?? 0,
+      currentLevel: insertStats.currentLevel ?? 1,
+      lessonsCompleted: insertStats.lessonsCompleted ?? 0,
+      challengesCompleted: insertStats.challengesCompleted ?? 0,
+      ...insertStats,
+    };
+    const [stats] = await db.insert(userStatsTable).values(statsWithDefaults).returning();
+    return stats;
+  }
+
+  async updateUserStats(userId: string, updates: Partial<UserStats>): Promise<UserStats> {
+    const [stats] = await db.update(userStatsTable)
+      .set(updates)
+      .where(eq(userStatsTable.userId, userId))
+      .returning();
+    return stats;
+  }
+
+  // Badge methods
+  async getAllBadges(): Promise<Badge[]> {
+    return await db.select().from(badges);
+  }
+
+  async getUserBadges(userId: string): Promise<UserBadge[]> {
+    return await db.select().from(userBadgesTable).where(eq(userBadgesTable.userId, userId));
+  }
+
+  async awardBadge(insertUserBadge: InsertUserBadge): Promise<UserBadge> {
+    // Check if badge already awarded
+    const [existing] = await db.select().from(userBadgesTable)
+      .where(and(
+        eq(userBadgesTable.userId, insertUserBadge.userId),
+        eq(userBadgesTable.badgeId, insertUserBadge.badgeId)
+      ));
+    
+    if (existing) {
+      return existing;
+    }
+
+    const id = randomUUID();
+    const [userBadge] = await db.insert(userBadgesTable)
+      .values({ ...insertUserBadge, id })
+      .returning();
+    return userBadge;
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -461,4 +618,8 @@ const staff: Staff = {
   }
 }
 
-export const storage = new MemStorage();
+// Use DatabaseStorage for persistent PostgreSQL storage
+export const storage = new DatabaseStorage();
+
+// MemStorage is still available for testing if needed
+// export const storage = new MemStorage();
