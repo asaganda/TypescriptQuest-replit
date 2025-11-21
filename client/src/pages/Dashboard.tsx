@@ -1,22 +1,49 @@
 import DashboardStats from "@/components/DashboardStats";
 import BadgeShowcase from "@/components/BadgeShowcase";
+import { useAuth } from "@/lib/auth";
+import { useQuery } from "@tanstack/react-query";
+import { getUserStats, getBadges } from "@/lib/api";
 
 export default function Dashboard() {
-  const badges = [
-    { id: "first-lesson", name: "First Steps", description: "Complete your first lesson", icon: "book" as const, earned: true },
-    { id: "five-challenges", name: "Problem Solver", description: "Solve 5 challenges", icon: "zap" as const, earned: true },
-    { id: "no-hints", name: "Pure Skill", description: "Complete a lesson without hints", icon: "trophy" as const, earned: true },
-    { id: "perfect-score", name: "Perfectionist", description: "Get 100% on a challenge", icon: "star" as const, earned: false },
-    { id: "speed-demon", name: "Speed Demon", description: "Complete a challenge in under 1 minute", icon: "target" as const, earned: false },
-    { id: "level-master", name: "Level Master", description: "Complete all lessons in a level", icon: "trophy" as const, earned: false },
-  ];
+  const { user } = useAuth();
+  
+  const { data: stats } = useQuery({
+    queryKey: ["/api/stats"],
+    queryFn: getUserStats,
+  });
+
+  const { data: badges } = useQuery({
+    queryKey: ["/api/badges"],
+    queryFn: getBadges,
+  });
+
+  if (!stats || !badges) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  const xpThresholds = [0, 200, 500];
+  const currentLevelIndex = stats.currentLevel - 1;
+  const nextLevelXP = xpThresholds[currentLevelIndex + 1] || 1000;
+  const badgesEarned = badges.filter(b => b.earned).length;
+
+  const badgesForShowcase = badges.map(badge => ({
+    id: badge.id,
+    name: badge.name,
+    description: badge.description,
+    icon: badge.icon as "trophy" | "zap" | "target" | "star" | "book",
+    earned: badge.earned || false,
+  }));
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto p-6 space-y-8">
         <div>
           <h1 className="text-4xl font-bold mb-2" data-testid="heading-welcome">
-            Welcome back, Alex!
+            Welcome back, {user?.displayName}!
           </h1>
           <p className="text-muted-foreground text-lg">
             Continue your TypeScript learning journey
@@ -24,15 +51,15 @@ export default function Dashboard() {
         </div>
 
         <DashboardStats
-          totalXP={450}
-          xpToNextLevel={600}
-          currentLevel={2}
-          lessonsCompleted={8}
-          challengesCompleted={15}
-          badgesEarned={3}
+          totalXP={stats.totalXP}
+          xpToNextLevel={nextLevelXP}
+          currentLevel={stats.currentLevel}
+          lessonsCompleted={stats.lessonsCompleted}
+          challengesCompleted={stats.challengesCompleted}
+          badgesEarned={badgesEarned}
         />
 
-        <BadgeShowcase badges={badges} />
+        <BadgeShowcase badges={badgesForShowcase} />
       </div>
     </div>
   );

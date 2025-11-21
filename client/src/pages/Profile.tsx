@@ -2,20 +2,62 @@ import ProfileCard from "@/components/ProfileCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Target, Flame } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { useQuery } from "@tanstack/react-query";
+import { getUserStats, getUserProgress } from "@/lib/api";
 
 export default function Profile() {
-  const stats = [
-    { label: "Current Streak", value: "7 days", icon: Flame, color: "text-chart-5" },
-    { label: "Lessons Completed", value: "8", icon: Target, color: "text-chart-2" },
-    { label: "Average Score", value: "92%", icon: TrendingUp, color: "text-chart-1" }
+  const { user } = useAuth();
+  
+  const { data: stats } = useQuery({
+    queryKey: ["/api/stats"],
+    queryFn: getUserStats,
+  });
+
+  const { data: progress } = useQuery({
+    queryKey: ["/api/progress"],
+    queryFn: getUserProgress,
+  });
+
+  if (!stats || !progress || !user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  const joinDate = new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const statsDisplay = [
+    { label: "Current Streak", value: "1 day", icon: Flame, color: "text-chart-5" },
+    { label: "Lessons Completed", value: stats.lessonsCompleted.toString(), icon: Target, color: "text-chart-2" },
+    { label: "Total XP", value: stats.totalXP.toString(), icon: TrendingUp, color: "text-chart-1" }
   ];
 
-  const recentActivity = [
-    { action: "Completed lesson", title: "Union Types", time: "2 hours ago", xp: 20 },
-    { action: "Solved challenge", title: "Type Guards", time: "3 hours ago", xp: 30 },
-    { action: "Earned badge", title: "Problem Solver", time: "1 day ago", xp: 0 },
-    { action: "Completed lesson", title: "Function Types", time: "2 days ago", xp: 20 }
-  ];
+  const recentActivity = progress
+    .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
+    .slice(0, 5)
+    .map(p => {
+      const time = new Date(p.completedAt);
+      const now = new Date();
+      const diffMs = now.getTime() - time.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
+      
+      let timeAgo = "";
+      if (diffDays > 0) timeAgo = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+      else if (diffHours > 0) timeAgo = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+      else timeAgo = `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+
+      return {
+        action: p.lessonId ? "Completed lesson" : "Solved challenge",
+        title: p.lessonId || p.challengeId || "Unknown",
+        time: timeAgo,
+        xp: p.lessonId ? 20 : 30
+      };
+    });
 
   return (
     <div className="min-h-screen bg-background">
@@ -32,17 +74,17 @@ export default function Profile() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
             <ProfileCard
-              displayName="Alex Developer"
-              email="alex@example.com"
-              joinDate="November 2024"
-              currentLevel={2}
-              totalXP={450}
+              displayName={user.displayName}
+              email={user.email}
+              joinDate={joinDate}
+              currentLevel={stats.currentLevel}
+              totalXP={stats.totalXP}
             />
           </div>
 
           <div className="lg:col-span-2 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {stats.map((stat, index) => {
+              {statsDisplay.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
                   <Card key={index}>
@@ -60,35 +102,37 @@ export default function Profile() {
               })}
             </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentActivity.map((activity, index) => (
-                    <div
-                      key={index}
-                      className="flex items-start justify-between py-3 border-b last:border-0"
-                      data-testid={`activity-${index}`}
-                    >
-                      <div className="flex-1">
-                        <p className="font-medium">{activity.action}</p>
-                        <p className="text-sm text-muted-foreground">{activity.title}</p>
+            {recentActivity.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Activity</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {recentActivity.map((activity, index) => (
+                      <div
+                        key={index}
+                        className="flex items-start justify-between py-3 border-b last:border-0"
+                        data-testid={`activity-${index}`}
+                      >
+                        <div className="flex-1">
+                          <p className="font-medium">{activity.action}</p>
+                          <p className="text-sm text-muted-foreground">{activity.title}</p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          {activity.xp > 0 && (
+                            <Badge variant="secondary" className="text-xs">
+                              +{activity.xp} XP
+                            </Badge>
+                          )}
+                          <span className="text-xs text-muted-foreground">{activity.time}</span>
+                        </div>
                       </div>
-                      <div className="flex flex-col items-end gap-1">
-                        {activity.xp > 0 && (
-                          <Badge variant="secondary" className="text-xs">
-                            +{activity.xp} XP
-                          </Badge>
-                        )}
-                        <span className="text-xs text-muted-foreground">{activity.time}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

@@ -24,10 +24,10 @@ export default function TopNav({ userName, totalXP = 0, onLogout }: TopNavProps)
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
             <Link href="/dashboard">
-              <a className="flex items-center gap-2 font-bold text-xl hover-elevate active-elevate-2 rounded-md px-3 py-2" data-testid="link-home">
+              <div className="flex items-center gap-2 font-bold text-xl hover-elevate active-elevate-2 rounded-md px-3 py-2 cursor-pointer" data-testid="link-home">
                 <Sparkles className="w-6 h-6 text-primary" />
                 <span>TypeScript Quest</span>
-              </a>
+              </div>
             </Link>
             
             <div className="hidden md:flex items-center gap-2">
@@ -36,16 +36,15 @@ export default function TopNav({ userName, totalXP = 0, onLogout }: TopNavProps)
                 const isActive = location === item.path;
                 return (
                   <Link key={item.path} href={item.path}>
-                    <a data-testid={`link-${item.label.toLowerCase()}`}>
-                      <Button 
-                        variant={isActive ? "secondary" : "ghost"}
-                        size="sm"
-                        className="gap-2"
-                      >
-                        <Icon className="w-4 h-4" />
-                        {item.label}
-                      </Button>
-                    </a>
+                    <Button 
+                      variant={isActive ? "secondary" : "ghost"}
+                      size="sm"
+                      className="gap-2"
+                      data-testid={`link-${item.label.toLowerCase()}`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {item.label}
+                    </Button>
                   </Link>
                 );
               })}

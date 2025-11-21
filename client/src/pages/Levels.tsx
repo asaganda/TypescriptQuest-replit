@@ -1,38 +1,48 @@
 import LevelCard from "@/components/LevelCard";
+import { useQuery } from "@tanstack/react-query";
+import { getLevels, getUserStats, getUserProgress, getLessonsByLevel } from "@/lib/api";
 
 export default function Levels() {
-  const levels = [
-    {
-      id: "1",
-      levelNumber: 1,
-      title: "TypeScript Basics",
-      description: "Learn fundamental types, interfaces, and type annotations to build a strong foundation",
-      isLocked: false,
+  const { data: levels } = useQuery({
+    queryKey: ["/api/levels"],
+    queryFn: getLevels,
+  });
+
+  const { data: stats } = useQuery({
+    queryKey: ["/api/stats"],
+    queryFn: getUserStats,
+  });
+
+  const { data: progress } = useQuery({
+    queryKey: ["/api/progress"],
+    queryFn: getUserProgress,
+  });
+
+  if (!levels || !stats || !progress) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  const levelsWithProgress = levels.map((level) => {
+    const isLocked = stats.totalXP < level.xpRequired;
+    
+    // Calculate completion percentage (would need to fetch lessons for each level)
+    const completionPercentage = isLocked ? 0 : 0;
+    
+    return {
+      id: level.id,
+      levelNumber: level.order,
+      title: level.name,
+      description: level.description,
+      isLocked,
       isCompleted: false,
-      completionPercentage: 67,
-      totalLessons: 3
-    },
-    {
-      id: "2",
-      levelNumber: 2,
-      title: "Functions & Generics",
-      description: "Master function types, generics, and advanced type features for flexible code",
-      isLocked: false,
-      isCompleted: false,
-      completionPercentage: 25,
-      totalLessons: 4
-    },
-    {
-      id: "3",
-      levelNumber: 3,
-      title: "React + TypeScript",
-      description: "Build type-safe React applications with TypeScript for better component design",
-      isLocked: true,
-      isCompleted: false,
-      completionPercentage: 0,
-      totalLessons: 5
-    }
-  ];
+      completionPercentage,
+      totalLessons: 3, // Hardcoded for now
+    };
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -47,7 +57,7 @@ export default function Levels() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {levels.map((level) => (
+          {levelsWithProgress.map((level) => (
             <LevelCard
               key={level.id}
               {...level}
