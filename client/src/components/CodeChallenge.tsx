@@ -26,6 +26,7 @@ export default function CodeChallenge({
   const [isCorrect, setIsCorrect] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [feedback, setFeedback] = useState<string>("");
+  const [hasProgressed, setHasProgressed] = useState(false);
 
   const validateCode = () => {
     const allPatternsMatch = validationPatterns.every(pattern => 
@@ -36,6 +37,8 @@ export default function CodeChallenge({
   };
 
   const handleRun = () => {
+    if (hasProgressed) return;
+    
     setIsSubmitted(true);
     const correct = validateCode();
     setIsCorrect(correct);
@@ -47,9 +50,12 @@ export default function CodeChallenge({
       setFeedback("Your code doesn't quite match the requirements. Make sure you're using the correct TypeScript syntax.");
       console.log('Code challenge needs revision');
     }
-    
-    if (onComplete) {
-      onComplete(correct);
+  };
+
+  const handleContinue = () => {
+    if (onComplete && isSubmitted && isCorrect && !hasProgressed) {
+      setHasProgressed(true);
+      onComplete(true);
     }
   };
 
@@ -59,6 +65,7 @@ export default function CodeChallenge({
     setIsCorrect(false);
     setFeedback("");
     setShowHint(false);
+    setHasProgressed(false);
   };
 
   return (
@@ -71,7 +78,7 @@ export default function CodeChallenge({
         <div className="relative">
           <Textarea
             value={code}
-            onChange={(e) => !isSubmitted && setCode(e.target.value)}
+            onChange={(e) => setCode(e.target.value)}
             className="font-mono text-sm min-h-[200px] resize-none"
             placeholder="Write your TypeScript code here..."
             disabled={isSubmitted && isCorrect}
@@ -83,7 +90,17 @@ export default function CodeChallenge({
         </div>
 
         <div className="flex gap-2">
-          {!isSubmitted || !isCorrect ? (
+          {isSubmitted && isCorrect ? (
+            <Button 
+              variant="default" 
+              className="w-full" 
+              onClick={handleContinue}
+              disabled={hasProgressed}
+              data-testid="button-continue-code"
+            >
+              {hasProgressed ? "Continuing..." : "Continue"}
+            </Button>
+          ) : (
             <>
               <Button
                 onClick={handleRun}
@@ -101,7 +118,7 @@ export default function CodeChallenge({
               >
                 <HelpCircle className="w-4 h-4" />
               </Button>
-              {isSubmitted && (
+              {isSubmitted && !hasProgressed && (
                 <Button
                   variant="outline"
                   onClick={handleReset}
@@ -111,11 +128,6 @@ export default function CodeChallenge({
                 </Button>
               )}
             </>
-          ) : (
-            <Button variant="default" className="w-full" disabled>
-              <CheckCircle2 className="w-4 h-4 mr-2" />
-              Completed
-            </Button>
           )}
         </div>
 
