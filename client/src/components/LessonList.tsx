@@ -38,7 +38,7 @@ export default function LessonList({ lessons, onLessonClick, currentLessonId }: 
                 disabled={lesson.isLocked}
                 data-testid={`button-lesson-${lesson.id}`}
               >
-                <div className="flex flex-col md:flex-row gap-3 flex-1 text-left">
+                <div className="flex flex-col md:flex-row lg:flex-col gap-3 flex-1 text-left">
                   <div className="flex items-center gap-3 md:flex-1">
                     {lesson.isCompleted ? (
                       <CheckCircle2 className="w-5 h-5 text-chart-2 flex-shrink-0" />
@@ -54,7 +54,7 @@ export default function LessonList({ lessons, onLessonClick, currentLessonId }: 
                       </div>
                     </div>
                   </div>
-                  <Badge variant="outline" className="flex-shrink-0 self-start md:self-center">
+                  <Badge variant="outline" className="flex-shrink-0 self-start md:self-center lg:self-start">
                     {lesson.challengeCount} challenges
                   </Badge>
                 </div>
