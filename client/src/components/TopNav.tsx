@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Trophy, User, LogOut, Sparkles } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { BookOpen, Trophy, User, LogOut, Sparkles, Menu } from "lucide-react";
 
 interface TopNavProps {
   userName?: string;
@@ -11,6 +13,7 @@ interface TopNavProps {
 
 export default function TopNav({ userName, totalXP = 0, onLogout }: TopNavProps) {
   const [location] = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: Trophy },
@@ -51,7 +54,64 @@ export default function TopNav({ userName, totalXP = 0, onLogout }: TopNavProps)
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="md:hidden"
+                  data-testid="button-mobile-menu"
+                >
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col gap-4 mt-6">
+                  {userName && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground pb-4 border-b" data-testid="text-username-mobile">
+                      <User className="w-4 h-4" />
+                      {userName}
+                    </div>
+                  )}
+                  
+                  {navItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = location === item.path;
+                    return (
+                      <Link key={item.path} href={item.path}>
+                        <Button 
+                          variant={isActive ? "secondary" : "ghost"}
+                          className="w-full justify-start gap-3"
+                          onClick={() => setMobileMenuOpen(false)}
+                          data-testid={`link-mobile-${item.label.toLowerCase()}`}
+                        >
+                          <Icon className="w-5 h-5" />
+                          {item.label}
+                        </Button>
+                      </Link>
+                    );
+                  })}
+                  
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-start gap-3 text-destructive hover:text-destructive"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onLogout?.();
+                    }}
+                    data-testid="button-mobile-logout"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    Logout
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+
             <Badge variant="secondary" className="gap-1 px-3 py-1.5" data-testid="badge-xp">
               <Trophy className="w-4 h-4 text-primary" />
               <span className="font-semibold">{totalXP} XP</span>
@@ -67,6 +127,7 @@ export default function TopNav({ userName, totalXP = 0, onLogout }: TopNavProps)
               variant="ghost" 
               size="icon"
               onClick={onLogout}
+              className="hidden md:flex"
               data-testid="button-logout"
             >
               <LogOut className="w-4 h-4" />
