@@ -24,7 +24,7 @@ export default function LessonContent({ title, content, isCompleted }: LessonCon
       </CardHeader>
       <CardContent className="prose prose-sm max-w-none dark:prose-invert">
         <div 
-          className="space-y-4 text-foreground"
+          className="space-y-4 text-foreground [&_pre]:bg-muted [&_pre]:p-4 [&_pre]:rounded-md [&_pre]:overflow-x-auto [&_code]:text-foreground [&_pre_code]:bg-transparent"
           dangerouslySetInnerHTML={{ __html: content }}
         />
       </CardContent>
