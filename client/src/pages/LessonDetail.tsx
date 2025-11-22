@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRoute } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
-import { getLessonsByLevel, getLesson, getChallengesByLesson, completeChallenge, getUserProgress, type Lesson } from "@/lib/api";
+import { getLessonsByLevel, getLesson, getChallengesByLesson, completeChallenge, completeLesson, getUserProgress, type Lesson } from "@/lib/api";
 import LessonContent from "@/components/LessonContent";
 import LessonList from "@/components/LessonList";
 import MultipleChoiceChallenge from "@/components/MultipleChoiceChallenge";
@@ -16,10 +16,19 @@ export default function LessonDetail() {
   const [, params] = useRoute("/level/:levelId/lesson/:lessonId");
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
   const [usedHintInLesson, setUsedHintInLesson] = useState(false);
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const { toast } = useToast();
 
   const lessonId = params?.lessonId || "";
   const levelId = params?.levelId || "";
+
+  useEffect(() => {
+    setCurrentChallengeIndex(0);
+    setUsedHintInLesson(false);
+    setShowCompletion(false);
+    setIsTransitioning(false);
+  }, [lessonId]);
 
   const { data: lessons } = useQuery({
     queryKey: ["/api/levels", levelId, "lessons"],
@@ -57,6 +66,27 @@ export default function LessonDetail() {
     },
   });
 
+  const lessonMutation = useMutation({
+    mutationFn: (data: { lessonId: string; usedHint: boolean }) =>
+      completeLesson(data.lessonId, data.usedHint),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/progress"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      toast({
+        title: "Lesson completed!",
+        description: `You earned ${data.xpEarned || 20} XP`,
+      });
+      setShowCompletion(true);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to complete lesson. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   if (!lessons || !lesson || !challenges || !progress) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -77,25 +107,67 @@ export default function LessonDetail() {
   const currentChallenge = challenges[currentChallengeIndex];
   const isLessonCompleted = progress.some((p: any) => p.lessonId === lessonId);
 
-  const handleChallengeComplete = (correct: boolean, usedHint: boolean = false) => {
-    if (correct && currentChallenge) {
-      if (usedHint) {
-        setUsedHintInLesson(true);
-      }
+  const handleChallengeComplete = async (correct: boolean, usedHint: boolean = false) => {
+    if (!correct || !currentChallenge || isTransitioning) return;
+
+    setIsTransitioning(true);
+    const updatedUsedHint = usedHintInLesson || usedHint;
+    if (usedHint) {
+      setUsedHintInLesson(true);
+    }
+    
+    try {
+      await queryClient.refetchQueries({ queryKey: ["/api/progress"] });
+      const freshProgress = queryClient.getQueryData(["/api/progress"]) as any[];
       
-      const alreadyCompleted = progress.some((p: any) => p.challengeId === currentChallenge.id);
+      const alreadyCompleted = freshProgress?.some((p: any) => p.challengeId === currentChallenge.id);
       if (!alreadyCompleted) {
-        completeMutation.mutate({
-          challengeId: currentChallenge.id,
-          usedHint,
+        await new Promise<void>((resolve, reject) => {
+          completeMutation.mutate(
+            {
+              challengeId: currentChallenge.id,
+              usedHint,
+            },
+            {
+              onSuccess: () => resolve(),
+              onError: (error) => reject(error),
+            }
+          );
         });
       }
 
-      if (currentChallengeIndex < challenges.length - 1) {
-        setTimeout(() => {
-          setCurrentChallengeIndex(currentChallengeIndex + 1);
-        }, 2000);
+      const isLastChallenge = currentChallengeIndex === challenges.length - 1;
+
+      if (!isLastChallenge) {
+        setCurrentChallengeIndex(prev => prev + 1);
+        setIsTransitioning(false);
+      } else {
+        const lessonAlreadyCompleted = freshProgress?.some((p: any) => p.lessonId === lessonId);
+        if (!lessonAlreadyCompleted) {
+          await new Promise<void>((resolve, reject) => {
+            lessonMutation.mutate(
+              {
+                lessonId,
+                usedHint: updatedUsedHint,
+              },
+              {
+                onSuccess: () => resolve(),
+                onError: (error) => reject(error),
+              }
+            );
+          });
+        } else {
+          setShowCompletion(true);
+        }
+        setIsTransitioning(false);
       }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to complete challenge. Please try again.",
+        variant: "destructive",
+      });
+      setIsTransitioning(false);
     }
   };
 
@@ -125,9 +197,36 @@ export default function LessonDetail() {
               isCompleted={isLessonCompleted}
             />
 
-            {currentChallenge && (
+            {showCompletion ? (
               <div className="space-y-6">
-                {currentChallenge.type === "multiple-choice" && currentChallenge.options && currentChallenge.correctAnswer !== null ? (
+                <div className="p-8 rounded-lg border-2 border-chart-2 bg-chart-2/10 text-center">
+                  <h2 className="text-2xl font-bold mb-2">Lesson Complete!</h2>
+                  <p className="text-muted-foreground mb-6">
+                    Great work! You've completed all challenges in this lesson.
+                  </p>
+                  <div className="flex gap-4 justify-center">
+                    <Link href={`/levels`}>
+                      <Button variant="outline" data-testid="button-back-levels">
+                        Back to Levels
+                      </Button>
+                    </Link>
+                    {lessons && lessonId && (() => {
+                      const currentIndex = lessons.findIndex((l: Lesson) => l.id === lessonId);
+                      const nextLesson = lessons[currentIndex + 1];
+                      return nextLesson ? (
+                        <Link href={`/level/${levelId}/lesson/${nextLesson.id}`}>
+                          <Button data-testid="button-next-lesson">
+                            Next Lesson
+                          </Button>
+                        </Link>
+                      ) : null;
+                    })()}
+                  </div>
+                </div>
+              </div>
+            ) : currentChallenge && (
+              <div className="space-y-6">
+                {currentChallenge.type === "multiple-choice" && currentChallenge.options && currentChallenge.correctAnswer !== undefined && currentChallenge.correctAnswer !== null ? (
                   <MultipleChoiceChallenge
                     question={currentChallenge.prompt}
                     options={currentChallenge.options}
