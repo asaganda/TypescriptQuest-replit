@@ -30,8 +30,11 @@ export default function MultipleChoiceChallenge({
     setIsSubmitted(true);
     const isCorrect = selectedAnswer === correctAnswer;
     console.log('Answer submitted:', isCorrect ? 'Correct!' : 'Incorrect');
-    
-    if (onComplete) {
+  };
+
+  const handleContinue = () => {
+    if (onComplete && isSubmitted && selectedAnswer !== null) {
+      const isCorrect = selectedAnswer === correctAnswer;
       onComplete(isCorrect);
     }
   };
@@ -115,23 +118,32 @@ export default function MultipleChoiceChallenge({
         )}
 
         {isSubmitted && (
-          <div className={`p-4 rounded-md ${isCorrect ? "bg-chart-2/10" : "bg-destructive/10"}`}>
-            <div className="flex items-start gap-2 mb-2">
-              {isCorrect ? (
-                <CheckCircle2 className="w-5 h-5 text-chart-2 mt-0.5" />
-              ) : (
-                <XCircle className="w-5 h-5 text-destructive mt-0.5" />
-              )}
-              <div>
-                <p className="font-semibold">
-                  {isCorrect ? "Correct! +30 XP" : "Not quite right"}
-                </p>
-                {explanation && (
-                  <p className="text-sm text-muted-foreground mt-1">{explanation}</p>
+          <>
+            <div className={`p-4 rounded-md ${isCorrect ? "bg-chart-2/10" : "bg-destructive/10"}`}>
+              <div className="flex items-start gap-2 mb-2">
+                {isCorrect ? (
+                  <CheckCircle2 className="w-5 h-5 text-chart-2 mt-0.5" />
+                ) : (
+                  <XCircle className="w-5 h-5 text-destructive mt-0.5" />
                 )}
+                <div>
+                  <p className="font-semibold">
+                    {isCorrect ? "Correct! +30 XP" : "Not quite right"}
+                  </p>
+                  {explanation && (
+                    <p className="text-sm text-muted-foreground mt-1">{explanation}</p>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+            <Button
+              onClick={handleContinue}
+              className="w-full"
+              data-testid="button-continue"
+            >
+              Continue
+            </Button>
+          </>
         )}
       </CardContent>
     </Card>
