@@ -38,21 +38,23 @@ export default function LessonList({ lessons, onLessonClick, currentLessonId }: 
                 disabled={lesson.isLocked}
                 data-testid={`button-lesson-${lesson.id}`}
               >
-                <div className="flex flex-wrap items-center gap-3 flex-1 text-left">
-                  {lesson.isCompleted ? (
-                    <CheckCircle2 className="w-5 h-5 text-chart-2 flex-shrink-0" />
-                  ) : lesson.isLocked ? (
-                    <Lock className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                  ) : (
-                    <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium">{lesson.title}</div>
-                    <div className="text-xs text-muted-foreground line-clamp-1">
-                      {lesson.description}
+                <div className="flex flex-col md:flex-row gap-3 flex-1 text-left">
+                  <div className="flex items-center gap-3 md:flex-1">
+                    {lesson.isCompleted ? (
+                      <CheckCircle2 className="w-5 h-5 text-chart-2 flex-shrink-0" />
+                    ) : lesson.isLocked ? (
+                      <Lock className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                    ) : (
+                      <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium">{lesson.title}</div>
+                      <div className="text-xs text-muted-foreground line-clamp-1">
+                        {lesson.description}
+                      </div>
                     </div>
                   </div>
-                  <Badge variant="outline" className="flex-shrink-0">
+                  <Badge variant="outline" className="flex-shrink-0 self-start md:self-center">
                     {lesson.challengeCount} challenges
                   </Badge>
                 </div>
