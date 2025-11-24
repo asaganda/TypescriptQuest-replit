@@ -4,6 +4,9 @@ import {
   lessons, 
   challenges, 
   badges,
+  userBadges,
+  userProgress,
+  userStats,
   type InsertLevel,
   type InsertLesson,
   type InsertChallenge,
@@ -16,13 +19,19 @@ async function seed() {
 
   try {
     await db.transaction(async (tx) => {
-      // Check and seed each table independently for idempotence
+      // Clear existing data in correct order (respecting foreign keys)
+      console.log("Clearing existing data...");
+      await tx.delete(userBadges);     // References badges and users
+      await tx.delete(userProgress);   // References challenges, lessons, and users
+      await tx.delete(userStats);      // References users (reset stats when curriculum changes)
+      await tx.delete(challenges);     // References lessons
+      await tx.delete(lessons);        // References levels
+      await tx.delete(levels);         // No dependencies
+      await tx.delete(badges);         // No dependencies
+      console.log("✓ Existing data cleared");
 
-      // Seed levels (check if already seeded)
-      const existingLevels = await tx.select().from(levels);
-      if (existingLevels.length === 0) {
-        console.log("Seeding levels...");
-        const levelsData: InsertLevel[] = [
+      // Seed levels
+      const levelsData: InsertLevel[] = [
         {
           id: "1",
           name: "TypeScript Basics",
@@ -53,16 +62,11 @@ async function seed() {
         }
       ];
 
-        await tx.insert(levels).values(levelsData);
-        console.log("✓ Levels seeded");
-      } else {
-        console.log("✓ Levels already seeded, skipping");
-      }
+      await tx.insert(levels).values(levelsData);
+      console.log("✓ Levels seeded");
 
-      // Seed lessons (check if already seeded)
-      const existingLessons = await tx.select().from(lessons);
-      if (existingLessons.length === 0) {
-        console.log("Seeding lessons...");
+      // Seed lessons
+      console.log("Seeding lessons...");
         const lessonsData: InsertLesson[] = [
         {
           id: "1-1",
@@ -1137,16 +1141,11 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
         }
       ];
 
-        await tx.insert(lessons).values(lessonsData);
-        console.log("✓ Lessons seeded");
-      } else {
-        console.log("✓ Lessons already seeded, skipping");
-      }
+      await tx.insert(lessons).values(lessonsData);
+      console.log("✓ Lessons seeded");
 
-      // Seed challenges (check if already seeded)
-      const existingChallenges = await tx.select().from(challenges);
-      if (existingChallenges.length === 0) {
-        console.log("Seeding challenges...");
+      // Seed challenges
+      console.log("Seeding challenges...");
         const challengesData: InsertChallenge[] = [
         // Lesson 1-1 challenges
         {
@@ -1833,17 +1832,12 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
         }
       ];
 
-        await tx.insert(challenges).values(challengesData);
-        console.log("✓ Challenges seeded");
-      } else {
-        console.log("✓ Challenges already seeded, skipping");
-      }
+      await tx.insert(challenges).values(challengesData);
+      console.log("✓ Challenges seeded");
 
-      // Seed badges (check if already seeded)
-      const existingBadges = await tx.select().from(badges);
-      if (existingBadges.length === 0) {
-        console.log("Seeding badges...");
-        const badgesData: InsertBadge[] = [
+      // Seed badges
+      console.log("Seeding badges...");
+      const badgesData: InsertBadge[] = [
         { id: "first-lesson", name: "First Steps", description: "Complete your first lesson", icon: "book" },
         { id: "five-challenges", name: "Problem Solver", description: "Solve 5 challenges", icon: "zap" },
         { id: "no-hints", name: "Pure Skill", description: "Complete a lesson without using hints", icon: "trophy" },
@@ -1852,11 +1846,8 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
         { id: "level-master", name: "Level Master", description: "Complete all lessons in a level", icon: "trophy" }
       ];
 
-        await tx.insert(badges).values(badgesData);
-        console.log("✓ Badges seeded");
-      } else {
-        console.log("✓ Badges already seeded, skipping");
-      }
+      await tx.insert(badges).values(badgesData);
+      console.log("✓ Badges seeded");
     });
 
     console.log("✅ Database seeding completed successfully!");
