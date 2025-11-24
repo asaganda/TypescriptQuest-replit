@@ -14,6 +14,7 @@ interface LevelCardProps {
   isCompleted: boolean;
   completionPercentage: number;
   totalLessons: number;
+  nextLessonId?: string | null;
   onClick?: () => void;
 }
 
@@ -26,8 +27,10 @@ export default function LevelCard({
   isCompleted,
   completionPercentage,
   totalLessons,
+  nextLessonId,
   onClick
 }: LevelCardProps) {
+  const lessonToStart = nextLessonId || `${id}-1`;
   return (
     <Card 
       className={`${isLocked ? "opacity-60" : "hover-elevate"} relative`}
@@ -65,7 +68,7 @@ export default function LevelCard({
           <Progress value={completionPercentage} className="h-2" data-testid={`progress-level-${id}`} />
         </div>
         
-        <Link href={`/level/${id}/lesson/${id}-1`}>
+        <Link href={`/level/${id}/lesson/${lessonToStart}`}>
           <Button 
             className="w-full gap-2" 
             disabled={isLocked}

@@ -23,13 +23,6 @@ export default function LessonDetail() {
   const lessonId = params?.lessonId || "";
   const levelId = params?.levelId || "";
 
-  useEffect(() => {
-    setCurrentChallengeIndex(0);
-    setUsedHintInLesson(false);
-    setShowCompletion(false);
-    setIsTransitioning(false);
-  }, [lessonId]);
-
   const { data: lessons } = useQuery({
     queryKey: ["/api/levels", levelId, "lessons"],
     queryFn: () => getLessonsByLevel(levelId),
@@ -52,6 +45,32 @@ export default function LessonDetail() {
     queryKey: ["/api/progress"],
     queryFn: getUserProgress,
   });
+
+  useEffect(() => {
+    if (!challenges || !progress) {
+      setCurrentChallengeIndex(0);
+      setUsedHintInLesson(false);
+      setShowCompletion(false);
+      setIsTransitioning(false);
+      return;
+    }
+
+    const firstIncompleteIndex = challenges.findIndex(
+      (challenge) => !progress.some((p) => p.challengeId === challenge.id)
+    );
+
+    if (firstIncompleteIndex === -1) {
+      setCurrentChallengeIndex(0);
+      const isLessonComplete = progress.some((p) => p.lessonId === lessonId);
+      setShowCompletion(isLessonComplete);
+    } else {
+      setCurrentChallengeIndex(firstIncompleteIndex);
+      setShowCompletion(false);
+    }
+    
+    setUsedHintInLesson(false);
+    setIsTransitioning(false);
+  }, [lessonId, challenges, progress]);
 
   const completeMutation = useMutation({
     mutationFn: (data: { challengeId: string; usedHint: boolean }) =>
