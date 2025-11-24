@@ -114,14 +114,17 @@ export default function LessonDetail() {
     );
   }
 
-  const lessonsWithStatus = lessons.map((l: Lesson) => ({
-    id: l.id,
-    title: l.title,
-    description: l.description,
-    isCompleted: progress.some((p: any) => p.lessonId === l.id),
-    isLocked: false,
-    challengeCount: 2,
-  }));
+  const lessonsWithStatus = lessons.map((l: Lesson) => {
+    const lessonCompleted = progress.some((p: any) => p.lessonId === l.id);
+    return {
+      id: l.id,
+      title: l.title,
+      description: l.description,
+      isCompleted: lessonCompleted,
+      isLocked: false,
+      challengeCount: l.id === lessonId ? challenges.length : 3,
+    };
+  });
 
   const currentChallenge = challenges[currentChallengeIndex];
   const isLessonCompleted = progress.some((p: any) => p.lessonId === lessonId);
