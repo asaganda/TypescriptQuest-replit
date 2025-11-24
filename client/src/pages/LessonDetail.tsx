@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useRoute } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { getLessonsByLevel, getLesson, getChallengesByLesson, completeChallenge, completeLesson, getUserProgress, type Lesson } from "@/lib/api";
@@ -14,10 +14,12 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function LessonDetail() {
   const [, params] = useRoute("/level/:levelId/lesson/:lessonId");
+  const [, setLocation] = useLocation();
   const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
   const [usedHintInLesson, setUsedHintInLesson] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [lessonChallenges, setLessonChallenges] = useState<Record<string, string[]>>({});
   const { toast } = useToast();
 
   const lessonId = params?.lessonId || "";
@@ -47,6 +49,33 @@ export default function LessonDetail() {
   });
 
   useEffect(() => {
+    async function fetchAllLessonChallenges() {
+      if (!lessons) return;
+      
+      const challengeMap: Record<string, string[]> = {};
+      await Promise.all(
+        lessons.map(async (lesson: Lesson) => {
+          try {
+            const cached = queryClient.getQueryData(["/api/lessons", lesson.id, "challenges"]);
+            if (cached) {
+              challengeMap[lesson.id] = (cached as any[]).map((c: any) => c.id);
+            } else {
+              const challenges = await getChallengesByLesson(lesson.id);
+              challengeMap[lesson.id] = challenges.map(c => c.id);
+            }
+          } catch (error) {
+            console.error(`Failed to fetch challenges for lesson ${lesson.id}:`, error);
+            challengeMap[lesson.id] = [];
+          }
+        })
+      );
+      setLessonChallenges(challengeMap);
+    }
+
+    fetchAllLessonChallenges();
+  }, [lessons]);
+
+  useEffect(() => {
     if (!challenges || !progress) {
       setCurrentChallengeIndex(0);
       setUsedHintInLesson(false);
@@ -61,8 +90,10 @@ export default function LessonDetail() {
 
     if (firstIncompleteIndex === -1) {
       setCurrentChallengeIndex(0);
-      const isLessonComplete = progress.some((p) => p.lessonId === lessonId);
-      setShowCompletion(isLessonComplete);
+      const allChallengesComplete = challenges.every(challenge =>
+        progress.some((p) => p.challengeId === challenge.id)
+      );
+      setShowCompletion(allChallengesComplete);
     } else {
       setCurrentChallengeIndex(firstIncompleteIndex);
       setShowCompletion(false);
@@ -115,19 +146,28 @@ export default function LessonDetail() {
   }
 
   const lessonsWithStatus = lessons.map((l: Lesson) => {
-    const lessonCompleted = progress.some((p: any) => p.lessonId === l.id);
+    const lessonChallengeIds = lessonChallenges[l.id] || [];
+    const lessonCompleted = lessonChallengeIds.length > 0 && 
+      lessonChallengeIds.every(challengeId => 
+        progress.some((p: any) => p.challengeId === challengeId)
+      );
+    
     return {
       id: l.id,
       title: l.title,
       description: l.description,
       isCompleted: lessonCompleted,
       isLocked: false,
-      challengeCount: l.id === lessonId ? challenges.length : 3,
+      challengeCount: lessonChallengeIds.length || 3,
     };
   });
 
   const currentChallenge = challenges[currentChallengeIndex];
-  const isLessonCompleted = progress.some((p: any) => p.lessonId === lessonId);
+  const currentLessonChallengeIds = challenges.map(c => c.id);
+  const isLessonCompleted = currentLessonChallengeIds.length > 0 && 
+    currentLessonChallengeIds.every(challengeId => 
+      progress.some((p: any) => p.challengeId === challengeId)
+    );
 
   const handleChallengeComplete = async (correct: boolean, usedHint: boolean = false) => {
     if (!correct || !currentChallenge || isTransitioning) return;
@@ -164,8 +204,13 @@ export default function LessonDetail() {
         setCurrentChallengeIndex(prev => prev + 1);
         setIsTransitioning(false);
       } else {
+        const allChallengesComplete = currentLessonChallengeIds.every(challengeId => 
+          freshProgress?.some((p: any) => p.challengeId === challengeId)
+        );
+        
         const lessonAlreadyCompleted = freshProgress?.some((p: any) => p.lessonId === lessonId);
-        if (!lessonAlreadyCompleted) {
+        
+        if (allChallengesComplete && !lessonAlreadyCompleted) {
           await new Promise<void>((resolve, reject) => {
             lessonMutation.mutate(
               {
@@ -207,7 +252,13 @@ export default function LessonDetail() {
           <div className="lg:col-span-1 space-y-4">
             <LessonList
               lessons={lessonsWithStatus}
-              onLessonClick={(id) => console.log('Lesson clicked:', id)}
+              onLessonClick={(id) => {
+                setCurrentChallengeIndex(0);
+                setShowCompletion(false);
+                setIsTransitioning(false);
+                setUsedHintInLesson(false);
+                setLocation(`/level/${levelId}/lesson/${id}`);
+              }}
               currentLessonId={lessonId}
             />
           </div>
