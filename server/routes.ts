@@ -5,6 +5,7 @@ import { insertUserSchema } from "@shared/schema";
 import bcrypt from "bcryptjs";
 import session from "express-session";
 import { z } from "zod";
+import { calculateLevel } from "@shared/xp-utils";
 
 // Extend session data
 declare module "express-session" {
@@ -57,6 +58,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...data,
         password: hashedPassword,
       });
+
+      // Create initial user stats only if they don't exist
+      const existingStats = await storage.getUserStats(user.id);
+      if (!existingStats) {
+        await storage.createUserStats({
+          userId: user.id,
+          totalXP: 0,
+          currentLevel: 1,
+          lessonsCompleted: 0,
+          challengesCompleted: 0,
+        });
+      }
 
       // Set session and save it before responding
       req.session.userId = user.id;
@@ -252,7 +265,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const stats = await storage.getUserStats(userId);
       if (stats) {
         const newTotalXP = stats.totalXP + lesson.xpReward;
-        const newCurrentLevel = newTotalXP >= 500 ? 3 : newTotalXP >= 200 ? 2 : 1;
+        const newCurrentLevel = calculateLevel(newTotalXP);
         
         await storage.updateUserStats(userId, {
           totalXP: newTotalXP,
@@ -316,7 +329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const stats = await storage.getUserStats(userId);
       if (stats) {
         const newTotalXP = stats.totalXP + challenge.xpReward;
-        const newCurrentLevel = newTotalXP >= 500 ? 3 : newTotalXP >= 200 ? 2 : 1;
+        const newCurrentLevel = calculateLevel(newTotalXP);
         
         await storage.updateUserStats(userId, {
           totalXP: newTotalXP,
@@ -348,12 +361,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get("/api/stats", requireAuth, async (req, res) => {
     try {
-      const stats = await storage.getUserStats(req.session.userId!);
+      let stats = await storage.getUserStats(req.session.userId!);
+      
+      // Auto-create stats for users who don't have them yet
       if (!stats) {
-        return res.status(404).json({ error: "Stats not found" });
+        try {
+          stats = await storage.createUserStats({
+            userId: req.session.userId!,
+            totalXP: 0,
+            currentLevel: 1,
+            lessonsCompleted: 0,
+            challengesCompleted: 0,
+          });
+        } catch (createError: any) {
+          // If stats creation fails (e.g., duplicate key), try fetching again
+          // This handles race conditions where stats were created between checks
+          stats = await storage.getUserStats(req.session.userId!);
+          if (!stats) {
+            throw createError; // Re-throw if stats still don't exist
+          }
+        }
       }
+      
       res.json(stats);
     } catch (error) {
+      console.error("Error fetching user stats:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });

@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { BookOpen, Code, Trophy, Award } from "lucide-react";
+import { XP_THRESHOLDS } from "@shared/xp-utils";
 
 interface DashboardStatsProps {
   totalXP: number;
@@ -19,7 +20,31 @@ export default function DashboardStats({
   challengesCompleted,
   badgesEarned
 }: DashboardStatsProps) {
-  const progressPercentage = (totalXP / xpToNextLevel) * 100;
+  // Calculate XP progress within current level
+  const currentLevelIndex = currentLevel - 1;
+  const currentLevelStartXP = XP_THRESHOLDS[currentLevelIndex] || 0;
+  const isMaxLevel = currentLevel >= XP_THRESHOLDS.length;
+  
+  // Handle max level case
+  let xpEarnedInLevel: number;
+  let xpRangeForLevel: number;
+  let xpNeededForNextLevel: number;
+  let progressPercentage: number;
+  
+  if (isMaxLevel) {
+    // User is at max level - show 100% completion with normalized values
+    const xpInLevel = totalXP - currentLevelStartXP;
+    xpEarnedInLevel = xpInLevel || 1; // Normalize to at least 1 for display
+    xpRangeForLevel = xpInLevel || 1; // Same as earned to show full completion
+    xpNeededForNextLevel = 0;
+    progressPercentage = 100;
+  } else {
+    // Normal level progression
+    xpEarnedInLevel = totalXP - currentLevelStartXP;
+    xpRangeForLevel = xpToNextLevel - currentLevelStartXP;
+    xpNeededForNextLevel = Math.max(0, xpToNextLevel - totalXP);
+    progressPercentage = Math.max(0, Math.min(100, (xpEarnedInLevel / xpRangeForLevel) * 100));
+  }
 
   const stats = [
     {
@@ -73,16 +98,25 @@ export default function DashboardStats({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Progress to Level {currentLevel + 1}</CardTitle>
+          <CardTitle className="text-lg">
+            {isMaxLevel ? "Max Level Achieved!" : `Progress to Level ${currentLevel + 1}`}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Level {currentLevel}</span>
-            <span className="font-semibold">{totalXP} / {xpToNextLevel} XP</span>
+            {isMaxLevel ? (
+              <span className="font-semibold">{totalXP} XP Total</span>
+            ) : (
+              <span className="font-semibold">{xpEarnedInLevel} / {xpRangeForLevel} XP</span>
+            )}
           </div>
           <Progress value={progressPercentage} className="h-3" data-testid="progress-level" />
           <p className="text-sm text-muted-foreground">
-            {xpToNextLevel - totalXP} XP needed to unlock the next level
+            {isMaxLevel 
+              ? "You've mastered all levels! Keep learning and earning XP."
+              : `${xpNeededForNextLevel} XP needed to unlock the next level`
+            }
           </p>
         </CardContent>
       </Card>

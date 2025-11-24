@@ -3,6 +3,7 @@ import BadgeShowcase from "@/components/BadgeShowcase";
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { getUserStats, getBadges } from "@/lib/api";
+import { XP_THRESHOLDS } from "@shared/xp-utils";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -25,9 +26,9 @@ export default function Dashboard() {
     );
   }
 
-  const xpThresholds = [0, 200, 500];
+  // Calculate XP threshold for next level
   const currentLevelIndex = stats.currentLevel - 1;
-  const nextLevelXP = xpThresholds[currentLevelIndex + 1] || 1000;
+  const nextLevelThreshold = XP_THRESHOLDS[currentLevelIndex + 1] || XP_THRESHOLDS[XP_THRESHOLDS.length - 1];
   const badgesEarned = badges.filter(b => b.earned).length;
 
   const badgesForShowcase = badges.map(badge => ({
@@ -52,7 +53,7 @@ export default function Dashboard() {
 
         <DashboardStats
           totalXP={stats.totalXP}
-          xpToNextLevel={nextLevelXP}
+          xpToNextLevel={nextLevelThreshold}
           currentLevel={stats.currentLevel}
           lessonsCompleted={stats.lessonsCompleted}
           challengesCompleted={stats.challengesCompleted}
