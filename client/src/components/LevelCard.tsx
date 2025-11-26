@@ -65,7 +65,7 @@ export default function LevelCard({
             <span className="text-muted-foreground">{totalLessons} lessons</span>
             <span className="font-semibold">{completionPercentage}%</span>
           </div>
-          <Progress value={completionPercentage} className="h-2" data-testid={`progress-level-${id}`} />
+          <Progress value={completionPercentage} className="h-2" style={{marginBottom: "1em"}} data-testid={`progress-level-${id}`} />
         </div>
         
         <Link href={`/level/${id}/lesson/${lessonToStart}`}>
