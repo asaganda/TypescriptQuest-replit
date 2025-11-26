@@ -76,6 +76,8 @@ Preferred communication style: Simple, everyday language.
 - **user_stats**: Aggregated user metrics (XP, current level, completion counts)
 - **badges**: Achievement definitions
 - **user_badges**: User achievement tracking
+- **subscriptions**: Stripe subscription data (customer ID, subscription ID, plan type, status)
+- **password_reset_tokens**: Secure tokens for password recovery
 
 **Storage Layer**: 
 - Interface-based abstraction (IStorage) for database operations
@@ -126,3 +128,26 @@ Preferred communication style: Simple, everyday language.
 - Badge system for achievements
 - Challenge validation patterns for code exercises
 - Completion tracking at lesson and challenge level
+
+## Recent Changes
+
+### 2025-11-25: Subscription & Password Reset Features Added
+
+**Stripe Integration** (requires manual setup):
+- Database schema added for subscriptions table
+- API endpoints created for checkout, webhooks, and subscription management
+- Frontend placeholder ready for pricing page
+- **Action Required**: User dismissed Replit Stripe connector - must manually add `STRIPE_SECRET_KEY` and `STRIPE_PUBLISHABLE_KEY` as secrets when ready to enable payments
+- Checkout and webhook endpoints currently return placeholder responses until API keys are configured
+
+**Password Reset Functionality**:
+- Secure token-based password reset system
+- Database schema for password reset tokens (1-hour expiration)
+- API endpoints: `/api/auth/reset-password/request` and `/api/auth/reset-password/confirm`
+- Reset tokens logged to console (in production, would be emailed)
+- Security best practices: tokens expire after 1 hour, single-use only
+
+**Technical Details**:
+- All subscription and password reset methods implemented in both DatabaseStorage (PostgreSQL) and MemStorage
+- Bcrypt used for password hashing and token generation
+- TypeScript types exported from shared/schema.ts

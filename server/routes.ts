@@ -410,6 +410,145 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============= SUBSCRIPTION ROUTES =============
+
+  // Get user subscription status
+  app.get("/api/subscription", requireAuth, async (req, res) => {
+    try {
+      const subscription = await storage.getSubscription(req.session.userId!);
+      res.json(subscription || { status: "inactive", planType: "free" });
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Create Stripe checkout session
+  app.post("/api/subscription/create-checkout", requireAuth, async (req, res) => {
+    try {
+      const { priceId, planType } = z.object({
+        priceId: z.string(),
+        planType: z.string(),
+      }).parse(req.body);
+
+      // TODO: When Stripe API key is available, create checkout session
+      // For now, return a placeholder response
+      res.json({ 
+        message: "Stripe integration pending - API key not configured yet",
+        checkoutUrl: null,
+        requiresSetup: true 
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Stripe webhook handler
+  app.post("/api/webhooks/stripe", async (req, res) => {
+    try {
+      // TODO: When Stripe API key is available, verify webhook signature
+      // For now, just acknowledge receipt
+      res.json({ received: true });
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Cancel subscription
+  app.post("/api/subscription/cancel", requireAuth, async (req, res) => {
+    try {
+      const subscription = await storage.getSubscription(req.session.userId!);
+      if (!subscription) {
+        return res.status(404).json({ error: "No active subscription" });
+      }
+
+      // TODO: When Stripe API key is available, cancel in Stripe
+      // For now, update local status
+      await storage.updateSubscription(req.session.userId!, {
+        cancelAtPeriodEnd: true,
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // ============= PASSWORD RESET ROUTES =============
+
+  // Request password reset
+  app.post("/api/auth/reset-password/request", async (req, res) => {
+    try {
+      const { email } = z.object({ email: z.string().email() }).parse(req.body);
+      
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        // Don't reveal if email exists - security best practice
+        return res.json({ success: true, message: "If an account exists, a reset link will be sent" });
+      }
+
+      // Generate secure token
+      const token = await bcrypt.hash(user.id + Date.now(), 10);
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+      await storage.createPasswordResetToken({
+        userId: user.id,
+        token,
+        expiresAt,
+        usedAt: null,
+      });
+
+      // TODO: Send email with reset link
+      // For now, log the token (in production, this would be emailed)
+      console.log(`Password reset token for ${email}: ${token}`);
+      console.log(`Reset link: /reset-password?token=${encodeURIComponent(token)}`);
+
+      res.json({ success: true, message: "If an account exists, a reset link will be sent" });
+    } catch (error) {
+      console.error("Password reset request error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Reset password with token
+  app.post("/api/auth/reset-password/confirm", async (req, res) => {
+    try {
+      const { token, newPassword } = z.object({
+        token: z.string(),
+        newPassword: z.string().min(6),
+      }).parse(req.body);
+
+      const resetToken = await storage.getPasswordResetToken(token);
+      if (!resetToken) {
+        return res.status(400).json({ error: "Invalid or expired reset token" });
+      }
+
+      if (resetToken.usedAt) {
+        return res.status(400).json({ error: "Reset token already used" });
+      }
+
+      if (new Date() > resetToken.expiresAt) {
+        return res.status(400).json({ error: "Reset token expired" });
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update user password
+      await storage.updateUserPassword(resetToken.userId, hashedPassword);
+
+      // Mark token as used
+      await storage.markPasswordResetTokenUsed(token);
+
+      res.json({ success: true, message: "Password reset successfully" });
+    } catch (error) {
+      console.error("Password reset confirm error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

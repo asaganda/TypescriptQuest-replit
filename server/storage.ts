@@ -15,6 +15,10 @@ import {
   type InsertBadge,
   type UserBadge,
   type InsertUserBadge,
+  type Subscription,
+  type InsertSubscription,
+  type PasswordResetToken,
+  type InsertPasswordResetToken,
   users,
   levels,
   lessons,
@@ -22,7 +26,9 @@ import {
   userProgress as userProgressTable,
   userStats as userStatsTable,
   badges,
-  userBadges as userBadgesTable
+  userBadges as userBadgesTable,
+  subscriptions,
+  passwordResetTokens
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -61,6 +67,17 @@ export interface IStorage {
   getAllBadges(): Promise<Badge[]>;
   getUserBadges(userId: string): Promise<UserBadge[]>;
   awardBadge(userBadge: InsertUserBadge): Promise<UserBadge>;
+  
+  // Subscription methods
+  getSubscription(userId: string): Promise<Subscription | undefined>;
+  createSubscription(subscription: InsertSubscription): Promise<Subscription>;
+  updateSubscription(userId: string, updates: Partial<Subscription>): Promise<Subscription>;
+  
+  // Password reset methods
+  createPasswordResetToken(token: InsertPasswordResetToken): Promise<PasswordResetToken>;
+  getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
+  markPasswordResetTokenUsed(token: string): Promise<void>;
+  updateUserPassword(userId: string, hashedPassword: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -208,6 +225,55 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return userBadge;
   }
+
+  // Subscription methods
+  async getSubscription(userId: string): Promise<Subscription | undefined> {
+    const [subscription] = await db.select().from(subscriptions).where(eq(subscriptions.userId, userId));
+    return subscription;
+  }
+
+  async createSubscription(insertSubscription: InsertSubscription): Promise<Subscription> {
+    const id = randomUUID();
+    const [subscription] = await db.insert(subscriptions)
+      .values({ ...insertSubscription, id })
+      .returning();
+    return subscription;
+  }
+
+  async updateSubscription(userId: string, updates: Partial<Subscription>): Promise<Subscription> {
+    const [subscription] = await db.update(subscriptions)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(subscriptions.userId, userId))
+      .returning();
+    return subscription;
+  }
+
+  // Password reset methods
+  async createPasswordResetToken(insertToken: InsertPasswordResetToken): Promise<PasswordResetToken> {
+    const id = randomUUID();
+    const [token] = await db.insert(passwordResetTokens)
+      .values({ ...insertToken, id })
+      .returning();
+    return token;
+  }
+
+  async getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined> {
+    const [resetToken] = await db.select().from(passwordResetTokens)
+      .where(eq(passwordResetTokens.token, token));
+    return resetToken;
+  }
+
+  async markPasswordResetTokenUsed(token: string): Promise<void> {
+    await db.update(passwordResetTokens)
+      .set({ usedAt: new Date() })
+      .where(eq(passwordResetTokens.token, token));
+  }
+
+  async updateUserPassword(userId: string, hashedPassword: string): Promise<void> {
+    await db.update(users)
+      .set({ password: hashedPassword })
+      .where(eq(users.id, userId));
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -219,6 +285,8 @@ export class MemStorage implements IStorage {
   private userStats: Map<string, UserStats>;
   private badges: Map<string, Badge>;
   private userBadges: Map<string, UserBadge>;
+  private subscriptions: Map<string, Subscription>;
+  private passwordResetTokens: Map<string, PasswordResetToken>;
 
   constructor() {
     this.users = new Map();
@@ -229,6 +297,8 @@ export class MemStorage implements IStorage {
     this.userStats = new Map();
     this.badges = new Map();
     this.userBadges = new Map();
+    this.subscriptions = new Map();
+    this.passwordResetTokens = new Map();
     
     this.seedData();
   }
@@ -615,6 +685,78 @@ const staff: Staff = {
     };
     this.userBadges.set(id, userBadge);
     return userBadge;
+  }
+
+  // Subscription methods
+  async getSubscription(userId: string): Promise<Subscription | undefined> {
+    return Array.from(this.subscriptions.values())
+      .find(sub => sub.userId === userId);
+  }
+
+  async createSubscription(insertSubscription: InsertSubscription): Promise<Subscription> {
+    const id = randomUUID();
+    const subscription: Subscription = {
+      ...insertSubscription,
+      id,
+      stripeCustomerId: insertSubscription.stripeCustomerId ?? null,
+      stripeSubscriptionId: insertSubscription.stripeSubscriptionId ?? null,
+      stripePriceId: insertSubscription.stripePriceId ?? null,
+      planType: insertSubscription.planType ?? null,
+      currentPeriodEnd: insertSubscription.currentPeriodEnd ?? null,
+      cancelAtPeriodEnd: insertSubscription.cancelAtPeriodEnd ?? false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.subscriptions.set(id, subscription);
+    return subscription;
+  }
+
+  async updateSubscription(userId: string, updates: Partial<Subscription>): Promise<Subscription> {
+    const existing = await this.getSubscription(userId);
+    if (!existing) {
+      throw new Error("Subscription not found");
+    }
+    const updated: Subscription = {
+      ...existing,
+      ...updates,
+      updatedAt: new Date()
+    };
+    this.subscriptions.set(existing.id, updated);
+    return updated;
+  }
+
+  // Password reset methods
+  async createPasswordResetToken(insertToken: InsertPasswordResetToken): Promise<PasswordResetToken> {
+    const id = randomUUID();
+    const token: PasswordResetToken = {
+      ...insertToken,
+      id,
+      usedAt: insertToken.usedAt ?? null,
+      createdAt: new Date()
+    };
+    this.passwordResetTokens.set(id, token);
+    return token;
+  }
+
+  async getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined> {
+    return Array.from(this.passwordResetTokens.values())
+      .find(t => t.token === token);
+  }
+
+  async markPasswordResetTokenUsed(token: string): Promise<void> {
+    const resetToken = await this.getPasswordResetToken(token);
+    if (resetToken) {
+      resetToken.usedAt = new Date();
+      this.passwordResetTokens.set(resetToken.id, resetToken);
+    }
+  }
+
+  async updateUserPassword(userId: string, hashedPassword: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.password = hashedPassword;
+      this.users.set(userId, user);
+    }
   }
 }
 
