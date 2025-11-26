@@ -107,8 +107,8 @@ export default function ResetPassword() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Invalid Reset Link</CardTitle>
-            <CardDescription>
+            <CardTitle data-testid="text-invalid-title">Invalid Reset Link</CardTitle>
+            <CardDescription data-testid="text-invalid-description">
               This password reset link is invalid or has expired. Please request a new one.
             </CardDescription>
           </CardHeader>
@@ -130,8 +130,8 @@ export default function ResetPassword() {
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/20 mx-auto mb-4">
               <CheckCircle2 className="w-6 h-6 text-green-600 dark:text-green-400" />
             </div>
-            <CardTitle className="text-center">Password Reset Successfully</CardTitle>
-            <CardDescription className="text-center">
+            <CardTitle className="text-center" data-testid="text-success-title">Password Reset Successfully</CardTitle>
+            <CardDescription className="text-center" data-testid="text-success-description">
               Redirecting you to login...
             </CardDescription>
           </CardHeader>
@@ -144,8 +144,8 @@ export default function ResetPassword() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Reset Your Password</CardTitle>
-          <CardDescription>
+          <CardTitle data-testid="text-page-title">Reset Your Password</CardTitle>
+          <CardDescription data-testid="text-page-description">
             Enter your new password below
           </CardDescription>
         </CardHeader>

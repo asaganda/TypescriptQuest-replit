@@ -71,8 +71,8 @@ export default function Pricing() {
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold mb-4" data-testid="text-page-title">Choose Your Plan</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto" data-testid="text-page-subtitle">
             Start learning TypeScript for free, or unlock all content with Pro
           </p>
         </div>
@@ -85,22 +85,22 @@ export default function Pricing() {
               data-testid={`card-plan-${plan.name.toLowerCase().replace(" ", "-")}`}
             >
               {plan.highlighted && (
-                <div className="bg-primary text-primary-foreground text-center py-1 text-sm font-semibold rounded-t-md">
+                <div className="bg-primary text-primary-foreground text-center py-1 text-sm font-semibold rounded-t-md" data-testid="text-most-popular">
                   Most Popular
                 </div>
               )}
               <CardHeader>
-                <CardTitle>{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
+                <CardTitle data-testid={`text-plan-name-${plan.name.toLowerCase().replace(" ", "-")}`}>{plan.name}</CardTitle>
+                <CardDescription data-testid={`text-plan-description-${plan.name.toLowerCase().replace(" ", "-")}`}>{plan.description}</CardDescription>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className="text-muted-foreground ml-2">/{plan.period}</span>
+                  <span className="text-4xl font-bold" data-testid={`text-plan-price-${plan.name.toLowerCase().replace(" ", "-")}`}>{plan.price}</span>
+                  <span className="text-muted-foreground ml-2" data-testid={`text-plan-period-${plan.name.toLowerCase().replace(" ", "-")}`}>/{plan.period}</span>
                 </div>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3 mb-6">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2">
+                  {plan.features.map((feature, index) => (
+                    <li key={feature} className="flex items-start gap-2" data-testid={`text-feature-${plan.name.toLowerCase().replace(" ", "-")}-${index}`}>
                       <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                       <span className="text-sm">{feature}</span>
                     </li>
@@ -121,8 +121,8 @@ export default function Pricing() {
         </div>
 
         <div className="bg-muted rounded-lg p-6 text-center">
-          <h2 className="text-xl font-semibold mb-2">Setup Required</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-xl font-semibold mb-2" data-testid="text-setup-title">Setup Required</h2>
+          <p className="text-muted-foreground" data-testid="text-setup-description">
             Stripe integration is ready but requires API keys to be configured. 
             Add <code className="bg-background px-2 py-1 rounded text-sm">STRIPE_SECRET_KEY</code> and{" "}
             <code className="bg-background px-2 py-1 rounded text-sm">STRIPE_PUBLISHABLE_KEY</code> as secrets

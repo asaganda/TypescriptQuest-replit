@@ -80,8 +80,8 @@ export default function ForgotPassword() {
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mx-auto mb-4">
               <Mail className="w-6 h-6 text-primary" />
             </div>
-            <CardTitle className="text-center">Check Your Email</CardTitle>
-            <CardDescription className="text-center">
+            <CardTitle className="text-center" data-testid="text-success-title">Check Your Email</CardTitle>
+            <CardDescription className="text-center" data-testid="text-success-description">
               If an account exists with that email, we've sent password reset instructions.
               For development: Check the server console for the reset link.
             </CardDescription>
@@ -108,8 +108,8 @@ export default function ForgotPassword() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Forgot Password</CardTitle>
-          <CardDescription>
+          <CardTitle data-testid="text-page-title">Forgot Password</CardTitle>
+          <CardDescription data-testid="text-page-description">
             Enter your email address and we'll send you a link to reset your password
           </CardDescription>
         </CardHeader>
