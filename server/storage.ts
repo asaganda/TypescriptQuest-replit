@@ -698,6 +698,7 @@ const staff: Staff = {
     const subscription: Subscription = {
       ...insertSubscription,
       id,
+      status: insertSubscription.status ?? "inactive",
       stripeCustomerId: insertSubscription.stripeCustomerId ?? null,
       stripeSubscriptionId: insertSubscription.stripeSubscriptionId ?? null,
       stripePriceId: insertSubscription.stripePriceId ?? null,

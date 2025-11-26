@@ -10,6 +10,9 @@ import Dashboard from "@/pages/Dashboard";
 import Levels from "@/pages/Levels";
 import Profile from "@/pages/Profile";
 import LessonDetail from "@/pages/LessonDetail";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
+import Pricing from "@/pages/Pricing";
 import TopNav from "@/components/TopNav";
 import { useLocation } from "wouter";
 
@@ -34,14 +37,17 @@ function ProtectedRoute({ component: Component }: { component: () => JSX.Element
 function Router() {
   const [location] = useLocation();
   const { user, logout } = useAuth();
-  const isAuthPage = location === "/" || location === "/auth";
+  const isPublicPage = location === "/" || location === "/auth" || location === "/forgot-password" || location.startsWith("/reset-password") || location === "/pricing";
 
   return (
     <>
-      {!isAuthPage && user && <TopNavWithStats onLogout={logout} userName={user.displayName} />}
+      {!isPublicPage && user && <TopNavWithStats onLogout={logout} userName={user.displayName} />}
       <Switch>
         <Route path="/" component={Auth} />
         <Route path="/auth" component={Auth} />
+        <Route path="/forgot-password" component={ForgotPassword} />
+        <Route path="/reset-password" component={ResetPassword} />
+        <Route path="/pricing" component={Pricing} />
         <Route path="/dashboard">
           {() => <ProtectedRoute component={Dashboard} />}
         </Route>
