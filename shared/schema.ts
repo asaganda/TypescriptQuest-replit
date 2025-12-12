@@ -64,7 +64,7 @@ export const challenges = pgTable("challenges", {
   sampleSolution: text("sample_solution"),
 
   // Documentation links
-  documentationLinks: text("documentation_links").array().default([]),
+  documentationLinks: text("documentation_links").array(),
 });
 
 export const insertChallengeSchema = createInsertSchema(challenges);

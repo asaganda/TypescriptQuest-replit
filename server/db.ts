@@ -19,4 +19,4 @@ pool.on('error', (err) => {
   console.error('Unexpected pool error:', err);
 });
 
-export const db = drizzle({ client: pool, schema });
+export const db = drizzle({ client: pool, schema, casing: 'snake_case' });
