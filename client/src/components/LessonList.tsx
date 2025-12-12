@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Circle, Lock } from "lucide-react";
+import { CheckCircle2, Circle, Lock, ChevronRight, ChevronDown } from "lucide-react";
 
 interface Lesson {
   id: string;
@@ -10,6 +11,10 @@ interface Lesson {
   isCompleted: boolean;
   isLocked: boolean;
   challengeCount: number;
+  challenges: {
+    id: string;
+    isCompleted: boolean;
+  }[];
 }
 
 interface LessonListProps {
@@ -19,6 +24,8 @@ interface LessonListProps {
 }
 
 export default function LessonList({ lessons, onLessonClick, currentLessonId }: LessonListProps) {
+  const [openLessonId, setOpenLessonId] = useState<string | null>(null);
+
   return (
     <Card>
       <CardHeader>
@@ -28,6 +35,7 @@ export default function LessonList({ lessons, onLessonClick, currentLessonId }: 
         <div className="space-y-2">
           {lessons.map((lesson) => {
             const isCurrent = lesson.id === currentLessonId;
+            const isOpen = openLessonId === lesson.id;
             
             return (
               <Button
@@ -54,9 +62,48 @@ export default function LessonList({ lessons, onLessonClick, currentLessonId }: 
                       </div>
                     </div>
                   </div>
-                  <Badge variant="outline" className="flex-shrink-0 self-start md:self-center lg:self-start">
-                    {lesson.challengeCount} challenges
-                  </Badge>
+                  <div className="flex flex-col gap-2 w-full">
+                    <Badge
+                      variant="outline"
+                      className="flex-shrink-0 self-start md:self-center lg:self-start cursor-pointer flex items-center gap-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenLessonId(isOpen ? null : lesson.id);
+                      }}
+                    >
+                      <span>{lesson.challengeCount} challenges</span>
+                      {isOpen ? (
+                        <ChevronDown className="w-3 h-3" />
+                      ) : (
+                        <ChevronRight className="w-3 h-3" />
+                      )}
+                    </Badge>
+
+                    {isOpen && lesson.challenges && lesson.challenges.length > 0 && (
+                      <div
+                        className="mt-1 border border-border rounded-md bg-muted/40 px-3 py-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ul className="space-y-1">
+                          {lesson.challenges.map((challenge, index) => (
+                            <li
+                              key={challenge.id}
+                              className="flex items-center justify-between text-xs text-muted-foreground"
+                            >
+                              <div className="flex items-center gap-2">
+                                {challenge.isCompleted ? (
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-chart-2" />
+                                ) : (
+                                  <Circle className="w-3.5 h-3.5 text-muted-foreground" />
+                                )}
+                                <span>Challenge {index + 1}</span>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </Button>
             );

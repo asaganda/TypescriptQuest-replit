@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, XCircle, HelpCircle } from "lucide-react";
+import { CheckCircle2, XCircle, HelpCircle, ChevronLeft } from "lucide-react";
+import DocumentationButton from "./DocumentationButton";
+import { parseDocumentationLinks } from "@/lib/api";
 
 interface MultipleChoiceChallengeProps {
   question: string;
@@ -11,6 +13,11 @@ interface MultipleChoiceChallengeProps {
   correctAnswer: number;
   explanation?: string;
   onComplete?: (correct: boolean) => void;
+  index: number;
+  total: number;
+  documentationLinks?: string[] | null;
+  onNavigatePrevious?: () => void;
+  canNavigatePrevious: boolean;
 }
 
 export default function MultipleChoiceChallenge({
@@ -18,11 +25,27 @@ export default function MultipleChoiceChallenge({
   options,
   correctAnswer,
   explanation,
-  onComplete
+  onComplete,
+  index,
+  total,
+  documentationLinks,
+  onNavigatePrevious,
+  canNavigatePrevious,
 }: MultipleChoiceChallengeProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [hasProgressed, setHasProgressed] = useState(false);
+
+  const parsedDocLinks = parseDocumentationLinks(documentationLinks);
+
+  // Reset state when moving to a new challenge
+  useEffect(() => {
+    setSelectedAnswer(null);
+    setIsSubmitted(false);
+    setShowHint(false);
+    setHasProgressed(false);
+  }, [index]);
 
   const handleSubmit = () => {
     if (selectedAnswer === null) return;
@@ -33,9 +56,15 @@ export default function MultipleChoiceChallenge({
   };
 
   const handleContinue = () => {
-    if (onComplete && isSubmitted && selectedAnswer !== null) {
+    if (onComplete && isSubmitted && selectedAnswer !== null && !hasProgressed) {
+      setHasProgressed(true);
       const isCorrect = selectedAnswer === correctAnswer;
       onComplete(isCorrect);
+
+      // Safety timeout: reset if stuck for more than 10 seconds
+      setTimeout(() => {
+        setHasProgressed(false);
+      }, 10000);
     }
   };
 
@@ -45,10 +74,29 @@ export default function MultipleChoiceChallenge({
   return (
     <Card className={`${isSubmitted ? (isCorrect ? "border-chart-2" : "border-destructive") : ""}`}>
       <CardHeader>
-        <CardTitle className="text-lg">Multiple Choice Challenge</CardTitle>
-        <CardDescription>{question}</CardDescription>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1">
+            <CardTitle className="text-lg">
+              Multiple Choice Challenge{" "}
+              <span className="text-sm text-muted-foreground">
+                (Challenge {index + 1} of {total})
+              </span>
+            </CardTitle>
+            <CardDescription>{question}</CardDescription>
+          </div>
+          <DocumentationButton links={parsedDocLinks} />
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        {showHint && (
+          <div className="p-4 bg-muted rounded-md text-sm">
+            <p className="font-medium mb-1">Hint:</p>
+            <p className="text-muted-foreground">
+              Think about the core purpose of TypeScript&apos;s type system.
+            </p>
+          </div>
+        )}
+
         <RadioGroup
           value={selectedAnswer?.toString()}
           onValueChange={(value) => !isSubmitted && setSelectedAnswer(parseInt(value))}
@@ -90,34 +138,44 @@ export default function MultipleChoiceChallenge({
           </div>
         </RadioGroup>
 
-        {!isSubmitted && (
-          <div className="flex gap-2">
+        {!isSubmitted ? (
+          <div className="flex flex-col sm:flex-row gap-2">
+            {/* Previous Challenge Button */}
+            {canNavigatePrevious && onNavigatePrevious && (
+              <Button
+                variant="outline"
+                onClick={onNavigatePrevious}
+                className="w-full sm:w-auto order-3 sm:order-1"
+                data-testid="button-prev-challenge"
+              >
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Prev Challenge
+              </Button>
+            )}
+
+            {/* Submit Button */}
             <Button
               onClick={handleSubmit}
               disabled={selectedAnswer === null}
-              className="flex-1"
+              className="w-full order-1 sm:order-2"
               data-testid="button-submit-answer"
             >
               Submit Answer
             </Button>
+
+            {/* Hint Button */}
             <Button
               variant="outline"
               onClick={() => setShowHint(!showHint)}
+              aria-label="Show hint"
+              className="w-full sm:w-auto order-2 sm:order-3"
               data-testid="button-hint"
             >
-              <HelpCircle className="w-4 h-4" />
+              <HelpCircle className="w-4 h-4 mr-2" />
+              Show Hint
             </Button>
           </div>
-        )}
-
-        {showHint && !isSubmitted && (
-          <div className="p-4 bg-muted rounded-md text-sm">
-            <p className="font-medium mb-1">Hint:</p>
-            <p className="text-muted-foreground">Think about the core purpose of TypeScript's type system.</p>
-          </div>
-        )}
-
-        {isSubmitted && (
+        ) : (
           <>
             <div className={`p-4 rounded-md ${isCorrect ? "bg-chart-2/10" : "bg-destructive/10"}`}>
               <div className="flex items-start gap-2 mb-2">
@@ -136,13 +194,31 @@ export default function MultipleChoiceChallenge({
                 </div>
               </div>
             </div>
-            <Button
-              onClick={handleContinue}
-              className="w-full"
-              data-testid="button-continue"
-            >
-              Continue
-            </Button>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              {/* Previous Challenge Button */}
+              {canNavigatePrevious && onNavigatePrevious && (
+                <Button
+                  variant="outline"
+                  onClick={onNavigatePrevious}
+                  className="w-full sm:w-auto order-3 sm:order-1"
+                  data-testid="button-prev-challenge"
+                >
+                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  Prev Challenge
+                </Button>
+              )}
+
+              {/* Continue Button */}
+              <Button
+                onClick={handleContinue}
+                className="w-full order-1 sm:order-2"
+                disabled={hasProgressed}
+                data-testid="button-continue"
+              >
+                {hasProgressed ? "Continuing..." : "Continue"}
+              </Button>
+            </div>
           </>
         )}
       </CardContent>

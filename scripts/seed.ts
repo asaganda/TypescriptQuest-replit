@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import { db } from "../server/db";
 import { 
   levels, 
@@ -119,7 +121,30 @@ const user: User = {
   name: "Alex",
   email: "alex@example.com"
 };</code></pre>
-          
+
+          <h3>Extending Interfaces</h3>
+          <p>You can extend an existing interface to create a new interface that inherits all properties from the base interface:</p>
+
+          <pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>interface BaseUser {
+  id: number;
+  name: string;
+}
+
+// AdminUser inherits id and name from BaseUser
+interface AdminUser extends BaseUser {
+  permissions: string[];
+  role: string;
+}
+
+const admin: AdminUser = {
+  id: 1,
+  name: "Alice",
+  permissions: ["read", "write", "delete"],
+  role: "superadmin"
+};</code></pre>
+
+          <p>This is useful when you want to build specialized versions of a base type while keeping all the original properties.</p>
+
           <h3>Type Aliases</h3>
           <p>Type aliases work similarly but can also define unions and other complex types:</p>
           
@@ -1178,8 +1203,15 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `let username = "Alex";\nlet age = 25;\nlet isPremium = true;`,
-          validationPatterns: ["string", "number", "boolean"],
-          hint: "Use the colon syntax to add types: let name: type = value"
+          validationPatterns: [
+            "username: string",
+            "age: number",
+            "isPremium: boolean"
+          ],
+          hint: "Use the colon syntax to add types: let name: type = value",
+          sampleSolution: `let username: string = "Alex";
+let age: number = 25;
+let isPremium: boolean = true;`
         },
         // Lesson 1-2 challenges
         {
@@ -1212,8 +1244,18 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `// Define your Product interface here\n`,
-          validationPatterns: ["interface", "Product", "id", "number", "name", "string", "price"],
-          hint: "Use the interface keyword followed by the name and curly braces with property definitions"
+          validationPatterns: [
+            "interface Product",
+            "id: number",
+            "name: string",
+            "price: number"
+          ],
+          hint: "Use the interface keyword followed by the name and curly braces with property definitions",
+          sampleSolution: `interface Product {
+  id: number;
+  name: string;
+  price: number;
+}`
         },
         // Lesson 1-3 challenges
         {
@@ -1246,8 +1288,12 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `// Define your ID type here\n`,
-          validationPatterns: ["type", "ID", "string", "number", "|"],
-          hint: "Use the type keyword and the | symbol for union types"
+          validationPatterns: [
+            "type ID =",
+            "string | number"
+          ],
+          hint: "Use the type keyword and the | symbol for union types",
+          sampleSolution: `type ID = string | number;`
         },
         {
           id: "1-3-3",
@@ -1260,8 +1306,20 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `interface Person {\n  name: string;\n}\n\ninterface Worker {\n  id: number;\n}\n\n// Create Employee type here\n`,
-          validationPatterns: ["type", "Employee", "Person", "Worker", "&"],
-          hint: "Use the & symbol to combine types"
+          validationPatterns: [
+            "type Employee =",
+            "Person & Worker"
+          ],
+          hint: "Use the & symbol to combine types",
+          sampleSolution: `interface Person {
+  name: string;
+}
+
+interface Worker {
+  id: number;
+}
+
+type Employee = Person & Worker;`
         },
         // LEVEL 2: Functions & Generics Challenges
         {
@@ -1294,7 +1352,12 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `function multiply(a, b) {\n  return a * b;\n}`,
-          validationPatterns: ["number", ":", "multiply"],
+          validationPatterns: [
+            "function multiply",
+            "a: number",
+            "b: number",
+            "): number"
+          ],
           hint: "Both parameters should be numbers and the return type is also a number"
         },
         {
@@ -1308,7 +1371,11 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `// Define your greetUser function here\n`,
-          validationPatterns: ["function", "greetUser", "name", "string", "greeting", "?", "=", "Hello"],
+          validationPatterns: [
+            "function greetUser",
+            "name: string",
+            "greeting: string = \"Hello\""
+          ],
           hint: "Use ?: for optional parameters or = for default values"
         },
         {
@@ -1341,7 +1408,11 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `// Define your ButtonProps interface here\n`,
-          validationPatterns: ["interface", "ButtonProps", "label", "string", "onClick", "void"],
+          validationPatterns: [
+            "interface ButtonProps",
+            "label: string",
+            "onClick: () => void"
+          ],
           hint: "Use the arrow function syntax for the onClick type: () => void"
         },
         {
@@ -1355,7 +1426,10 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `// Define your ChangeHandler type here\n`,
-          validationPatterns: ["type", "ChangeHandler", "string", "void", "=>"],
+          validationPatterns: [
+            "type ChangeHandler =",
+            "(value: string) => void"
+          ],
           hint: "Type alias syntax: type Name = (param: type) => returnType"
         },
         {
@@ -1388,7 +1462,12 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `// Define your getLastItem function here\n`,
-          validationPatterns: ["function", "getLastItem", "<T>", "T[]", "T", "undefined"],
+          validationPatterns: [
+            "function getLastItem",
+            "<T>",
+            "(items: T[])",
+            ": T | undefined"
+          ],
           hint: "Use <T> after the function name and T[] for the array parameter"
         },
         {
@@ -1402,7 +1481,11 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `// Define your getLength function here\n`,
-          validationPatterns: ["function", "getLength", "<T", "extends", "length", "number", ">"],
+          validationPatterns: [
+            "function getLength",
+            "<T extends { length: number }>",
+            ": number"
+          ],
           hint: "Use <T extends { length: number }> to constrain the generic type"
         },
         {
@@ -1435,7 +1518,11 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `interface User {\n  id: number;\n  name: string;\n}\n\n// Define your fetchUserData function here\n`,
-          validationPatterns: ["async", "function", "fetchUserData", "Promise", "<User>"],
+          validationPatterns: [
+            "async function fetchUserData",
+            ": Promise<User>",
+            "return"
+          ],
           hint: "Async functions automatically return Promises - specify the type with Promise<User>"
         },
         {
@@ -1449,7 +1536,10 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `interface User {\n  id: number;\n  email: string;\n}\n\n// Define your users variable here\n`,
-          validationPatterns: ["users", ":", "User[]", "="],
+          validationPatterns: [
+            "const users||let users",
+            "users: User[]||users: Array<User>"
+          ],
           hint: "Use either User[] or Array<User> syntax"
         },
         // LEVEL 3: React + TypeScript Fundamentals Challenges
@@ -1483,7 +1573,12 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `import { ReactNode } from 'react';\n\n// Define your CardProps interface here\n`,
-          validationPatterns: ["interface", "CardProps", "title", "string", "description", "?", "children", "ReactNode"],
+          validationPatterns: [
+            "interface CardProps",
+            "title: string",
+            "description?: string",
+            "children?: ReactNode"
+          ],
           hint: "Use ? for optional properties and import ReactNode from 'react'"
         },
         {
@@ -1497,7 +1592,10 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `// Define your AlertProps interface here\n`,
-          validationPatterns: ["interface", "AlertProps", "variant", "success", "error", "warning", "|"],
+          validationPatterns: [
+            "interface AlertProps",
+            "variant: \"success\" | \"error\" | \"warning\"||variant: 'success' | 'error' | 'warning'"
+          ],
           hint: "Use string literal types with | for the variant: 'success' | 'error' | 'warning'"
         },
         {
@@ -1530,7 +1628,10 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `import { useState } from 'react';\n\ninterface User {\n  id: number;\n  name: string;\n}\n\nfunction UserProfile() {\n  // Define your user state here\n  \n  return <div>{user?.name}</div>;\n}`,
-          validationPatterns: ["useState", "<User", "null", ">", "(null)"],
+          validationPatterns: [
+            "const [user",
+            "useState<User | null>(null)"
+          ],
           hint: "Use useState<User | null>(null) for nullable state"
         },
         {
@@ -1544,7 +1645,10 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `import { useState } from 'react';\n\nfunction ItemList() {\n  // Define your items state here\n  \n  return <div>{items.length}</div>;\n}`,
-          validationPatterns: ["useState", "string[]", "[]"],
+          validationPatterns: [
+            "const [items",
+            "useState<string[]>([])"
+          ],
           hint: "Use useState<string[]>([]) or let TypeScript infer from the empty array"
         },
         {
@@ -1577,7 +1681,10 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `import { MouseEvent } from 'react';\n\n// Define your handleClick function here\n`,
-          validationPatterns: ["handleClick", "MouseEvent", "<HTMLButtonElement>", "=>"],
+          validationPatterns: [
+            "handleClick",
+            "MouseEvent<HTMLButtonElement>"
+          ],
           hint: "Use MouseEvent<HTMLButtonElement> for button click events"
         },
         {
@@ -1591,7 +1698,11 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `import { FormEvent } from 'react';\n\n// Define your handleSubmit function here\n`,
-          validationPatterns: ["handleSubmit", "FormEvent", "preventDefault"],
+          validationPatterns: [
+            "handleSubmit",
+            "FormEvent<HTMLFormElement>",
+            "preventDefault"
+          ],
           hint: "Use FormEvent and call e.preventDefault() to prevent form submission"
         },
         {
@@ -1624,7 +1735,11 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `import { useState, useEffect } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n  \n  // Add your useEffect here\n  \n  return <div>{count}</div>;\n}`,
-          validationPatterns: ["useEffect", "console.log", "count", "[count]"],
+          validationPatterns: [
+            "useEffect",
+            "console.log(count)",
+            "[count]"
+          ],
           hint: "useEffect(() => { console.log(count); }, [count])"
         },
         {
@@ -1638,7 +1753,12 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `import { useEffect } from 'react';\n\nfunction WindowSize() {\n  // Add your useEffect here\n  \n  return <div>Resize the window</div>;\n}`,
-          validationPatterns: ["useEffect", "addEventListener", "resize", "return", "removeEventListener"],
+          validationPatterns: [
+            "useEffect",
+            "addEventListener(\"resize\")||addEventListener('resize')",
+            "removeEventListener",
+            "return () =>"
+          ],
           hint: "Return a cleanup function that removes the event listener"
         },
         // LEVEL 4: Advanced React + TypeScript Challenges
@@ -1672,7 +1792,11 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `import { ReactNode } from 'react';\n\n// Define your ListProps interface here\n`,
-          validationPatterns: ["interface", "ListProps", "<T>", "items", "T[]", "renderItem", "ReactNode"],
+          validationPatterns: [
+            "interface ListProps<T>",
+            "items: T[]",
+            "renderItem: (item: T) => ReactNode"
+          ],
           hint: "Add <T> after the interface name to make it generic"
         },
         {
@@ -1686,7 +1810,10 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `// Define your TableProps interface here\n`,
-          validationPatterns: ["interface", "TableProps", "<T", "extends", "id", "number", ">", "data", "T[]"],
+          validationPatterns: [
+            "interface TableProps<T extends { id: number }>",
+            "data: T[]"
+          ],
           hint: "Use <T extends { id: number }> to constrain the generic type"
         },
         {
@@ -1719,7 +1846,13 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `import { useState } from 'react';\n\n// Define your useCounter hook here\n`,
-          validationPatterns: ["function", "useCounter", "useState", "return", "[", "increment", "decrement"],
+          validationPatterns: [
+            "function useCounter",
+            "const [count, setCount] = useState(0)",
+            "return [count",
+            "increment",
+            "decrement"
+          ],
           hint: "Use useState(0) and create increment/decrement functions"
         },
         {
@@ -1733,7 +1866,14 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `import { useState } from 'react';\n\n// Define your useArray hook here\n`,
-          validationPatterns: ["function", "useArray", "<T>", "useState", "T[]", "addItem", "T"],
+          validationPatterns: [
+            "function useArray",
+            "<T>",
+            "useState<T[]>([])",
+            "addItem",
+            "(item: T)",
+            "return [items"
+          ],
           hint: "Make the function generic with <T> and use T[] for the state type"
         },
         {
@@ -1766,7 +1906,9 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `import { createContext } from 'react';\n\ninterface ThemeContextType {\n  theme: string;\n  setTheme: (theme: string) => void;\n}\n\n// Create your context here\n`,
-          validationPatterns: ["createContext", "<ThemeContextType", "undefined", ">", "(undefined)"],
+          validationPatterns: [
+            "createContext<ThemeContextType | undefined>(undefined)"
+          ],
           hint: "Use createContext with a union type and initialize with undefined"
         },
         {
@@ -1780,7 +1922,13 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `import { useContext } from 'react';\n\n// Assume ThemeContext is already defined\n// Create your useTheme hook here\n`,
-          validationPatterns: ["function", "useTheme", "useContext", "if", "undefined", "throw", "Error"],
+          validationPatterns: [
+            "function useTheme",
+            "useContext(ThemeContext)",
+            "const context = useContext||const themeContext = useContext||const theme = useContext",
+            "if (!context)||if (!themeContext)||if (!theme",
+            "throw new Error"
+          ],
           hint: "Check if context === undefined and throw new Error with a helpful message"
         },
         {
@@ -1813,7 +1961,11 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `interface User {\n  id: number;\n  name: string;\n  email: string;\n  age: number;\n}\n\n// Create your UserPreview type here\n`,
-          validationPatterns: ["type", "UserPreview", "Pick", "<User", "id", "name"],
+          validationPatterns: [
+            "type UserPreview =",
+            "Pick<User",
+            "'id' | 'name'||\"id\" | \"name\""
+          ],
           hint: "Use Pick<User, 'id' | 'name'> to select specific properties"
         },
         {
@@ -1827,8 +1979,901 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           correctAnswer: null,
           explanation: null,
           starterCode: `interface User {\n  id: number;\n  name: string;\n  email: string;\n}\n\n// Create your UserWithoutEmail type here\n`,
-          validationPatterns: ["type", "UserWithoutEmail", "Omit", "<User", "email"],
+          validationPatterns: [
+            "type UserWithoutEmail =",
+            "Omit<User",
+            "'email'||\"email\""
+          ],
           hint: "Use Omit<User, 'email'> to exclude specific properties"
+        },
+
+        // ================= EXTRA CHALLENGES PER LESSON =================
+
+        // Level 1 – Introduction to Types (1-1)
+        {
+          id: "1-1-3",
+          lessonId: "1-1",
+          type: "multiple-choice",
+          prompt: "Which line correctly declares a boolean variable in TypeScript?",
+          order: 3,
+          xpReward: 30,
+          options: [
+            "let isActive = boolean;",
+            "let isActive: boolean = true;",
+            "boolean isActive = true;",
+            "let isActive: Boolean = true;"
+          ],
+          correctAnswer: 1,
+          explanation: "The correct syntax is `let isActive: boolean = true;` using the primitive `boolean` type and colon syntax.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "Remember the pattern: let name: type = value;"
+        },
+        {
+          id: "1-1-4",
+          lessonId: "1-1",
+          type: "code",
+          prompt: "Add proper type annotations so this function only accepts a number and returns a string.",
+          order: 4,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `function formatScore(score) {\n  return "Score: " + score;\n}\n\nconst result = formatScore(42);`,
+          validationPatterns: [
+            "function formatScore",
+            "score: number",
+            "): string",
+            "const result = formatScore"
+          ],
+          hint: "Annotate the parameter and return type: function formatScore(score: number): string { ... }",
+          sampleSolution: `function formatScore(score: number): string {
+  return "Score: " + score;
+}
+
+const result = formatScore(42);`
+        },
+        {
+          id: "1-1-5",
+          lessonId: "1-1",
+          type: "code",
+          prompt: "Declare a typed array of numbers called 'scores' with values 10, 20, 30.",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `// Declare your scores array here\n`,
+          validationPatterns: [
+            "scores: number[]||scores: Array<number>",
+            "[10, 20, 30]||[10,20,30]"
+          ],
+          hint: "Declare a constant with type annotation: const scores: number[] = [10, 20, 30];",
+          sampleSolution: `const scores: number[] = [10, 20, 30];`
+        },
+
+        // Level 1 – Interfaces & Type Aliases (1-2)
+        {
+          id: "1-2-3",
+          lessonId: "1-2",
+          type: "multiple-choice",
+          prompt: "What is a key difference between an interface and a type alias?",
+          order: 3,
+          xpReward: 30,
+          options: [
+            "Interfaces can describe object shapes; type aliases cannot",
+            "Type aliases can describe unions and primitives; interfaces generally describe object shapes",
+            "Interfaces can only be used with classes",
+            "There is absolutely no difference"
+          ],
+          correctAnswer: 1,
+          explanation: "Type aliases can represent unions, primitives, and more, while interfaces primarily describe object shapes and can be merged/extended.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "Think about which one can describe a union like 'success' | 'error'."
+        },
+        {
+          id: "1-2-4",
+          lessonId: "1-2",
+          type: "code",
+          prompt: "Create a type alias 'UserStatus' that can be 'active', 'inactive', or 'banned'. Then create a User interface with a 'status' property of type UserStatus.",
+          order: 4,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `// Define your UserStatus type and User interface here\n`,
+          validationPatterns: [
+            "type UserStatus =",
+            "'active'",
+            "'inactive'",
+            "'banned'",
+            "interface User",
+            "status: UserStatus"
+          ],
+          hint: "First: type UserStatus = 'active' | 'inactive' | 'banned'; Then: interface User with a status property using that type.",
+          sampleSolution: `type UserStatus = 'active' | 'inactive' | 'banned';
+
+interface User {
+  status: UserStatus;
+}`,
+          documentationLinks: [
+            JSON.stringify({ title: "Union Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types" }),
+            JSON.stringify({ title: "Type Aliases", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-aliases" }),
+            JSON.stringify({ title: "Literal Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types" })
+          ]
+        },
+        {
+          id: "1-2-5",
+          lessonId: "1-2",
+          type: "code",
+          prompt: "Extend an existing interface 'BaseUser' with an 'AdminUser' interface that adds a 'permissions: string[]' property.",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `interface BaseUser {\n  id: number;\n  name: string;\n}\n\n// Extend BaseUser here\n`,
+          validationPatterns: [
+            "interface AdminUser extends BaseUser",
+            "permissions: string[]||permissions: Array<string>"
+          ],
+          hint: "Use interface AdminUser extends BaseUser { ... } syntax.",
+          sampleSolution: `interface BaseUser {
+  id: number;
+  name: string;
+}
+
+interface AdminUser extends BaseUser {
+  permissions: string[];
+}`
+        },
+
+        // Level 1 – Union & Intersection Types (1-3)
+        {
+          id: "1-3-4",
+          lessonId: "1-3",
+          type: "multiple-choice",
+          prompt: "Which of these is a valid union type declaration?",
+          order: 4,
+          xpReward: 30,
+          options: [
+            "type Id = string & number;",
+            "type Id = string | number;",
+            "type Id = string || number;",
+            "type Id = string, number;"
+          ],
+          correctAnswer: 1,
+          explanation: "The | symbol creates a union type, so type Id = string | number; is correct.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "Remember: | is for unions, & is for intersections."
+        },
+        {
+          id: "1-3-5",
+          lessonId: "1-3",
+          type: "code",
+          prompt: "Create a union type 'ResponseStatus' that can be 200, 404, or 500 and a variable 'status' using that type.",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `// Define your ResponseStatus type and status variable here\n`,
+          validationPatterns: [
+            "type ResponseStatus = 200 | 404 | 500",
+            "status: ResponseStatus"
+          ],
+          hint: "Use numeric literal union types for the status values."
+        },
+        {
+          id: "1-3-6",
+          lessonId: "1-3",
+          type: "code",
+          prompt: "Create an intersection type 'FullProfile' that combines Contact { email: string } and Profile { username: string }.",
+          order: 6,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `interface Contact {\n  email: string;\n}\n\ninterface Profile {\n  username: string;\n}\n\n// Create your FullProfile type here\n`,
+          validationPatterns: [
+            "type FullProfile = Contact & Profile"
+          ],
+          hint: "Use the & operator to combine the two interfaces."
+        },
+
+        // Level 2 – Typing Functions (2-1)
+        {
+          id: "2-1-4",
+          lessonId: "2-1",
+          type: "multiple-choice",
+          prompt: "What is the return type of a function that does not explicitly return anything?",
+          order: 4,
+          xpReward: 30,
+          options: [
+            "undefined",
+            "null",
+            "void",
+            "any"
+          ],
+          correctAnswer: 2,
+          explanation: "Functions that do not return a value are typically typed as returning void.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "Think about console.log and event handlers that just perform side effects."
+        },
+        {
+          id: "2-1-5",
+          lessonId: "2-1",
+          type: "code",
+          prompt: "Add parameter and return types to make this function accept two numbers and return a number.",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `function subtract(a, b) {\n  return a - b;\n}\n\nconst result = subtract(10, 3);`,
+          validationPatterns: [
+            "function subtract",
+            "a: number",
+            "b: number",
+            "): number"
+          ],
+          hint: "Annotate both parameters as number and the return type as number."
+        },
+        {
+          id: "2-1-6",
+          lessonId: "2-1",
+          type: "code",
+          prompt: "Create a function 'logMessage' that takes a message (string) and returns void.",
+          order: 6,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `// Define your logMessage function here\n`,
+          validationPatterns: [
+            "function logMessage",
+            "message: string",
+            ": void"
+          ],
+          hint: "Use : void as the return type when the function only performs side effects."
+        },
+
+        // Level 2 – Function Types in Interfaces (2-2)
+        {
+          id: "2-2-4",
+          lessonId: "2-2",
+          type: "multiple-choice",
+          prompt: "How do you type a callback that receives a boolean and returns nothing?",
+          order: 4,
+          xpReward: 30,
+          options: [
+            "(flag: boolean) => void",
+            "boolean => void",
+            "(flag: boolean): boolean",
+            "() => boolean"
+          ],
+          correctAnswer: 0,
+          explanation: "The arrow function syntax (flag: boolean) => void describes a callback that receives a boolean and returns nothing.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "Remember parameter list in parentheses, type annotation, then => return type."
+        },
+        {
+          id: "2-2-5",
+          lessonId: "2-2",
+          type: "code",
+          prompt: "Add a function property 'onValidate' to FormProps that takes a boolean 'isValid' and returns void.",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `interface FormProps {\n  onSubmit: () => void;\n  // Add onValidate here\n}\n`,
+          validationPatterns: [
+            "interface FormProps",
+            "onValidate: (isValid: boolean) => void"
+          ],
+          hint: "Follow the pattern: name: (paramName: type) => returnType."
+        },
+        {
+          id: "2-2-6",
+          lessonId: "2-2",
+          type: "code",
+          prompt: "Create a type alias 'ClickHandler' for a function that takes an event label (string) and returns void.",
+          order: 6,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `// Define your ClickHandler type here\n`,
+          validationPatterns: [
+            "type ClickHandler = (label: string) => void"
+          ],
+          hint: "Use type Name = (param: type) => void."
+        },
+
+        // Level 2 – Introduction to Generics (2-3)
+        {
+          id: "2-3-4",
+          lessonId: "2-3",
+          type: "multiple-choice",
+          prompt: "What is the main benefit of using generics in functions?",
+          order: 4,
+          xpReward: 30,
+          options: [
+            "They make the code run faster",
+            "They allow functions to work with multiple types while preserving type information",
+            "They reduce bundle size",
+            "They are required for async functions"
+          ],
+          correctAnswer: 1,
+          explanation: "Generics allow a function to work with many types while still preserving and checking the type information.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "Think of identity<T>(arg: T): T as the classic example."
+        },
+        {
+          id: "2-3-5",
+          lessonId: "2-3",
+          type: "code",
+          prompt: "Create a generic interface 'ApiResponse<T>' with data: T | null and error: string | null.",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `// Define your ApiResponse interface here\n`,
+          validationPatterns: [
+            "interface ApiResponse<T>",
+            "data: T | null",
+            "error: string | null"
+          ],
+          hint: "Use a generic type parameter <T> and reference it for the data field."
+        },
+        {
+          id: "2-3-6",
+          lessonId: "2-3",
+          type: "code",
+          prompt: "Create a generic function 'wrapInArray' that takes a value of type T and returns an array of T.",
+          order: 6,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `// Define your wrapInArray function here\n`,
+          validationPatterns: [
+            "function wrapInArray",
+            "<T>",
+            "(value: T)",
+            ": T[]",
+            "return [value"
+          ],
+          hint: "Return [value] and annotate the return type as T[]."
+        },
+
+        // Level 2 – Generics with Arrays & Promises (2-4)
+        {
+          id: "2-4-4",
+          lessonId: "2-4",
+          type: "multiple-choice",
+          prompt: "How do you type a Promise that resolves to an array of numbers?",
+          order: 4,
+          xpReward: 30,
+          options: [
+            "Promise<number[]>",
+            "Promise<Array<number>>",
+            "Both A and B",
+            "Promise<number>"
+          ],
+          correctAnswer: 2,
+          explanation: "Both Promise<number[]> and Promise<Array<number>> are valid and equivalent ways to type a promise that resolves to an array of numbers.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "Array<T> and T[] are interchangeable for arrays."
+        },
+        {
+          id: "2-4-5",
+          lessonId: "2-4",
+          type: "code",
+          prompt: "Create a generic function 'mapArray' that takes an array of T and a mapper (value: T) => U and returns U[].",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `// Define your mapArray function here\n`,
+          validationPatterns: [
+            "function mapArray",
+            "<T, U>",
+            "(items: T[])",
+            "(value: T) => U",
+            ": U[]"
+          ],
+          hint: "Use two generic parameters <T, U> and return an array of U."
+        },
+        {
+          id: "2-4-6",
+          lessonId: "2-4",
+          type: "code",
+          prompt: "Create an async function 'fetchItems' that returns Promise<string[]> and simulate the result with Promise.resolve.",
+          order: 6,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `// Define your fetchItems function here\n`,
+          validationPatterns: [
+            "async function fetchItems",
+            ": Promise<string[]>",
+            "Promise.resolve"
+          ],
+          hint: "Annotate the return type as Promise<string[]> and return Promise.resolve([...])."
+        },
+
+        // Level 3 – Typing React Components & Props (3-1)
+        {
+          id: "3-1-4",
+          lessonId: "3-1",
+          type: "multiple-choice",
+          prompt: "What is the recommended way to type props for a React function component?",
+          order: 4,
+          xpReward: 30,
+          options: [
+            "Use any for props to avoid errors",
+            "Use an interface or type alias and annotate the function parameter",
+            "Use the React.FC type only",
+            "You don't need to type props at all"
+          ],
+          correctAnswer: 1,
+          explanation: "Defining an interface or type alias for props and annotating the component parameter is the most flexible and explicit approach.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "Think: interface Props { ... }; function Component(props: Props) { ... }"
+        },
+        {
+          id: "3-1-5",
+          lessonId: "3-1",
+          type: "code",
+          prompt: "Create a React function component 'Badge' that accepts props { label: string; color?: string }.",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `// Define your BadgeProps and Badge component here\n`,
+          validationPatterns: [
+            "interface BadgeProps",
+            "label: string",
+            "color?: string",
+            "function Badge",
+            "({ label",
+            "}: BadgeProps)"
+          ],
+          hint: "Define an interface BadgeProps and annotate the component parameter with it."
+        },
+        {
+          id: "3-1-6",
+          lessonId: "3-1",
+          type: "code",
+          prompt: "Create a generic prop 'items: T[]' on a List component and a 'renderItem: (item: T) => ReactNode' prop.",
+          order: 6,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `import { ReactNode } from 'react';\n\n// Define your generic ListProps and List component here\n`,
+          validationPatterns: [
+            "interface ListProps<T>",
+            "items: T[]",
+            "renderItem: (item: T) => ReactNode",
+            "function List<T>",
+            "({ items",
+            "}: ListProps<T>)"
+          ],
+          hint: "Reuse the pattern from the lesson for generic component props."
+        },
+
+        // Level 3 – Typing React State & Hooks (3-2)
+        {
+          id: "3-2-4",
+          lessonId: "3-2",
+          type: "multiple-choice",
+          prompt: "Which is the best way to type a state that can be either a number or null?",
+          order: 4,
+          xpReward: 30,
+          options: [
+            "const [value, setValue] = useState();",
+            "const [value, setValue] = useState<number>();",
+            "const [value, setValue] = useState<number | null>(null);",
+            "const [value, setValue] = useState<any>(0);"
+          ],
+          correctAnswer: 2,
+          explanation: "useState<number | null>(null) makes it clear the state can be a number or null and enforces correct usage.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "You want both null as the initial value and a strict numeric type later."
+        },
+        {
+          id: "3-2-5",
+          lessonId: "3-2",
+          type: "code",
+          prompt: "Create a state variable 'loading' that is typed as boolean and initialized to false.",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `import { useState } from 'react';\n\nfunction Loader() {\n  // Define your loading state here\n  \n  return <div>{loading ? "Loading..." : "Done"}</div>;\n}`,
+          validationPatterns: [
+            "const [loading",
+            "useState<boolean>(false)"
+          ],
+          hint: "Use useState<boolean>(false) or rely on inference with useState(false)."
+        },
+        {
+          id: "3-2-6",
+          lessonId: "3-2",
+          type: "code",
+          prompt: "Create state for 'errors' as an array of strings, initialized to an empty array.",
+          order: 6,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `import { useState } from 'react';\n\nfunction ErrorList() {\n  // Define your errors state here\n  \n  return <div>{errors.length}</div>;\n}`,
+          validationPatterns: [
+            "const [errors",
+            "useState<string[]>([])"
+          ],
+          hint: "Use useState<string[]>([]) to ensure items are strings."
+        },
+
+        // Level 3 – Typing Events & Handlers (3-3)
+        {
+          id: "3-3-4",
+          lessonId: "3-3",
+          type: "multiple-choice",
+          prompt: "Which event type would you use for a form submission handler?",
+          order: 4,
+          xpReward: 30,
+          options: [
+            "React.FormEvent<HTMLFormElement>",
+            "React.ChangeEvent<HTMLFormElement>",
+            "React.MouseEvent<HTMLFormElement>",
+            "React.KeyboardEvent<HTMLFormElement>"
+          ],
+          correctAnswer: 0,
+          explanation: "Form submissions use React.FormEvent<HTMLFormElement>, which provides access to submit-related information.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "You already used FormEvent in one of the earlier challenges."
+        },
+        {
+          id: "3-3-5",
+          lessonId: "3-3",
+          type: "code",
+          prompt: "Type a change handler for a select element that logs the selected value.",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `import { ChangeEvent } from 'react';\n\n// Define your handleSelectChange function here\n`,
+          validationPatterns: [
+            "handleSelectChange",
+            "ChangeEvent<HTMLSelectElement>",
+            "e.target.value"
+          ],
+          hint: "Use ChangeEvent<HTMLSelectElement> as the event type."
+        },
+        {
+          id: "3-3-6",
+          lessonId: "3-3",
+          type: "code",
+          prompt: "Create a keyboard event handler for an input that logs the key pressed.",
+          order: 6,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `import { KeyboardEvent } from 'react';\n\n// Define your handleKeyDown function here\n`,
+          validationPatterns: [
+            "handleKeyDown",
+            "KeyboardEvent<HTMLInputElement>",
+            "e.key"
+          ],
+          hint: "Use KeyboardEvent<HTMLInputElement> for key events on inputs."
+        },
+
+        // Level 3 – useEffect & Lifecycle (3-4)
+        {
+          id: "3-4-4",
+          lessonId: "3-4",
+          type: "multiple-choice",
+          prompt: "What does an empty dependency array [] mean in useEffect?",
+          order: 4,
+          xpReward: 30,
+          options: [
+            "The effect never runs",
+            "The effect runs on every render",
+            "The effect runs only once after the initial render",
+            "The effect runs only when props change"
+          ],
+          correctAnswer: 2,
+          explanation: "An empty dependency array means the effect runs only once after the component mounts.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "Think: when you want 'componentDidMount'-like behavior."
+        },
+        {
+          id: "3-4-5",
+          lessonId: "3-4",
+          type: "code",
+          prompt: "Create a useEffect that logs 'Mounted' once when the component mounts.",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `import { useEffect } from 'react';\n\nfunction Logger() {\n  // Add your useEffect here\n  \n  return <div>Check the console</div>;\n}`,
+          validationPatterns: [
+            "useEffect",
+            "console.log(\"Mounted\")||console.log('Mounted')",
+            "[]"
+          ],
+          hint: "Use useEffect(() => { console.log(\"Mounted\"); }, []);"
+        },
+        {
+          id: "3-4-6",
+          lessonId: "3-4",
+          type: "code",
+          prompt: "Create a useEffect that subscribes to a mock 'subscribe()' function and cleans up with 'unsubscribe()'.",
+          order: 6,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `import { useEffect } from 'react';\n\nfunction Subscription() {\n  // Assume subscribe and unsubscribe functions are available in scope\n  // Add your useEffect here\n  \n  return <div>Subscribed</div>;\n}`,
+          validationPatterns: [
+            "useEffect",
+            "subscribe()",
+            "unsubscribe()",
+            "return () =>"
+          ],
+          hint: "Call subscribe() inside the effect and return a cleanup function that calls unsubscribe()."
+        },
+
+        // Level 4 – Generic React Components (4-1)
+        {
+          id: "4-1-4",
+          lessonId: "4-1",
+          type: "multiple-choice",
+          prompt: "How do you declare a generic React component with a type parameter T?",
+          order: 4,
+          xpReward: 30,
+          options: [
+            "function List(props: T) {}",
+            "function List<T>(props: { items: T[] }) {}",
+            "function<T> List(props: { items: T[] }) {}",
+            "Generic<T> function List(props: { items: T[] }) {}"
+          ],
+          correctAnswer: 1,
+          explanation: "The typical pattern is function List<T>(props: { items: T[] }) { ... } with <T> after the function name.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "Place <T> immediately after the component name."
+        },
+        {
+          id: "4-1-5",
+          lessonId: "4-1",
+          type: "code",
+          prompt: "Create a generic BadgeList<T> component that renders items using a renderItem prop.",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `import { ReactNode } from 'react';\n\n// Define your BadgeListProps and BadgeList component here\n`,
+          validationPatterns: [
+            "interface BadgeListProps<T>",
+            "items: T[]",
+            "renderItem: (item: T) => ReactNode",
+            "function BadgeList<T>"
+          ],
+          hint: "Mirror the List<T> pattern from earlier lessons."
+        },
+        {
+          id: "4-1-6",
+          lessonId: "4-1",
+          type: "code",
+          prompt: "Create a generic component TableRow<T extends { id: number }> that renders children for a given item.",
+          order: 6,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `import { ReactNode } from 'react';\n\n// Define your TableRowProps and TableRow component here\n`,
+          validationPatterns: [
+            "interface TableRowProps<T extends { id: number }>",
+            "function TableRow<T extends { id: number }>",
+            "children: (item: T) => ReactNode"
+          ],
+          hint: "Constrain T with extends { id: number } just like in previous examples."
+        },
+
+        // Level 4 – Custom Hooks (4-2)
+        {
+          id: "4-2-4",
+          lessonId: "4-2",
+          type: "multiple-choice",
+          prompt: "Which of these names follows the convention for custom hooks?",
+          order: 4,
+          xpReward: 30,
+          options: [
+            "counterHook",
+            "useCounter",
+            "CounterHook",
+            "usecounter"
+          ],
+          correctAnswer: 1,
+          explanation: "Custom hooks should start with 'use' followed by a capitalized name segment, e.g. useCounter.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "React relies on the 'use' prefix to detect hooks."
+        },
+        {
+          id: "4-2-5",
+          lessonId: "4-2",
+          type: "code",
+          prompt: "Create a custom hook useToggle that manages a boolean value and returns [value, toggle].",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `import { useState } from 'react';\n\n// Define your useToggle hook here\n`,
+          validationPatterns: [
+            "function useToggle",
+            "const [value, setValue] = useState(false)",
+            "return [value",
+            "toggle"
+          ],
+          hint: "Initialize with useState(false) and return the value plus a function that flips it."
+        },
+        {
+          id: "4-2-6",
+          lessonId: "4-2",
+          type: "code",
+          prompt: "Create a generic hook useList<T> that returns [items: T[], add: (item: T) => void, remove: (index: number) => void].",
+          order: 6,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `import { useState } from 'react';\n\n// Define your useList hook here\n`,
+          validationPatterns: [
+            "function useList",
+            "<T>",
+            "useState<T[]>([])",
+            "add: (item: T)",
+            "remove: (index: number)"
+          ],
+          hint: "Use a generic type parameter and manage items with useState."
+        },
+
+        // Level 4 – Context & Custom Hooks (4-3)
+        {
+          id: "4-3-4",
+          lessonId: "4-3",
+          type: "multiple-choice",
+          prompt: "Why is it helpful to throw an error inside a custom context hook when context is undefined?",
+          order: 4,
+          xpReward: 30,
+          options: [
+            "To crash the app as soon as possible",
+            "To provide a clear error when the hook is used outside its Provider",
+            "It is required by TypeScript",
+            "It improves performance"
+          ],
+          correctAnswer: 1,
+          explanation: "Throwing an error when context is undefined gives a clear message that the hook must be used within the appropriate Provider.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "Think about developer experience when someone forgets to wrap components in the Provider."
+        },
+        {
+          id: "4-3-5",
+          lessonId: "4-3",
+          type: "code",
+          prompt: "Create a UserContextType with user: string | null and setUser: (user: string | null) => void, then create a UserContext.",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `import { createContext } from 'react';\n\n// Define your UserContextType and UserContext here\n`,
+          validationPatterns: [
+            "interface UserContextType",
+            "user: string | null",
+            "setUser: (user: string | null) => void",
+            "createContext<UserContextType | undefined>(undefined)"
+          ],
+          hint: "Follow the same pattern as the ThemeContext example."
+        },
+        {
+          id: "4-3-6",
+          lessonId: "4-3",
+          type: "code",
+          prompt: "Implement a custom hook useUser that reads UserContext and throws if it is undefined.",
+          order: 6,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `import { useContext } from 'react';\n\n// Assume UserContext is already defined\n// Create your useUser hook here\n`,
+          validationPatterns: [
+            "useContext(UserContext)",
+            "const context = useContext||const userContext = useContext||const value = useContext",
+            "if (!context)||if (!userContext)||if (!value",
+            "throw new Error"
+          ],
+          hint: "Copy the guard pattern from the useTheme example and adjust names."
+        },
+
+        // Level 4 – Utility Types (4-4)
+        {
+          id: "4-4-4",
+          lessonId: "4-4",
+          type: "multiple-choice",
+          prompt: "What does the Readonly<T> utility type do?",
+          order: 4,
+          xpReward: 30,
+          options: [
+            "Makes all properties optional",
+            "Prevents properties from being reassigned",
+            "Removes all properties",
+            "Converts all properties to strings"
+          ],
+          correctAnswer: 1,
+          explanation: "Readonly<T> marks all properties as read-only, so they cannot be reassigned after initialization.",
+          starterCode: null,
+          validationPatterns: [],
+          hint: "Think of it as adding 'readonly' to every property."
+        },
+        {
+          id: "4-4-5",
+          lessonId: "4-4",
+          type: "code",
+          prompt: "Create a type ReadonlyUser from User using Readonly<User>.",
+          order: 5,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `interface User {\n  id: number;\n  name: string;\n}\n\n// Create your ReadonlyUser type here\n`,
+          validationPatterns: [
+            "type ReadonlyUser = Readonly<User>"
+          ],
+          hint: "Use Readonly<User> to create the new type."
+        },
+        {
+          id: "4-4-6",
+          lessonId: "4-4",
+          type: "code",
+          prompt: "Create a type RequiredUser that makes all properties of User required using Required<User>.",
+          order: 6,
+          xpReward: 30,
+          options: [],
+          correctAnswer: null,
+          explanation: null,
+          starterCode: `interface User {\n  id?: number;\n  name?: string;\n  email?: string;\n}\n\n// Create your RequiredUser type here\n`,
+          validationPatterns: [
+            "type RequiredUser = Required<User>"
+          ],
+          hint: "Use Required<User> to remove optional modifiers from all properties."
         }
       ];
 

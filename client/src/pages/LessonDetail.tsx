@@ -151,6 +151,11 @@ export default function LessonDetail() {
       lessonChallengeIds.every(challengeId => 
         progress.some((p: any) => p.challengeId === challengeId)
       );
+
+    const lessonChallengesWithStatus = lessonChallengeIds.map((challengeId) => ({
+      id: challengeId,
+      isCompleted: progress.some((p: any) => p.challengeId === challengeId),
+    }));
     
     return {
       id: l.id,
@@ -158,7 +163,8 @@ export default function LessonDetail() {
       description: l.description,
       isCompleted: lessonCompleted,
       isLocked: false,
-      challengeCount: lessonChallengeIds.length || 3,
+      challengeCount: lessonChallengesWithStatus.length,
+      challenges: lessonChallengesWithStatus,
     };
   });
 
@@ -170,20 +176,21 @@ export default function LessonDetail() {
     );
 
   const handleChallengeComplete = async (correct: boolean, usedHint: boolean = false) => {
-    if (!correct || !currentChallenge || isTransitioning) return;
+    if (!currentChallenge || isTransitioning) return;
 
     setIsTransitioning(true);
     const updatedUsedHint = usedHintInLesson || usedHint;
     if (usedHint) {
       setUsedHintInLesson(true);
     }
-    
+
     try {
       await queryClient.refetchQueries({ queryKey: ["/api/progress"] });
       const freshProgress = queryClient.getQueryData(["/api/progress"]) as any[];
-      
+
+      // Only save progress if the answer was correct
       const alreadyCompleted = freshProgress?.some((p: any) => p.challengeId === currentChallenge.id);
-      if (!alreadyCompleted) {
+      if (correct && !alreadyCompleted) {
         await new Promise<void>((resolve, reject) => {
           completeMutation.mutate(
             {
@@ -223,9 +230,8 @@ export default function LessonDetail() {
               }
             );
           });
-        } else {
-          setShowCompletion(true);
         }
+        setShowCompletion(true);
         setIsTransitioning(false);
       }
     } catch (error) {
@@ -237,6 +243,14 @@ export default function LessonDetail() {
       setIsTransitioning(false);
     }
   };
+
+  const handlePreviousChallenge = () => {
+    if (currentChallengeIndex > 0) {
+      setCurrentChallengeIndex(prev => prev - 1);
+    }
+  };
+
+  const canNavigatePrevious = currentChallengeIndex > 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -305,7 +319,12 @@ export default function LessonDetail() {
                     options={currentChallenge.options}
                     correctAnswer={currentChallenge.correctAnswer}
                     explanation={currentChallenge.explanation || undefined}
+                    documentationLinks={currentChallenge.documentationLinks}
+                    onNavigatePrevious={handlePreviousChallenge}
+                    canNavigatePrevious={canNavigatePrevious}
                     onComplete={(correct) => handleChallengeComplete(correct, false)}
+                    index={currentChallengeIndex}
+                    total={challenges.length}
                   />
                 ) : currentChallenge.type === "code" && currentChallenge.starterCode && currentChallenge.validationPatterns ? (
                   <CodeChallenge
@@ -314,7 +333,13 @@ export default function LessonDetail() {
                     starterCode={currentChallenge.starterCode}
                     validationPatterns={currentChallenge.validationPatterns}
                     hint={currentChallenge.hint || undefined}
+                    sampleSolution={currentChallenge.sampleSolution || undefined}
+                    documentationLinks={currentChallenge.documentationLinks}
+                    onNavigatePrevious={handlePreviousChallenge}
+                    canNavigatePrevious={canNavigatePrevious}
                     onComplete={(correct) => handleChallengeComplete(correct, false)}
+                    index={currentChallengeIndex}
+                    total={challenges.length}
                   />
                 ) : null}
               </div>

@@ -61,6 +61,10 @@ export const challenges = pgTable("challenges", {
   starterCode: text("starter_code"),
   validationPatterns: text("validation_patterns").array().default([]),
   hint: text("hint"),
+  sampleSolution: text("sample_solution"),
+
+  // Documentation links
+  documentationLinks: text("documentation_links").array().default([]),
 });
 
 export const insertChallengeSchema = createInsertSchema(challenges);

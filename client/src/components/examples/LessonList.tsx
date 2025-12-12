@@ -8,7 +8,12 @@ export default function LessonListExample() {
       description: "Learn about basic TypeScript types",
       isCompleted: true,
       isLocked: false,
-      challengeCount: 3
+      challengeCount: 3,
+      challenges: [
+        { id: "1-1", isCompleted: true },
+        { id: "1-2", isCompleted: true },
+        { id: "1-3", isCompleted: true }
+      ]
     },
     {
       id: "2",
@@ -16,7 +21,13 @@ export default function LessonListExample() {
       description: "Define custom types and interfaces",
       isCompleted: false,
       isLocked: false,
-      challengeCount: 4
+      challengeCount: 4,
+      challenges: [
+        { id: "2-1", isCompleted: true },
+        { id: "2-2", isCompleted: false },
+        { id: "2-3", isCompleted: false },
+        { id: "2-4", isCompleted: false }
+      ]
     },
     {
       id: "3",
@@ -24,7 +35,11 @@ export default function LessonListExample() {
       description: "Combine types in powerful ways",
       isCompleted: false,
       isLocked: true,
-      challengeCount: 2
+      challengeCount: 2,
+      challenges: [
+        { id: "3-1", isCompleted: false },
+        { id: "3-2", isCompleted: false }
+      ]
     }
   ];
 

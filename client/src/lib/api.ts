@@ -65,6 +65,23 @@ export async function getLesson(id: string): Promise<Lesson> {
   return apiRequest<Lesson>(`/api/lessons/${id}`);
 }
 
+// Documentation Links
+export interface DocumentationLink {
+  title: string;
+  url: string;
+}
+
+export function parseDocumentationLinks(links?: string[] | null): DocumentationLink[] {
+  if (!links) return [];
+  return links.map(link => {
+    try {
+      return JSON.parse(link);
+    } catch {
+      return null;
+    }
+  }).filter(Boolean) as DocumentationLink[];
+}
+
 // Challenges
 export interface Challenge {
   id: string;
@@ -79,6 +96,8 @@ export interface Challenge {
   starterCode?: string | null;
   validationPatterns?: string[] | null;
   hint?: string | null;
+  sampleSolution?: string | null;
+  documentationLinks?: string[] | null;
 }
 
 export async function getChallengesByLesson(lessonId: string): Promise<Challenge[]> {

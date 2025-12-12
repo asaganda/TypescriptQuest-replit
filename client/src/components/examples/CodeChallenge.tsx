@@ -7,9 +7,11 @@ export default function CodeChallengeExample() {
         title="Type a Variable"
         prompt="Add type annotations to the variables below"
         starterCode={`let name = "TypeScript";\nlet count = 42;\nlet isActive = true;`}
-        validationPatterns={["string", "number", "boolean"]}
+        validationPatterns={["name: string", "count: number", "isActive: boolean"]}
         hint="Use the colon syntax to add types: let name: string = ..."
         onComplete={(correct) => console.log('Code challenge completed:', correct)}
+        index={0}
+        total={1}
       />
     </div>
   );

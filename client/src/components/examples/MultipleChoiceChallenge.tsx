@@ -14,6 +14,8 @@ export default function MultipleChoiceChallengeExample() {
         correctAnswer={1}
         explanation="TypeScript adds static type checking, which helps catch errors at compile time and provides better IDE support with autocomplete and inline documentation."
         onComplete={(correct) => console.log('Challenge completed:', correct)}
+        index={0}
+        total={1}
       />
     </div>
   );
