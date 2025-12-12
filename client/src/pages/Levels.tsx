@@ -37,92 +37,100 @@ export default function Levels() {
   useEffect(() => {
     async function calculateProgress() {
       if (!levels || !stats || !progress) return;
-      
+
       setIsCalculating(true);
 
       try {
-        const levelData = await Promise.all(
-          levels.map(async (level) => {
-            const isLocked = stats.totalXP < level.xpRequired;
-            
-            try {
-              const lessons = await getLessonsByLevel(level.id);
-              const totalLessons = lessons.length;
+        // Sort levels by order to process them sequentially
+        const sortedLevels = [...levels].sort((a, b) => a.order - b.order);
+        const levelData: LevelProgress[] = [];
 
-              if (isLocked) {
-                return {
-                  id: level.id,
-                  levelNumber: level.order,
-                  title: level.name,
-                  description: level.description,
-                  isLocked: true,
-                  isCompleted: false,
-                  completionPercentage: 0,
-                  totalLessons,
-                  nextLessonId: null,
-                };
-              }
-              
-              const lessonChallenges = await Promise.all(
-                lessons.map(async (lesson) => ({
-                  lesson,
-                  challenges: await getChallengesByLesson(lesson.id),
-                }))
-              );
+        for (const level of sortedLevels) {
+          // First level is always unlocked, subsequent levels require previous level completion
+          let isLocked = false;
+          if (level.order > 1) {
+            const previousLevel = levelData[levelData.length - 1];
+            isLocked = !previousLevel?.isCompleted;
+          }
 
-              let completedCount = 0;
-              let totalCount = 0;
-              let nextLessonId: string | null = null;
+          try {
+            const lessons = await getLessonsByLevel(level.id);
+            const totalLessons = lessons.length;
 
-              for (const { lesson, challenges } of lessonChallenges) {
-                totalCount += challenges.length;
-
-                const lessonCompletedChallenges = challenges.filter((challenge) =>
-                  progress.some((p) => p.challengeId === challenge.id)
-                ).length;
-
-                completedCount += lessonCompletedChallenges;
-
-                if (!nextLessonId && lessonCompletedChallenges < challenges.length) {
-                  nextLessonId = lesson.id;
-                }
-              }
-
-              const completionPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-              const isCompleted = completedCount === totalCount && totalCount > 0;
-
-              if (!nextLessonId && lessons.length > 0) {
-                const sortedLessons = [...lessons].sort((a, b) => a.order - b.order);
-                nextLessonId = sortedLessons[0].id;
-              }
-
-              return {
+            if (isLocked) {
+              levelData.push({
                 id: level.id,
                 levelNumber: level.order,
                 title: level.name,
                 description: level.description,
-                isLocked: false,
-                isCompleted,
-                completionPercentage,
-                totalLessons,
-                nextLessonId,
-              };
-            } catch (error) {
-              console.error(`Failed to fetch data for level ${level.id}:`, error);
-              return {
-                id: level.id,
-                levelNumber: level.order,
-                title: level.name,
-                description: level.description,
-                isLocked,
+                isLocked: true,
                 isCompleted: false,
                 completionPercentage: 0,
-                totalLessons: 0,
+                totalLessons,
                 nextLessonId: null,
-              };
+              });
+              continue;
             }
-          })
-        );
+
+            const lessonChallenges = await Promise.all(
+              lessons.map(async (lesson) => ({
+                lesson,
+                challenges: await getChallengesByLesson(lesson.id),
+              }))
+            );
+
+            let completedCount = 0;
+            let totalCount = 0;
+            let nextLessonId: string | null = null;
+
+            for (const { lesson, challenges } of lessonChallenges) {
+              totalCount += challenges.length;
+
+              const lessonCompletedChallenges = challenges.filter((challenge) =>
+                progress.some((p) => p.challengeId === challenge.id)
+              ).length;
+
+              completedCount += lessonCompletedChallenges;
+
+              if (!nextLessonId && lessonCompletedChallenges < challenges.length) {
+                nextLessonId = lesson.id;
+              }
+            }
+
+            const completionPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+            const isCompleted = completedCount === totalCount && totalCount > 0;
+
+            if (!nextLessonId && lessons.length > 0) {
+              const sortedLessons = [...lessons].sort((a, b) => a.order - b.order);
+              nextLessonId = sortedLessons[0].id;
+            }
+
+            levelData.push({
+              id: level.id,
+              levelNumber: level.order,
+              title: level.name,
+              description: level.description,
+              isLocked: false,
+              isCompleted,
+              completionPercentage,
+              totalLessons,
+              nextLessonId,
+            });
+          } catch (error) {
+            console.error(`Failed to fetch data for level ${level.id}:`, error);
+            levelData.push({
+              id: level.id,
+              levelNumber: level.order,
+              title: level.name,
+              description: level.description,
+              isLocked,
+              isCompleted: false,
+              completionPercentage: 0,
+              totalLessons: 0,
+              nextLessonId: null,
+            });
+          }
+        }
 
         setLevelsWithProgress(levelData);
       } catch (error) {
