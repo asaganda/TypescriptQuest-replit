@@ -5,7 +5,50 @@ import { insertUserSchema } from "@shared/schema";
 import bcrypt from "bcryptjs";
 import session from "express-session";
 import { z } from "zod";
-import { calculateLevel } from "@shared/xp-utils";
+
+/**
+ * Calculate the current level based on level completion (not XP).
+ * A user is on level N if they have completed all challenges in levels 1 through N-1.
+ * Level 1 is always available.
+ */
+async function calculateCurrentLevel(userId: string): Promise<number> {
+  const allLevels = await storage.getAllLevels();
+  const sortedLevels = [...allLevels].sort((a, b) => a.order - b.order);
+  const userProgress = await storage.getUserProgress(userId);
+
+  let currentLevel = 1;
+
+  for (const level of sortedLevels) {
+    // Get all lessons for this level
+    const lessons = await storage.getLessonsByLevel(level.id);
+
+    // Get all challenges for all lessons in this level
+    let totalChallenges = 0;
+    let completedChallenges = 0;
+
+    for (const lesson of lessons) {
+      const challenges = await storage.getChallengesByLesson(lesson.id);
+      totalChallenges += challenges.length;
+
+      for (const challenge of challenges) {
+        if (userProgress.some(p => p.challengeId === challenge.id)) {
+          completedChallenges++;
+        }
+      }
+    }
+
+    // If this level is completed (all challenges done), user can access the next level
+    if (totalChallenges > 0 && completedChallenges === totalChallenges) {
+      currentLevel = level.order + 1;
+    } else {
+      // Level not completed, stop here
+      break;
+    }
+  }
+
+  // Cap at max level (4)
+  return Math.min(currentLevel, sortedLevels.length);
+}
 
 // Extend session data
 declare module "express-session" {
@@ -267,8 +310,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const stats = await storage.getUserStats(userId);
       if (stats) {
         const newTotalXP = stats.totalXP + lesson.xpReward;
-        const newCurrentLevel = calculateLevel(newTotalXP);
-        
+        const newCurrentLevel = await calculateCurrentLevel(userId);
+
         await storage.updateUserStats(userId, {
           totalXP: newTotalXP,
           currentLevel: newCurrentLevel,
@@ -331,8 +374,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const stats = await storage.getUserStats(userId);
       if (stats) {
         const newTotalXP = stats.totalXP + challenge.xpReward;
-        const newCurrentLevel = calculateLevel(newTotalXP);
-        
+        const newCurrentLevel = await calculateCurrentLevel(userId);
+
         await storage.updateUserStats(userId, {
           totalXP: newTotalXP,
           currentLevel: newCurrentLevel,
@@ -363,13 +406,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get("/api/stats", requireAuth, async (req, res) => {
     try {
-      let stats = await storage.getUserStats(req.session.userId!);
-      
+      const userId = req.session.userId!;
+      let stats = await storage.getUserStats(userId);
+
       // Auto-create stats for users who don't have them yet
       if (!stats) {
         try {
           stats = await storage.createUserStats({
-            userId: req.session.userId!,
+            userId,
             totalXP: 0,
             currentLevel: 1,
             lessonsCompleted: 0,
@@ -378,13 +422,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (createError: any) {
           // If stats creation fails (e.g., duplicate key), try fetching again
           // This handles race conditions where stats were created between checks
-          stats = await storage.getUserStats(req.session.userId!);
+          stats = await storage.getUserStats(userId);
           if (!stats) {
             throw createError; // Re-throw if stats still don't exist
           }
         }
       }
-      
+
+      // Always recalculate currentLevel based on completion to ensure accuracy
+      const correctLevel = await calculateCurrentLevel(userId);
+      if (stats.currentLevel !== correctLevel) {
+        stats = await storage.updateUserStats(userId, { currentLevel: correctLevel });
+      }
+
       res.json(stats);
     } catch (error) {
       console.error("Error fetching user stats:", error);

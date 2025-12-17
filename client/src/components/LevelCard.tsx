@@ -68,17 +68,26 @@ export default function LevelCard({
           <Progress value={completionPercentage} className="h-2" style={{marginBottom: "1em"}} data-testid={`progress-level-${id}`} />
         </div>
         
-        <Link href={`/level/${id}/lesson/${lessonToStart}`}>
-          <Button 
-            className="w-full gap-2" 
-            disabled={isLocked}
-            onClick={onClick}
+        {isLocked ? (
+          <Button
+            className="w-full gap-2"
+            disabled
             data-testid={`button-start-level-${id}`}
           >
-            {isCompleted ? "Review" : isLocked ? "Locked" : "Continue"}
-            {!isLocked && <ArrowRight className="w-4 h-4" />}
+            Locked
           </Button>
-        </Link>
+        ) : (
+          <Link href={`/level/${id}/lesson/${lessonToStart}`}>
+            <Button
+              className="w-full gap-2"
+              onClick={onClick}
+              data-testid={`button-start-level-${id}`}
+            >
+              {isCompleted ? "Review" : "Continue"}
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
+        )}
       </CardContent>
     </Card>
   );
