@@ -211,12 +211,16 @@ export default function LessonDetail() {
         setCurrentChallengeIndex(prev => prev + 1);
         setIsTransitioning(false);
       } else {
-        const allChallengesComplete = currentLessonChallengeIds.every(challengeId => 
-          freshProgress?.some((p: any) => p.challengeId === challengeId)
+        // Refetch progress after saving the last challenge to get updated data
+        await queryClient.refetchQueries({ queryKey: ["/api/progress"] });
+        const updatedProgress = queryClient.getQueryData(["/api/progress"]) as any[];
+
+        const allChallengesComplete = currentLessonChallengeIds.every(challengeId =>
+          updatedProgress?.some((p: any) => p.challengeId === challengeId)
         );
-        
-        const lessonAlreadyCompleted = freshProgress?.some((p: any) => p.lessonId === lessonId);
-        
+
+        const lessonAlreadyCompleted = updatedProgress?.some((p: any) => p.lessonId === lessonId);
+
         if (allChallengesComplete && !lessonAlreadyCompleted) {
           await new Promise<void>((resolve, reject) => {
             lessonMutation.mutate(
