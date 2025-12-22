@@ -99,7 +99,7 @@ export default function DashboardStats({
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">
-            {isMaxLevel ? "Max Level Achieved!" : `Progress to Level ${currentLevel + 1}`}
+            {isMaxLevel ? "Max Level Achieved!" : `Level ${currentLevel} Progress`}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
