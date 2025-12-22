@@ -2,12 +2,12 @@ import DashboardStats from "@/components/DashboardStats";
 import BadgeShowcase from "@/components/BadgeShowcase";
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
-import { getUserStats, getBadges } from "@/lib/api";
+import { getUserStats, getBadges, getLessonsByLevel, getChallengesByLesson, getUserProgress } from "@/lib/api";
 import { XP_THRESHOLDS } from "@shared/xp-utils";
 
 export default function Dashboard() {
   const { user } = useAuth();
-  
+
   const { data: stats } = useQuery({
     queryKey: ["/api/stats"],
     queryFn: getUserStats,
@@ -16,6 +16,29 @@ export default function Dashboard() {
   const { data: badges } = useQuery({
     queryKey: ["/api/badges"],
     queryFn: getBadges,
+  });
+
+  const { data: lessons } = useQuery({
+    queryKey: ["/api/levels", stats?.currentLevel, "lessons"],
+    queryFn: () => getLessonsByLevel(String(stats?.currentLevel)),
+    enabled: !!stats?.currentLevel,
+  });
+
+  const { data: userProgress } = useQuery({
+    queryKey: ["/api/progress"],
+    queryFn: getUserProgress,
+  });
+
+  // Fetch all challenges for the current level
+  const { data: allChallenges } = useQuery({
+    queryKey: ["/api/levels", stats?.currentLevel, "challenges"],
+    queryFn: async () => {
+      if (!lessons) return [];
+      const challengePromises = lessons.map(lesson => getChallengesByLesson(lesson.id));
+      const challengeArrays = await Promise.all(challengePromises);
+      return challengeArrays.flat();
+    },
+    enabled: !!lessons && lessons.length > 0,
   });
 
   if (!stats || !badges) {
@@ -30,6 +53,12 @@ export default function Dashboard() {
   const currentLevelIndex = stats.currentLevel - 1;
   const nextLevelThreshold = XP_THRESHOLDS[currentLevelIndex + 1] || XP_THRESHOLDS[XP_THRESHOLDS.length - 1];
   const badgesEarned = badges.filter(b => b.earned).length;
+
+  // Calculate completion stats for current level
+  const totalChallengesInLevel = allChallenges?.length || 0;
+  const completedChallengesInLevel = allChallenges?.filter(challenge =>
+    userProgress?.some(p => p.challengeId === challenge.id)
+  ).length || 0;
 
   const badgesForShowcase = badges.map(badge => ({
     id: badge.id,
@@ -58,6 +87,8 @@ export default function Dashboard() {
           lessonsCompleted={stats.lessonsCompleted}
           challengesCompleted={stats.challengesCompleted}
           badgesEarned={badgesEarned}
+          completedChallengesInLevel={completedChallengesInLevel}
+          totalChallengesInLevel={totalChallengesInLevel}
         />
 
         <BadgeShowcase badges={badgesForShowcase} />

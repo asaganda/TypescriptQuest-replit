@@ -10,6 +10,8 @@ interface DashboardStatsProps {
   lessonsCompleted: number;
   challengesCompleted: number;
   badgesEarned: number;
+  completedChallengesInLevel: number;
+  totalChallengesInLevel: number;
 }
 
 export default function DashboardStats({
@@ -18,32 +20,29 @@ export default function DashboardStats({
   currentLevel,
   lessonsCompleted,
   challengesCompleted,
-  badgesEarned
+  badgesEarned,
+  completedChallengesInLevel,
+  totalChallengesInLevel
 }: DashboardStatsProps) {
-  // Calculate XP progress within current level
-  const currentLevelIndex = currentLevel - 1;
-  const currentLevelStartXP = XP_THRESHOLDS[currentLevelIndex] || 0;
+  // Calculate completion-based progress for current level
   const isMaxLevel = currentLevel >= XP_THRESHOLDS.length;
-  
-  // Handle max level case
-  let xpEarnedInLevel: number;
-  let xpRangeForLevel: number;
-  let xpNeededForNextLevel: number;
+
+  // Calculate progress percentage based on challenge completion
   let progressPercentage: number;
-  
+  let challengesRemaining: number;
+
   if (isMaxLevel) {
-    // User is at max level - show 100% completion with normalized values
-    const xpInLevel = totalXP - currentLevelStartXP;
-    xpEarnedInLevel = xpInLevel || 1; // Normalize to at least 1 for display
-    xpRangeForLevel = xpInLevel || 1; // Same as earned to show full completion
-    xpNeededForNextLevel = 0;
+    // User is at max level - show 100% completion
     progressPercentage = 100;
+    challengesRemaining = 0;
+  } else if (totalChallengesInLevel === 0) {
+    // No challenges in this level yet
+    progressPercentage = 0;
+    challengesRemaining = 0;
   } else {
-    // Normal level progression
-    xpEarnedInLevel = totalXP - currentLevelStartXP;
-    xpRangeForLevel = xpToNextLevel - currentLevelStartXP;
-    xpNeededForNextLevel = Math.max(0, xpToNextLevel - totalXP);
-    progressPercentage = Math.max(0, Math.min(100, (xpEarnedInLevel / xpRangeForLevel) * 100));
+    // Normal level progression based on challenges completed
+    progressPercentage = Math.max(0, Math.min(100, (completedChallengesInLevel / totalChallengesInLevel) * 100));
+    challengesRemaining = totalChallengesInLevel - completedChallengesInLevel;
   }
 
   const stats = [
@@ -108,14 +107,16 @@ export default function DashboardStats({
             {isMaxLevel ? (
               <span className="font-semibold">{totalXP} XP Total</span>
             ) : (
-              <span className="font-semibold">{xpEarnedInLevel} / {xpRangeForLevel} XP</span>
+              <span className="font-semibold">{completedChallengesInLevel} / {totalChallengesInLevel} Challenges</span>
             )}
           </div>
           <Progress value={progressPercentage} className="h-3" data-testid="progress-level" />
           <p className="text-sm text-muted-foreground">
-            {isMaxLevel 
+            {isMaxLevel
               ? "You've mastered all levels! Keep learning and earning XP."
-              : `${xpNeededForNextLevel} XP needed to unlock the next level`
+              : challengesRemaining === 0
+                ? "Level complete! Next level unlocked."
+                : `${challengesRemaining} ${challengesRemaining === 1 ? 'challenge' : 'challenges'} remaining to unlock the next level`
             }
           </p>
         </CardContent>
