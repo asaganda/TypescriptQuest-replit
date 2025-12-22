@@ -1190,7 +1190,11 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           explanation: "TypeScript adds static type checking, which helps catch errors at compile time and provides better IDE support with autocomplete and inline documentation.",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "TypeScript for JavaScript Programmers", url: "https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html" }),
+            JSON.stringify({ title: "TypeScript Basics", url: "https://www.typescriptlang.org/docs/handbook/2/basic-types.html" })
+          ]
         },
         {
           id: "1-1-2",
@@ -1211,7 +1215,11 @@ type FetchResult = ReturnType&lt;typeof fetchUser&gt;;</code></pre>
           hint: "Use the colon syntax to add types: let name: type = value",
           sampleSolution: `let username: string = "Alex";
 let age: number = 25;
-let isPremium: boolean = true;`
+let isPremium: boolean = true;`,
+          documentationLinks: [
+            JSON.stringify({ title: "Everyday Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html" }),
+            JSON.stringify({ title: "Type Annotations", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-annotations-on-variables" })
+          ]
         },
         // Lesson 1-2 challenges
         {
@@ -1231,7 +1239,12 @@ let isPremium: boolean = true;`
           explanation: "The 'interface' keyword is used to define object shapes in TypeScript.",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "Object Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html" }),
+            JSON.stringify({ title: "Type Aliases", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-aliases" }),
+            JSON.stringify({ title: "Interfaces", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#interfaces" })
+          ]
         },
         {
           id: "1-2-2",
@@ -1255,7 +1268,12 @@ let isPremium: boolean = true;`
   id: number;
   name: string;
   price: number;
-}`
+}`,
+          documentationLinks: [
+            JSON.stringify({ title: "Object Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html" }),
+            JSON.stringify({ title: "Type Aliases", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-aliases" }),
+            JSON.stringify({ title: "Interfaces", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#interfaces" })
+          ]
         },
         // Lesson 1-3 challenges
         {
@@ -1275,7 +1293,12 @@ let isPremium: boolean = true;`
           explanation: "The | symbol creates a union type, meaning a value can be one of several types.",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "Union Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types" }),
+            JSON.stringify({ title: "Intersection Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html#intersection-types" }),
+            JSON.stringify({ title: "Literal Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types" })
+          ]
         },
         {
           id: "1-3-2",
@@ -1293,7 +1316,12 @@ let isPremium: boolean = true;`
             "string | number"
           ],
           hint: "Use the type keyword and the | symbol for union types",
-          sampleSolution: `type ID = string | number;`
+          sampleSolution: `type ID = string | number;`,
+          documentationLinks: [
+            JSON.stringify({ title: "Union Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types" }),
+            JSON.stringify({ title: "Intersection Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html#intersection-types" }),
+            JSON.stringify({ title: "Literal Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types" })
+          ]
         },
         {
           id: "1-3-3",
@@ -1319,7 +1347,12 @@ interface Worker {
   id: number;
 }
 
-type Employee = Person & Worker;`
+type Employee = Person & Worker;`,
+          documentationLinks: [
+            JSON.stringify({ title: "Union Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types" }),
+            JSON.stringify({ title: "Intersection Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html#intersection-types" }),
+            JSON.stringify({ title: "Literal Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types" })
+          ]
         },
         // LEVEL 2: Functions & Generics Challenges
         {
@@ -1339,7 +1372,12 @@ type Employee = Person & Worker;`
           explanation: "The ? symbol after a parameter name marks it as optional, allowing it to be undefined.",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "Functions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html" }),
+            JSON.stringify({ title: "Optional Parameters", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#optional-parameters" }),
+            JSON.stringify({ title: "Function Type Expressions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions" })
+          ]
         },
         {
           id: "2-1-2",
@@ -1358,7 +1396,12 @@ type Employee = Person & Worker;`
             "b: number",
             "): number"
           ],
-          hint: "Both parameters should be numbers and the return type is also a number"
+          hint: "Both parameters should be numbers and the return type is also a number",
+          documentationLinks: [
+            JSON.stringify({ title: "Functions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html" }),
+            JSON.stringify({ title: "Optional Parameters", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#optional-parameters" }),
+            JSON.stringify({ title: "Function Type Expressions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions" })
+          ]
         },
         {
           id: "2-1-3",
@@ -1376,7 +1419,12 @@ type Employee = Person & Worker;`
             "name: string",
             "greeting: string = \"Hello\""
           ],
-          hint: "Use ?: for optional parameters or = for default values"
+          hint: "Use ?: for optional parameters or = for default values",
+          documentationLinks: [
+            JSON.stringify({ title: "Functions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html" }),
+            JSON.stringify({ title: "Optional Parameters", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#optional-parameters" }),
+            JSON.stringify({ title: "Function Type Expressions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions" })
+          ]
         },
         {
           id: "2-2-1",
@@ -1395,7 +1443,12 @@ type Employee = Person & Worker;`
           explanation: "() => void describes a function that takes no parameters and returns nothing (void).",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "Call Signatures", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#call-signatures" }),
+            JSON.stringify({ title: "Function Type Expressions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions" }),
+            JSON.stringify({ title: "Object Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html" })
+          ]
         },
         {
           id: "2-2-2",
@@ -1413,7 +1466,12 @@ type Employee = Person & Worker;`
             "label: string",
             "onClick: () => void"
           ],
-          hint: "Use the arrow function syntax for the onClick type: () => void"
+          hint: "Use the arrow function syntax for the onClick type: () => void",
+          documentationLinks: [
+            JSON.stringify({ title: "Call Signatures", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#call-signatures" }),
+            JSON.stringify({ title: "Function Type Expressions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions" }),
+            JSON.stringify({ title: "Object Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html" })
+          ]
         },
         {
           id: "2-2-3",
@@ -1430,7 +1488,12 @@ type Employee = Person & Worker;`
             "type ChangeHandler =",
             "(value: string) => void"
           ],
-          hint: "Type alias syntax: type Name = (param: type) => returnType"
+          hint: "Type alias syntax: type Name = (param: type) => returnType",
+          documentationLinks: [
+            JSON.stringify({ title: "Call Signatures", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#call-signatures" }),
+            JSON.stringify({ title: "Function Type Expressions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions" }),
+            JSON.stringify({ title: "Object Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html" })
+          ]
         },
         {
           id: "2-3-1",
@@ -1449,7 +1512,12 @@ type Employee = Person & Worker;`
           explanation: "The <T> syntax defines a type parameter, allowing you to create generic functions and types that work with any type.",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Generic Constraints", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html#generic-constraints" }),
+            JSON.stringify({ title: "Generic Types", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html#working-with-generic-type-variables" })
+          ]
         },
         {
           id: "2-3-2",
@@ -1468,7 +1536,12 @@ type Employee = Person & Worker;`
             "(items: T[])",
             ": T | undefined"
           ],
-          hint: "Use <T> after the function name and T[] for the array parameter"
+          hint: "Use <T> after the function name and T[] for the array parameter",
+          documentationLinks: [
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Generic Constraints", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html#generic-constraints" }),
+            JSON.stringify({ title: "Generic Types", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html#working-with-generic-type-variables" })
+          ]
         },
         {
           id: "2-3-3",
@@ -1486,7 +1559,12 @@ type Employee = Person & Worker;`
             "<T extends { length: number }>",
             ": number"
           ],
-          hint: "Use <T extends { length: number }> to constrain the generic type"
+          hint: "Use <T extends { length: number }> to constrain the generic type",
+          documentationLinks: [
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Generic Constraints", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html#generic-constraints" }),
+            JSON.stringify({ title: "Generic Types", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html#working-with-generic-type-variables" })
+          ]
         },
         {
           id: "2-4-1",
@@ -1505,7 +1583,12 @@ type Employee = Person & Worker;`
           explanation: "Both string[] and Array<string> are valid and equivalent syntaxes for typing arrays in TypeScript.",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Array Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#arrays" }),
+            JSON.stringify({ title: "Async Functions", url: "https://www.typescriptlang.org/docs/handbook/release-notes/typescript-1-7.html#asyncawait-support-in-es6-targets-node-v4" })
+          ]
         },
         {
           id: "2-4-2",
@@ -1523,7 +1606,12 @@ type Employee = Person & Worker;`
             ": Promise<User>",
             "return"
           ],
-          hint: "Async functions automatically return Promises - specify the type with Promise<User>"
+          hint: "Async functions automatically return Promises - specify the type with Promise<User>",
+          documentationLinks: [
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Array Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#arrays" }),
+            JSON.stringify({ title: "Async Functions", url: "https://www.typescriptlang.org/docs/handbook/release-notes/typescript-1-7.html#asyncawait-support-in-es6-targets-node-v4" })
+          ]
         },
         {
           id: "2-4-3",
@@ -1540,7 +1628,12 @@ type Employee = Person & Worker;`
             "const users||let users",
             "users: User[]||users: Array<User>"
           ],
-          hint: "Use either User[] or Array<User> syntax"
+          hint: "Use either User[] or Array<User> syntax",
+          documentationLinks: [
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Array Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#arrays" }),
+            JSON.stringify({ title: "Async Functions", url: "https://www.typescriptlang.org/docs/handbook/release-notes/typescript-1-7.html#asyncawait-support-in-es6-targets-node-v4" })
+          ]
         },
         // LEVEL 3: React + TypeScript Fundamentals Challenges
         {
@@ -1560,7 +1653,12 @@ type Employee = Person & Worker;`
           explanation: "React 18+ requires explicitly typing children. Use children?: ReactNode from React to accept any valid React child.",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" }),
+            JSON.stringify({ title: "Typing Component Props", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/basic_type_example" }),
+            JSON.stringify({ title: "React with TypeScript", url: "https://www.typescriptlang.org/docs/handbook/react.html" })
+          ]
         },
         {
           id: "3-1-2",
@@ -1579,7 +1677,12 @@ type Employee = Person & Worker;`
             "description?: string",
             "children?: ReactNode"
           ],
-          hint: "Use ? for optional properties and import ReactNode from 'react'"
+          hint: "Use ? for optional properties and import ReactNode from 'react'",
+          documentationLinks: [
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" }),
+            JSON.stringify({ title: "Typing Component Props", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/basic_type_example" }),
+            JSON.stringify({ title: "React with TypeScript", url: "https://www.typescriptlang.org/docs/handbook/react.html" })
+          ]
         },
         {
           id: "3-1-3",
@@ -1596,7 +1699,12 @@ type Employee = Person & Worker;`
             "interface AlertProps",
             "variant: \"success\" | \"error\" | \"warning\"||variant: 'success' | 'error' | 'warning'"
           ],
-          hint: "Use string literal types with | for the variant: 'success' | 'error' | 'warning'"
+          hint: "Use string literal types with | for the variant: 'success' | 'error' | 'warning'",
+          documentationLinks: [
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" }),
+            JSON.stringify({ title: "Typing Component Props", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/basic_type_example" }),
+            JSON.stringify({ title: "React with TypeScript", url: "https://www.typescriptlang.org/docs/handbook/react.html" })
+          ]
         },
         {
           id: "3-2-1",
@@ -1615,7 +1723,12 @@ type Employee = Person & Worker;`
           explanation: "Use explicit generics with useState when the initial value is null/undefined or when working with complex types that can't be easily inferred.",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "useState Hook", url: "https://react.dev/reference/react/useState" }),
+            JSON.stringify({ title: "Hooks with TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "3-2-2",
@@ -1632,7 +1745,12 @@ type Employee = Person & Worker;`
             "const [user",
             "useState<User | null>(null)"
           ],
-          hint: "Use useState<User | null>(null) for nullable state"
+          hint: "Use useState<User | null>(null) for nullable state",
+          documentationLinks: [
+            JSON.stringify({ title: "useState Hook", url: "https://react.dev/reference/react/useState" }),
+            JSON.stringify({ title: "Hooks with TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "3-2-3",
@@ -1649,7 +1767,12 @@ type Employee = Person & Worker;`
             "const [items",
             "useState<string[]>([])"
           ],
-          hint: "Use useState<string[]>([]) or let TypeScript infer from the empty array"
+          hint: "Use useState<string[]>([]) or let TypeScript infer from the empty array",
+          documentationLinks: [
+            JSON.stringify({ title: "useState Hook", url: "https://react.dev/reference/react/useState" }),
+            JSON.stringify({ title: "Hooks with TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "3-3-1",
@@ -1668,7 +1791,12 @@ type Employee = Person & Worker;`
           explanation: "React.ChangeEvent<HTMLInputElement> is the correct type for input change events, providing access to e.target.value.",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "Responding to Events", url: "https://react.dev/learn/responding-to-events" }),
+            JSON.stringify({ title: "Event Types in TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/forms_and_events" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "3-3-2",
@@ -1685,7 +1813,12 @@ type Employee = Person & Worker;`
             "handleClick",
             "MouseEvent<HTMLButtonElement>"
           ],
-          hint: "Use MouseEvent<HTMLButtonElement> for button click events"
+          hint: "Use MouseEvent<HTMLButtonElement> for button click events",
+          documentationLinks: [
+            JSON.stringify({ title: "Responding to Events", url: "https://react.dev/learn/responding-to-events" }),
+            JSON.stringify({ title: "Event Types in TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/forms_and_events" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "3-3-3",
@@ -1703,7 +1836,12 @@ type Employee = Person & Worker;`
             "FormEvent<HTMLFormElement>",
             "preventDefault"
           ],
-          hint: "Use FormEvent and call e.preventDefault() to prevent form submission"
+          hint: "Use FormEvent and call e.preventDefault() to prevent form submission",
+          documentationLinks: [
+            JSON.stringify({ title: "Responding to Events", url: "https://react.dev/learn/responding-to-events" }),
+            JSON.stringify({ title: "Event Types in TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/forms_and_events" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "3-4-1",
@@ -1722,7 +1860,12 @@ type Employee = Person & Worker;`
           explanation: "useEffect callbacks cannot be async directly, but you can create an async function inside the effect and call it.",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "useEffect Hook", url: "https://react.dev/reference/react/useEffect" }),
+            JSON.stringify({ title: "useEffect with TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks#useeffect" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "3-4-2",
@@ -1740,7 +1883,12 @@ type Employee = Person & Worker;`
             "console.log(count)",
             "[count]"
           ],
-          hint: "useEffect(() => { console.log(count); }, [count])"
+          hint: "useEffect(() => { console.log(count); }, [count])",
+          documentationLinks: [
+            JSON.stringify({ title: "useEffect Hook", url: "https://react.dev/reference/react/useEffect" }),
+            JSON.stringify({ title: "useEffect with TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks#useeffect" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "3-4-3",
@@ -1759,7 +1907,12 @@ type Employee = Person & Worker;`
             "removeEventListener",
             "return () =>"
           ],
-          hint: "Return a cleanup function that removes the event listener"
+          hint: "Return a cleanup function that removes the event listener",
+          documentationLinks: [
+            JSON.stringify({ title: "useEffect Hook", url: "https://react.dev/reference/react/useEffect" }),
+            JSON.stringify({ title: "useEffect with TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks#useeffect" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         // LEVEL 4: Advanced React + TypeScript Challenges
         {
@@ -1779,7 +1932,12 @@ type Employee = Person & Worker;`
           explanation: "Generic components allow you to create highly reusable components that maintain type safety while working with any data type.",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "Generic Components", url: "https://react-typescript-cheatsheet.netlify.app/docs/advanced/patterns_by_usecase#generic-components" }),
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Advanced Patterns", url: "https://react-typescript-cheatsheet.netlify.app/docs/advanced/patterns_by_usecase" })
+          ]
         },
         {
           id: "4-1-2",
@@ -1797,7 +1955,12 @@ type Employee = Person & Worker;`
             "items: T[]",
             "renderItem: (item: T) => ReactNode"
           ],
-          hint: "Add <T> after the interface name to make it generic"
+          hint: "Add <T> after the interface name to make it generic",
+          documentationLinks: [
+            JSON.stringify({ title: "Generic Components", url: "https://react-typescript-cheatsheet.netlify.app/docs/advanced/patterns_by_usecase#generic-components" }),
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Advanced Patterns", url: "https://react-typescript-cheatsheet.netlify.app/docs/advanced/patterns_by_usecase" })
+          ]
         },
         {
           id: "4-1-3",
@@ -1814,7 +1977,12 @@ type Employee = Person & Worker;`
             "interface TableProps<T extends { id: number }>",
             "data: T[]"
           ],
-          hint: "Use <T extends { id: number }> to constrain the generic type"
+          hint: "Use <T extends { id: number }> to constrain the generic type",
+          documentationLinks: [
+            JSON.stringify({ title: "Generic Components", url: "https://react-typescript-cheatsheet.netlify.app/docs/advanced/patterns_by_usecase#generic-components" }),
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Advanced Patterns", url: "https://react-typescript-cheatsheet.netlify.app/docs/advanced/patterns_by_usecase" })
+          ]
         },
         {
           id: "4-2-1",
@@ -1833,7 +2001,12 @@ type Employee = Person & Worker;`
           explanation: "Custom hooks can return any value - arrays, objects, primitives, or nothing at all, depending on your needs.",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "Custom Hooks", url: "https://react.dev/learn/reusing-logic-with-custom-hooks" }),
+            JSON.stringify({ title: "Typing Custom Hooks", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks#custom-hooks" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "4-2-2",
@@ -1853,7 +2026,12 @@ type Employee = Person & Worker;`
             "increment",
             "decrement"
           ],
-          hint: "Use useState(0) and create increment/decrement functions"
+          hint: "Use useState(0) and create increment/decrement functions",
+          documentationLinks: [
+            JSON.stringify({ title: "Custom Hooks", url: "https://react.dev/learn/reusing-logic-with-custom-hooks" }),
+            JSON.stringify({ title: "Typing Custom Hooks", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks#custom-hooks" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "4-2-3",
@@ -1874,7 +2052,12 @@ type Employee = Person & Worker;`
             "(item: T)",
             "return [items"
           ],
-          hint: "Make the function generic with <T> and use T[] for the state type"
+          hint: "Make the function generic with <T> and use T[] for the state type",
+          documentationLinks: [
+            JSON.stringify({ title: "Custom Hooks", url: "https://react.dev/learn/reusing-logic-with-custom-hooks" }),
+            JSON.stringify({ title: "Typing Custom Hooks", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks#custom-hooks" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "4-3-1",
@@ -1893,7 +2076,12 @@ type Employee = Person & Worker;`
           explanation: "A custom hook can check if the context is undefined and throw a helpful error if the hook is used outside its Provider.",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "Context with TypeScript", url: "https://react.dev/learn/typescript#typing-usecontext" }),
+            JSON.stringify({ title: "Context API", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/context" }),
+            JSON.stringify({ title: "useContext Hook", url: "https://react.dev/reference/react/useContext" })
+          ]
         },
         {
           id: "4-3-2",
@@ -1909,7 +2097,12 @@ type Employee = Person & Worker;`
           validationPatterns: [
             "createContext<ThemeContextType | undefined>(undefined)"
           ],
-          hint: "Use createContext with a union type and initialize with undefined"
+          hint: "Use createContext with a union type and initialize with undefined",
+          documentationLinks: [
+            JSON.stringify({ title: "Context with TypeScript", url: "https://react.dev/learn/typescript#typing-usecontext" }),
+            JSON.stringify({ title: "Context API", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/context" }),
+            JSON.stringify({ title: "useContext Hook", url: "https://react.dev/reference/react/useContext" })
+          ]
         },
         {
           id: "4-3-3",
@@ -1929,7 +2122,12 @@ type Employee = Person & Worker;`
             "if (!context)||if (!themeContext)||if (!theme",
             "throw new Error"
           ],
-          hint: "Check if context === undefined and throw new Error with a helpful message"
+          hint: "Check if context === undefined and throw new Error with a helpful message",
+          documentationLinks: [
+            JSON.stringify({ title: "Context with TypeScript", url: "https://react.dev/learn/typescript#typing-usecontext" }),
+            JSON.stringify({ title: "Context API", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/context" }),
+            JSON.stringify({ title: "useContext Hook", url: "https://react.dev/reference/react/useContext" })
+          ]
         },
         {
           id: "4-4-1",
@@ -1948,7 +2146,13 @@ type Employee = Person & Worker;`
           explanation: "Partial<T> creates a new type with all properties of T made optional, useful for partial updates.",
           starterCode: null,
           validationPatterns: [],
-          hint: null
+          hint: null,
+          documentationLinks: [
+            JSON.stringify({ title: "Utility Types", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html" }),
+            JSON.stringify({ title: "Partial", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype" }),
+            JSON.stringify({ title: "Pick", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#picktype-keys" }),
+            JSON.stringify({ title: "Omit", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#omittype-keys" })
+          ]
         },
         {
           id: "4-4-2",
@@ -1966,7 +2170,13 @@ type Employee = Person & Worker;`
             "Pick<User",
             "'id' | 'name'||\"id\" | \"name\""
           ],
-          hint: "Use Pick<User, 'id' | 'name'> to select specific properties"
+          hint: "Use Pick<User, 'id' | 'name'> to select specific properties",
+          documentationLinks: [
+            JSON.stringify({ title: "Utility Types", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html" }),
+            JSON.stringify({ title: "Partial", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype" }),
+            JSON.stringify({ title: "Pick", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#picktype-keys" }),
+            JSON.stringify({ title: "Omit", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#omittype-keys" })
+          ]
         },
         {
           id: "4-4-3",
@@ -1984,7 +2194,13 @@ type Employee = Person & Worker;`
             "Omit<User",
             "'email'||\"email\""
           ],
-          hint: "Use Omit<User, 'email'> to exclude specific properties"
+          hint: "Use Omit<User, 'email'> to exclude specific properties",
+          documentationLinks: [
+            JSON.stringify({ title: "Utility Types", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html" }),
+            JSON.stringify({ title: "Partial", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype" }),
+            JSON.stringify({ title: "Pick", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#picktype-keys" }),
+            JSON.stringify({ title: "Omit", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#omittype-keys" })
+          ]
         },
 
         // ================= EXTRA CHALLENGES PER LESSON =================
@@ -2007,7 +2223,12 @@ type Employee = Person & Worker;`
           explanation: "The correct syntax is `let isActive: boolean = true;` using the primitive `boolean` type and colon syntax.",
           starterCode: null,
           validationPatterns: [],
-          hint: "Remember the pattern: let name: type = value;"
+          hint: "Remember the pattern: let name: type = value;",
+          documentationLinks: [
+            JSON.stringify({ title: "Everyday Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html" }),
+            JSON.stringify({ title: "Basic Types", url: "https://www.typescriptlang.org/docs/handbook/2/basic-types.html" }),
+            JSON.stringify({ title: "Type Annotations", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-annotations-on-variables" })
+          ]
         },
         {
           id: "1-1-4",
@@ -2031,7 +2252,12 @@ type Employee = Person & Worker;`
   return "Score: " + score;
 }
 
-const result = formatScore(42);`
+const result = formatScore(42);`,
+          documentationLinks: [
+            JSON.stringify({ title: "Everyday Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html" }),
+            JSON.stringify({ title: "Basic Types", url: "https://www.typescriptlang.org/docs/handbook/2/basic-types.html" }),
+            JSON.stringify({ title: "Type Annotations", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-annotations-on-variables" })
+          ]
         },
         {
           id: "1-1-5",
@@ -2049,7 +2275,12 @@ const result = formatScore(42);`
             "[10, 20, 30]||[10,20,30]"
           ],
           hint: "Declare a constant with type annotation: const scores: number[] = [10, 20, 30];",
-          sampleSolution: `const scores: number[] = [10, 20, 30];`
+          sampleSolution: `const scores: number[] = [10, 20, 30];`,
+          documentationLinks: [
+            JSON.stringify({ title: "Everyday Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html" }),
+            JSON.stringify({ title: "Basic Types", url: "https://www.typescriptlang.org/docs/handbook/2/basic-types.html" }),
+            JSON.stringify({ title: "Type Annotations", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-annotations-on-variables" })
+          ]
         },
 
         // Level 1 – Interfaces & Type Aliases (1-2)
@@ -2070,7 +2301,12 @@ const result = formatScore(42);`
           explanation: "Type aliases can represent unions, primitives, and more, while interfaces primarily describe object shapes and can be merged/extended.",
           starterCode: null,
           validationPatterns: [],
-          hint: "Think about which one can describe a union like 'success' | 'error'."
+          hint: "Think about which one can describe a union like 'success' | 'error'.",
+          documentationLinks: [
+            JSON.stringify({ title: "Object Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html" }),
+            JSON.stringify({ title: "Type Aliases", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-aliases" }),
+            JSON.stringify({ title: "Interfaces", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#interfaces" })
+          ]
         },
         {
           id: "1-2-4",
@@ -2126,7 +2362,12 @@ interface User {
 
 interface AdminUser extends BaseUser {
   permissions: string[];
-}`
+}`,
+          documentationLinks: [
+            JSON.stringify({ title: "Object Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html" }),
+            JSON.stringify({ title: "Type Aliases", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-aliases" }),
+            JSON.stringify({ title: "Interfaces", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#interfaces" })
+          ]
         },
 
         // Level 1 – Union & Intersection Types (1-3)
@@ -2147,7 +2388,12 @@ interface AdminUser extends BaseUser {
           explanation: "The | symbol creates a union type, so type Id = string | number; is correct.",
           starterCode: null,
           validationPatterns: [],
-          hint: "Remember: | is for unions, & is for intersections."
+          hint: "Remember: | is for unions, & is for intersections.",
+          documentationLinks: [
+            JSON.stringify({ title: "Union Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types" }),
+            JSON.stringify({ title: "Intersection Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html#intersection-types" }),
+            JSON.stringify({ title: "Literal Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types" })
+          ]
         },
         {
           id: "1-3-5",
@@ -2164,7 +2410,12 @@ interface AdminUser extends BaseUser {
             "type ResponseStatus = 200 | 404 | 500",
             "status: ResponseStatus"
           ],
-          hint: "Use numeric literal union types for the status values."
+          hint: "Use numeric literal union types for the status values.",
+          documentationLinks: [
+            JSON.stringify({ title: "Union Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types" }),
+            JSON.stringify({ title: "Intersection Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html#intersection-types" }),
+            JSON.stringify({ title: "Literal Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types" })
+          ]
         },
         {
           id: "1-3-6",
@@ -2180,7 +2431,12 @@ interface AdminUser extends BaseUser {
           validationPatterns: [
             "type FullProfile = Contact & Profile"
           ],
-          hint: "Use the & operator to combine the two interfaces."
+          hint: "Use the & operator to combine the two interfaces.",
+          documentationLinks: [
+            JSON.stringify({ title: "Union Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types" }),
+            JSON.stringify({ title: "Intersection Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html#intersection-types" }),
+            JSON.stringify({ title: "Literal Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types" })
+          ]
         },
 
         // Level 2 – Typing Functions (2-1)
@@ -2201,7 +2457,12 @@ interface AdminUser extends BaseUser {
           explanation: "Functions that do not return a value are typically typed as returning void.",
           starterCode: null,
           validationPatterns: [],
-          hint: "Think about console.log and event handlers that just perform side effects."
+          hint: "Think about console.log and event handlers that just perform side effects.",
+          documentationLinks: [
+            JSON.stringify({ title: "Functions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html" }),
+            JSON.stringify({ title: "Optional Parameters", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#optional-parameters" }),
+            JSON.stringify({ title: "Function Type Expressions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions" })
+          ]
         },
         {
           id: "2-1-5",
@@ -2220,7 +2481,12 @@ interface AdminUser extends BaseUser {
             "b: number",
             "): number"
           ],
-          hint: "Annotate both parameters as number and the return type as number."
+          hint: "Annotate both parameters as number and the return type as number.",
+          documentationLinks: [
+            JSON.stringify({ title: "Functions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html" }),
+            JSON.stringify({ title: "Optional Parameters", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#optional-parameters" }),
+            JSON.stringify({ title: "Function Type Expressions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions" })
+          ]
         },
         {
           id: "2-1-6",
@@ -2238,7 +2504,12 @@ interface AdminUser extends BaseUser {
             "message: string",
             ": void"
           ],
-          hint: "Use : void as the return type when the function only performs side effects."
+          hint: "Use : void as the return type when the function only performs side effects.",
+          documentationLinks: [
+            JSON.stringify({ title: "Functions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html" }),
+            JSON.stringify({ title: "Optional Parameters", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#optional-parameters" }),
+            JSON.stringify({ title: "Function Type Expressions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions" })
+          ]
         },
 
         // Level 2 – Function Types in Interfaces (2-2)
@@ -2259,7 +2530,12 @@ interface AdminUser extends BaseUser {
           explanation: "The arrow function syntax (flag: boolean) => void describes a callback that receives a boolean and returns nothing.",
           starterCode: null,
           validationPatterns: [],
-          hint: "Remember parameter list in parentheses, type annotation, then => return type."
+          hint: "Remember parameter list in parentheses, type annotation, then => return type.",
+          documentationLinks: [
+            JSON.stringify({ title: "Call Signatures", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#call-signatures" }),
+            JSON.stringify({ title: "Function Type Expressions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions" }),
+            JSON.stringify({ title: "Object Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html" })
+          ]
         },
         {
           id: "2-2-5",
@@ -2276,7 +2552,12 @@ interface AdminUser extends BaseUser {
             "interface FormProps",
             "onValidate: (isValid: boolean) => void"
           ],
-          hint: "Follow the pattern: name: (paramName: type) => returnType."
+          hint: "Follow the pattern: name: (paramName: type) => returnType.",
+          documentationLinks: [
+            JSON.stringify({ title: "Call Signatures", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#call-signatures" }),
+            JSON.stringify({ title: "Function Type Expressions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions" }),
+            JSON.stringify({ title: "Object Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html" })
+          ]
         },
         {
           id: "2-2-6",
@@ -2292,7 +2573,12 @@ interface AdminUser extends BaseUser {
           validationPatterns: [
             "type ClickHandler = (label: string) => void"
           ],
-          hint: "Use type Name = (param: type) => void."
+          hint: "Use type Name = (param: type) => void.",
+          documentationLinks: [
+            JSON.stringify({ title: "Call Signatures", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#call-signatures" }),
+            JSON.stringify({ title: "Function Type Expressions", url: "https://www.typescriptlang.org/docs/handbook/2/functions.html#function-type-expressions" }),
+            JSON.stringify({ title: "Object Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html" })
+          ]
         },
 
         // Level 2 – Introduction to Generics (2-3)
@@ -2313,7 +2599,12 @@ interface AdminUser extends BaseUser {
           explanation: "Generics allow a function to work with many types while still preserving and checking the type information.",
           starterCode: null,
           validationPatterns: [],
-          hint: "Think of identity<T>(arg: T): T as the classic example."
+          hint: "Think of identity<T>(arg: T): T as the classic example.",
+          documentationLinks: [
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Generic Constraints", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html#generic-constraints" }),
+            JSON.stringify({ title: "Generic Types", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html#working-with-generic-type-variables" })
+          ]
         },
         {
           id: "2-3-5",
@@ -2331,7 +2622,12 @@ interface AdminUser extends BaseUser {
             "data: T | null",
             "error: string | null"
           ],
-          hint: "Use a generic type parameter <T> and reference it for the data field."
+          hint: "Use a generic type parameter <T> and reference it for the data field.",
+          documentationLinks: [
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Generic Constraints", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html#generic-constraints" }),
+            JSON.stringify({ title: "Generic Types", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html#working-with-generic-type-variables" })
+          ]
         },
         {
           id: "2-3-6",
@@ -2351,7 +2647,12 @@ interface AdminUser extends BaseUser {
             ": T[]",
             "return [value"
           ],
-          hint: "Return [value] and annotate the return type as T[]."
+          hint: "Return [value] and annotate the return type as T[].",
+          documentationLinks: [
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Generic Constraints", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html#generic-constraints" }),
+            JSON.stringify({ title: "Generic Types", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html#working-with-generic-type-variables" })
+          ]
         },
 
         // Level 2 – Generics with Arrays & Promises (2-4)
@@ -2372,7 +2673,12 @@ interface AdminUser extends BaseUser {
           explanation: "Both Promise<number[]> and Promise<Array<number>> are valid and equivalent ways to type a promise that resolves to an array of numbers.",
           starterCode: null,
           validationPatterns: [],
-          hint: "Array<T> and T[] are interchangeable for arrays."
+          hint: "Array<T> and T[] are interchangeable for arrays.",
+          documentationLinks: [
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Array Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#arrays" }),
+            JSON.stringify({ title: "Async Functions", url: "https://www.typescriptlang.org/docs/handbook/release-notes/typescript-1-7.html#asyncawait-support-in-es6-targets-node-v4" })
+          ]
         },
         {
           id: "2-4-5",
@@ -2392,7 +2698,12 @@ interface AdminUser extends BaseUser {
             "(value: T) => U",
             ": U[]"
           ],
-          hint: "Use two generic parameters <T, U> and return an array of U."
+          hint: "Use two generic parameters <T, U> and return an array of U.",
+          documentationLinks: [
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Array Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#arrays" }),
+            JSON.stringify({ title: "Async Functions", url: "https://www.typescriptlang.org/docs/handbook/release-notes/typescript-1-7.html#asyncawait-support-in-es6-targets-node-v4" })
+          ]
         },
         {
           id: "2-4-6",
@@ -2410,7 +2721,12 @@ interface AdminUser extends BaseUser {
             ": Promise<string[]>",
             "Promise.resolve"
           ],
-          hint: "Annotate the return type as Promise<string[]> and return Promise.resolve([...])."
+          hint: "Annotate the return type as Promise<string[]> and return Promise.resolve([...]).",
+          documentationLinks: [
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Array Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#arrays" }),
+            JSON.stringify({ title: "Async Functions", url: "https://www.typescriptlang.org/docs/handbook/release-notes/typescript-1-7.html#asyncawait-support-in-es6-targets-node-v4" })
+          ]
         },
 
         // Level 3 – Typing React Components & Props (3-1)
@@ -2431,7 +2747,12 @@ interface AdminUser extends BaseUser {
           explanation: "Defining an interface or type alias for props and annotating the component parameter is the most flexible and explicit approach.",
           starterCode: null,
           validationPatterns: [],
-          hint: "Think: interface Props { ... }; function Component(props: Props) { ... }"
+          hint: "Think: interface Props { ... }; function Component(props: Props) { ... }",
+          documentationLinks: [
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" }),
+            JSON.stringify({ title: "Typing Component Props", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/basic_type_example" }),
+            JSON.stringify({ title: "React with TypeScript", url: "https://www.typescriptlang.org/docs/handbook/react.html" })
+          ]
         },
         {
           id: "3-1-5",
@@ -2452,7 +2773,12 @@ interface AdminUser extends BaseUser {
             "({ label",
             "}: BadgeProps)"
           ],
-          hint: "Define an interface BadgeProps and annotate the component parameter with it."
+          hint: "Define an interface BadgeProps and annotate the component parameter with it.",
+          documentationLinks: [
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" }),
+            JSON.stringify({ title: "Typing Component Props", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/basic_type_example" }),
+            JSON.stringify({ title: "React with TypeScript", url: "https://www.typescriptlang.org/docs/handbook/react.html" })
+          ]
         },
         {
           id: "3-1-6",
@@ -2473,7 +2799,12 @@ interface AdminUser extends BaseUser {
             "({ items",
             "}: ListProps<T>)"
           ],
-          hint: "Reuse the pattern from the lesson for generic component props."
+          hint: "Reuse the pattern from the lesson for generic component props.",
+          documentationLinks: [
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" }),
+            JSON.stringify({ title: "Typing Component Props", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/basic_type_example" }),
+            JSON.stringify({ title: "React with TypeScript", url: "https://www.typescriptlang.org/docs/handbook/react.html" })
+          ]
         },
 
         // Level 3 – Typing React State & Hooks (3-2)
@@ -2494,7 +2825,12 @@ interface AdminUser extends BaseUser {
           explanation: "useState<number | null>(null) makes it clear the state can be a number or null and enforces correct usage.",
           starterCode: null,
           validationPatterns: [],
-          hint: "You want both null as the initial value and a strict numeric type later."
+          hint: "You want both null as the initial value and a strict numeric type later.",
+          documentationLinks: [
+            JSON.stringify({ title: "useState Hook", url: "https://react.dev/reference/react/useState" }),
+            JSON.stringify({ title: "Hooks with TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "3-2-5",
@@ -2511,7 +2847,12 @@ interface AdminUser extends BaseUser {
             "const [loading",
             "useState<boolean>(false)"
           ],
-          hint: "Use useState<boolean>(false) or rely on inference with useState(false)."
+          hint: "Use useState<boolean>(false) or rely on inference with useState(false).",
+          documentationLinks: [
+            JSON.stringify({ title: "useState Hook", url: "https://react.dev/reference/react/useState" }),
+            JSON.stringify({ title: "Hooks with TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "3-2-6",
@@ -2528,7 +2869,12 @@ interface AdminUser extends BaseUser {
             "const [errors",
             "useState<string[]>([])"
           ],
-          hint: "Use useState<string[]>([]) to ensure items are strings."
+          hint: "Use useState<string[]>([]) to ensure items are strings.",
+          documentationLinks: [
+            JSON.stringify({ title: "useState Hook", url: "https://react.dev/reference/react/useState" }),
+            JSON.stringify({ title: "Hooks with TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
 
         // Level 3 – Typing Events & Handlers (3-3)
@@ -2549,7 +2895,12 @@ interface AdminUser extends BaseUser {
           explanation: "Form submissions use React.FormEvent<HTMLFormElement>, which provides access to submit-related information.",
           starterCode: null,
           validationPatterns: [],
-          hint: "You already used FormEvent in one of the earlier challenges."
+          hint: "You already used FormEvent in one of the earlier challenges.",
+          documentationLinks: [
+            JSON.stringify({ title: "Responding to Events", url: "https://react.dev/learn/responding-to-events" }),
+            JSON.stringify({ title: "Event Types in TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/forms_and_events" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "3-3-5",
@@ -2567,7 +2918,12 @@ interface AdminUser extends BaseUser {
             "ChangeEvent<HTMLSelectElement>",
             "e.target.value"
           ],
-          hint: "Use ChangeEvent<HTMLSelectElement> as the event type."
+          hint: "Use ChangeEvent<HTMLSelectElement> as the event type.",
+          documentationLinks: [
+            JSON.stringify({ title: "Responding to Events", url: "https://react.dev/learn/responding-to-events" }),
+            JSON.stringify({ title: "Event Types in TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/forms_and_events" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "3-3-6",
@@ -2585,7 +2941,12 @@ interface AdminUser extends BaseUser {
             "KeyboardEvent<HTMLInputElement>",
             "e.key"
           ],
-          hint: "Use KeyboardEvent<HTMLInputElement> for key events on inputs."
+          hint: "Use KeyboardEvent<HTMLInputElement> for key events on inputs.",
+          documentationLinks: [
+            JSON.stringify({ title: "Responding to Events", url: "https://react.dev/learn/responding-to-events" }),
+            JSON.stringify({ title: "Event Types in TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/forms_and_events" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
 
         // Level 3 – useEffect & Lifecycle (3-4)
@@ -2606,7 +2967,12 @@ interface AdminUser extends BaseUser {
           explanation: "An empty dependency array means the effect runs only once after the component mounts.",
           starterCode: null,
           validationPatterns: [],
-          hint: "Think: when you want 'componentDidMount'-like behavior."
+          hint: "Think: when you want 'componentDidMount'-like behavior.",
+          documentationLinks: [
+            JSON.stringify({ title: "useEffect Hook", url: "https://react.dev/reference/react/useEffect" }),
+            JSON.stringify({ title: "useEffect with TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks#useeffect" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "3-4-5",
@@ -2624,7 +2990,12 @@ interface AdminUser extends BaseUser {
             "console.log(\"Mounted\")||console.log('Mounted')",
             "[]"
           ],
-          hint: "Use useEffect(() => { console.log(\"Mounted\"); }, []);"
+          hint: "Use useEffect(() => { console.log(\"Mounted\"); }, []);",
+          documentationLinks: [
+            JSON.stringify({ title: "useEffect Hook", url: "https://react.dev/reference/react/useEffect" }),
+            JSON.stringify({ title: "useEffect with TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks#useeffect" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "3-4-6",
@@ -2643,7 +3014,12 @@ interface AdminUser extends BaseUser {
             "unsubscribe()",
             "return () =>"
           ],
-          hint: "Call subscribe() inside the effect and return a cleanup function that calls unsubscribe()."
+          hint: "Call subscribe() inside the effect and return a cleanup function that calls unsubscribe().",
+          documentationLinks: [
+            JSON.stringify({ title: "useEffect Hook", url: "https://react.dev/reference/react/useEffect" }),
+            JSON.stringify({ title: "useEffect with TypeScript", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks#useeffect" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
 
         // Level 4 – Generic React Components (4-1)
@@ -2664,7 +3040,12 @@ interface AdminUser extends BaseUser {
           explanation: "The typical pattern is function List<T>(props: { items: T[] }) { ... } with <T> after the function name.",
           starterCode: null,
           validationPatterns: [],
-          hint: "Place <T> immediately after the component name."
+          hint: "Place <T> immediately after the component name.",
+          documentationLinks: [
+            JSON.stringify({ title: "Generic Components", url: "https://react-typescript-cheatsheet.netlify.app/docs/advanced/patterns_by_usecase#generic-components" }),
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Advanced Patterns", url: "https://react-typescript-cheatsheet.netlify.app/docs/advanced/patterns_by_usecase" })
+          ]
         },
         {
           id: "4-1-5",
@@ -2683,7 +3064,12 @@ interface AdminUser extends BaseUser {
             "renderItem: (item: T) => ReactNode",
             "function BadgeList<T>"
           ],
-          hint: "Mirror the List<T> pattern from earlier lessons."
+          hint: "Mirror the List<T> pattern from earlier lessons.",
+          documentationLinks: [
+            JSON.stringify({ title: "Generic Components", url: "https://react-typescript-cheatsheet.netlify.app/docs/advanced/patterns_by_usecase#generic-components" }),
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Advanced Patterns", url: "https://react-typescript-cheatsheet.netlify.app/docs/advanced/patterns_by_usecase" })
+          ]
         },
         {
           id: "4-1-6",
@@ -2701,7 +3087,12 @@ interface AdminUser extends BaseUser {
             "function TableRow<T extends { id: number }>",
             "children: (item: T) => ReactNode"
           ],
-          hint: "Constrain T with extends { id: number } just like in previous examples."
+          hint: "Constrain T with extends { id: number } just like in previous examples.",
+          documentationLinks: [
+            JSON.stringify({ title: "Generic Components", url: "https://react-typescript-cheatsheet.netlify.app/docs/advanced/patterns_by_usecase#generic-components" }),
+            JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
+            JSON.stringify({ title: "Advanced Patterns", url: "https://react-typescript-cheatsheet.netlify.app/docs/advanced/patterns_by_usecase" })
+          ]
         },
 
         // Level 4 – Custom Hooks (4-2)
@@ -2722,7 +3113,12 @@ interface AdminUser extends BaseUser {
           explanation: "Custom hooks should start with 'use' followed by a capitalized name segment, e.g. useCounter.",
           starterCode: null,
           validationPatterns: [],
-          hint: "React relies on the 'use' prefix to detect hooks."
+          hint: "React relies on the 'use' prefix to detect hooks.",
+          documentationLinks: [
+            JSON.stringify({ title: "Custom Hooks", url: "https://react.dev/learn/reusing-logic-with-custom-hooks" }),
+            JSON.stringify({ title: "Typing Custom Hooks", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks#custom-hooks" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "4-2-5",
@@ -2741,7 +3137,12 @@ interface AdminUser extends BaseUser {
             "return [value",
             "toggle"
           ],
-          hint: "Initialize with useState(false) and return the value plus a function that flips it."
+          hint: "Initialize with useState(false) and return the value plus a function that flips it.",
+          documentationLinks: [
+            JSON.stringify({ title: "Custom Hooks", url: "https://react.dev/learn/reusing-logic-with-custom-hooks" }),
+            JSON.stringify({ title: "Typing Custom Hooks", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks#custom-hooks" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
         {
           id: "4-2-6",
@@ -2761,7 +3162,12 @@ interface AdminUser extends BaseUser {
             "add: (item: T)",
             "remove: (index: number)"
           ],
-          hint: "Use a generic type parameter and manage items with useState."
+          hint: "Use a generic type parameter and manage items with useState.",
+          documentationLinks: [
+            JSON.stringify({ title: "Custom Hooks", url: "https://react.dev/learn/reusing-logic-with-custom-hooks" }),
+            JSON.stringify({ title: "Typing Custom Hooks", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks#custom-hooks" }),
+            JSON.stringify({ title: "React TypeScript", url: "https://react.dev/learn/typescript" })
+          ]
         },
 
         // Level 4 – Context & Custom Hooks (4-3)
@@ -2782,7 +3188,12 @@ interface AdminUser extends BaseUser {
           explanation: "Throwing an error when context is undefined gives a clear message that the hook must be used within the appropriate Provider.",
           starterCode: null,
           validationPatterns: [],
-          hint: "Think about developer experience when someone forgets to wrap components in the Provider."
+          hint: "Think about developer experience when someone forgets to wrap components in the Provider.",
+          documentationLinks: [
+            JSON.stringify({ title: "Context with TypeScript", url: "https://react.dev/learn/typescript#typing-usecontext" }),
+            JSON.stringify({ title: "Context API", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/context" }),
+            JSON.stringify({ title: "useContext Hook", url: "https://react.dev/reference/react/useContext" })
+          ]
         },
         {
           id: "4-3-5",
@@ -2801,7 +3212,12 @@ interface AdminUser extends BaseUser {
             "setUser: (user: string | null) => void",
             "createContext<UserContextType | undefined>(undefined)"
           ],
-          hint: "Follow the same pattern as the ThemeContext example."
+          hint: "Follow the same pattern as the ThemeContext example.",
+          documentationLinks: [
+            JSON.stringify({ title: "Context with TypeScript", url: "https://react.dev/learn/typescript#typing-usecontext" }),
+            JSON.stringify({ title: "Context API", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/context" }),
+            JSON.stringify({ title: "useContext Hook", url: "https://react.dev/reference/react/useContext" })
+          ]
         },
         {
           id: "4-3-6",
@@ -2820,7 +3236,12 @@ interface AdminUser extends BaseUser {
             "if (!context)||if (!userContext)||if (!value",
             "throw new Error"
           ],
-          hint: "Copy the guard pattern from the useTheme example and adjust names."
+          hint: "Copy the guard pattern from the useTheme example and adjust names.",
+          documentationLinks: [
+            JSON.stringify({ title: "Context with TypeScript", url: "https://react.dev/learn/typescript#typing-usecontext" }),
+            JSON.stringify({ title: "Context API", url: "https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/context" }),
+            JSON.stringify({ title: "useContext Hook", url: "https://react.dev/reference/react/useContext" })
+          ]
         },
 
         // Level 4 – Utility Types (4-4)
@@ -2841,7 +3262,13 @@ interface AdminUser extends BaseUser {
           explanation: "Readonly<T> marks all properties as read-only, so they cannot be reassigned after initialization.",
           starterCode: null,
           validationPatterns: [],
-          hint: "Think of it as adding 'readonly' to every property."
+          hint: "Think of it as adding 'readonly' to every property.",
+          documentationLinks: [
+            JSON.stringify({ title: "Utility Types", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html" }),
+            JSON.stringify({ title: "Partial", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype" }),
+            JSON.stringify({ title: "Pick", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#picktype-keys" }),
+            JSON.stringify({ title: "Omit", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#omittype-keys" })
+          ]
         },
         {
           id: "4-4-5",
@@ -2857,7 +3284,13 @@ interface AdminUser extends BaseUser {
           validationPatterns: [
             "type ReadonlyUser = Readonly<User>"
           ],
-          hint: "Use Readonly<User> to create the new type."
+          hint: "Use Readonly<User> to create the new type.",
+          documentationLinks: [
+            JSON.stringify({ title: "Utility Types", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html" }),
+            JSON.stringify({ title: "Partial", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype" }),
+            JSON.stringify({ title: "Pick", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#picktype-keys" }),
+            JSON.stringify({ title: "Omit", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#omittype-keys" })
+          ]
         },
         {
           id: "4-4-6",
@@ -2873,7 +3306,13 @@ interface AdminUser extends BaseUser {
           validationPatterns: [
             "type RequiredUser = Required<User>"
           ],
-          hint: "Use Required<User> to remove optional modifiers from all properties."
+          hint: "Use Required<User> to remove optional modifiers from all properties.",
+          documentationLinks: [
+            JSON.stringify({ title: "Utility Types", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html" }),
+            JSON.stringify({ title: "Partial", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype" }),
+            JSON.stringify({ title: "Pick", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#picktype-keys" }),
+            JSON.stringify({ title: "Omit", url: "https://www.typescriptlang.org/docs/handbook/utility-types.html#omittype-keys" })
+          ]
         }
       ];
 
