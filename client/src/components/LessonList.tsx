@@ -50,7 +50,7 @@ export default function LessonList({ lessons, onLessonClick, currentLessonId }: 
                 data-testid={`button-lesson-${lesson.id}`}
               >
                 <div className="flex flex-col md:flex-row lg:flex-col gap-3 flex-1 text-left">
-                  <div className="flex items-center gap-3 md:flex-1">
+                  <div className="flex items-center gap-3 md:flex-1 min-w-0">
                     {lesson.isCompleted ? (
                       <CheckCircle2 className="w-5 h-5 text-chart-2 flex-shrink-0" />
                     ) : lesson.isLocked ? (
@@ -58,9 +58,9 @@ export default function LessonList({ lessons, onLessonClick, currentLessonId }: 
                     ) : (
                       <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                     )}
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 whitespace-normal">
                       <div className="font-medium">{lesson.title}</div>
-                      <div className="text-xs text-muted-foreground line-clamp-1">
+                      <div className="text-xs text-muted-foreground">
                         {lesson.description}
                       </div>
                     </div>
