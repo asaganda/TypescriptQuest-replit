@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle, Play, HelpCircle, Eye, ChevronLeft } from "lucide-react";
+import { CheckCircle2, XCircle, Play, HelpCircle, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import * as ts from "typescript";
 import { useToast } from "@/hooks/use-toast";
 import DocumentationButton from "./DocumentationButton";
 import { parseDocumentationLinks } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 
 interface CodeChallengeProps {
   title: string;
@@ -21,6 +22,8 @@ interface CodeChallengeProps {
   documentationLinks?: string[] | null;
   onNavigatePrevious?: () => void;
   canNavigatePrevious: boolean;
+  onNavigateNext?: () => void;
+  canNavigateNext: boolean;
 }
 
 export default function CodeChallenge({
@@ -36,6 +39,8 @@ export default function CodeChallenge({
   documentationLinks,
   onNavigatePrevious,
   canNavigatePrevious,
+  onNavigateNext,
+  canNavigateNext,
 }: CodeChallengeProps) {
   const [code, setCode] = useState(starterCode);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -48,6 +53,7 @@ export default function CodeChallenge({
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const parsedDocLinks = parseDocumentationLinks(documentationLinks);
 
@@ -334,6 +340,19 @@ export default function CodeChallenge({
             >
               <HelpCircle className="w-4 h-4 mr-2" />
               Show Hint
+            </Button>
+          )}
+
+          {/* Next Challenge Button - Admin Only */}
+          {user?.isAdmin && canNavigateNext && onNavigateNext && (
+            <Button
+              variant="outline"
+              onClick={onNavigateNext}
+              className="w-full sm:w-auto order-4"
+              data-testid="button-next-challenge"
+            >
+              Next Challenge
+              <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
           )}
         </div>

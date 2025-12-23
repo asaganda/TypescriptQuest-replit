@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Circle, Lock, ChevronRight, ChevronDown } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 interface Lesson {
   id: string;
@@ -25,6 +26,7 @@ interface LessonListProps {
 
 export default function LessonList({ lessons, onLessonClick, currentLessonId }: LessonListProps) {
   const [openLessonId, setOpenLessonId] = useState<string | null>(null);
+  const { user } = useAuth();
 
   return (
     <Card>
@@ -36,14 +38,15 @@ export default function LessonList({ lessons, onLessonClick, currentLessonId }: 
           {lessons.map((lesson) => {
             const isCurrent = lesson.id === currentLessonId;
             const isOpen = openLessonId === lesson.id;
-            
+            const isLockedForUser = lesson.isLocked && !user?.isAdmin;
+
             return (
               <Button
                 key={lesson.id}
                 variant={isCurrent ? "secondary" : "ghost"}
                 className="w-full justify-start gap-3 h-auto py-3 px-4"
-                onClick={() => !lesson.isLocked && onLessonClick(lesson.id)}
-                disabled={lesson.isLocked}
+                onClick={() => !isLockedForUser && onLessonClick(lesson.id)}
+                disabled={isLockedForUser}
                 data-testid={`button-lesson-${lesson.id}`}
               >
                 <div className="flex flex-col md:flex-row lg:flex-col gap-3 flex-1 text-left">

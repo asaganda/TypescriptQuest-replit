@@ -3,9 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, XCircle, HelpCircle, ChevronLeft } from "lucide-react";
+import { CheckCircle2, XCircle, HelpCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import DocumentationButton from "./DocumentationButton";
 import { parseDocumentationLinks } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 
 interface MultipleChoiceChallengeProps {
   question: string;
@@ -18,6 +19,8 @@ interface MultipleChoiceChallengeProps {
   documentationLinks?: string[] | null;
   onNavigatePrevious?: () => void;
   canNavigatePrevious: boolean;
+  onNavigateNext?: () => void;
+  canNavigateNext: boolean;
 }
 
 export default function MultipleChoiceChallenge({
@@ -31,11 +34,14 @@ export default function MultipleChoiceChallenge({
   documentationLinks,
   onNavigatePrevious,
   canNavigatePrevious,
+  onNavigateNext,
+  canNavigateNext,
 }: MultipleChoiceChallengeProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [hasProgressed, setHasProgressed] = useState(false);
+  const { user } = useAuth();
 
   const parsedDocLinks = parseDocumentationLinks(documentationLinks);
 
@@ -174,6 +180,19 @@ export default function MultipleChoiceChallenge({
               <HelpCircle className="w-4 h-4 mr-2" />
               Show Hint
             </Button>
+
+            {/* Next Challenge Button - Admin Only */}
+            {user?.isAdmin && canNavigateNext && onNavigateNext && (
+              <Button
+                variant="outline"
+                onClick={onNavigateNext}
+                className="w-full sm:w-auto order-4"
+                data-testid="button-next-challenge"
+              >
+                Next Challenge
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </Button>
+            )}
           </div>
         ) : (
           <>
@@ -218,6 +237,19 @@ export default function MultipleChoiceChallenge({
               >
                 {hasProgressed ? "Continuing..." : "Continue"}
               </Button>
+
+              {/* Next Challenge Button - Admin Only */}
+              {user?.isAdmin && canNavigateNext && onNavigateNext && (
+                <Button
+                  variant="outline"
+                  onClick={onNavigateNext}
+                  className="w-full sm:w-auto order-4"
+                  data-testid="button-next-challenge"
+                >
+                  Next Challenge
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              )}
             </div>
           </>
         )}

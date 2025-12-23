@@ -2411,6 +2411,8 @@ interface AdminUser extends BaseUser {
             "status: ResponseStatus"
           ],
           hint: "Use numeric literal union types for the status values.",
+          sampleSolution: `type ResponseStatus = 200 | 404 | 500;
+let status: ResponseStatus;`,
           documentationLinks: [
             JSON.stringify({ title: "Union Types", url: "https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types" }),
             JSON.stringify({ title: "Intersection Types", url: "https://www.typescriptlang.org/docs/handbook/2/objects.html#intersection-types" }),

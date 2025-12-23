@@ -2,6 +2,7 @@ import LevelCard from "@/components/LevelCard";
 import { useQuery } from "@tanstack/react-query";
 import { getLevels, getUserStats, getUserProgress, getLessonsByLevel, getChallengesByLesson } from "@/lib/api";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth";
 
 interface LevelProgress {
   id: string;
@@ -16,6 +17,7 @@ interface LevelProgress {
 }
 
 export default function Levels() {
+  const { user } = useAuth();
   const [levelsWithProgress, setLevelsWithProgress] = useState<LevelProgress[]>([]);
   const [isCalculating, setIsCalculating] = useState(false);
 
@@ -47,8 +49,9 @@ export default function Levels() {
 
         for (const level of sortedLevels) {
           // First level is always unlocked, subsequent levels require previous level completion
+          // Admins bypass all lock restrictions
           let isLocked = false;
-          if (level.order > 1) {
+          if (!user?.isAdmin && level.order > 1) {
             const previousLevel = levelData[levelData.length - 1];
             isLocked = !previousLevel?.isCompleted;
           }

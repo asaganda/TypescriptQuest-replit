@@ -254,7 +254,14 @@ export default function LessonDetail() {
     }
   };
 
+  const handleNextChallenge = () => {
+    if (currentChallengeIndex < challenges.length - 1) {
+      setCurrentChallengeIndex(prev => prev + 1);
+    }
+  };
+
   const canNavigatePrevious = currentChallengeIndex > 0;
+  const canNavigateNext = currentChallengeIndex < challenges.length - 1;
 
   return (
     <div className="min-h-screen bg-background">
@@ -326,6 +333,8 @@ export default function LessonDetail() {
                     documentationLinks={currentChallenge.documentationLinks}
                     onNavigatePrevious={handlePreviousChallenge}
                     canNavigatePrevious={canNavigatePrevious}
+                    onNavigateNext={handleNextChallenge}
+                    canNavigateNext={canNavigateNext}
                     onComplete={(correct) => handleChallengeComplete(correct, false)}
                     index={currentChallengeIndex}
                     total={challenges.length}
@@ -341,6 +350,8 @@ export default function LessonDetail() {
                     documentationLinks={currentChallenge.documentationLinks}
                     onNavigatePrevious={handlePreviousChallenge}
                     canNavigatePrevious={canNavigatePrevious}
+                    onNavigateNext={handleNextChallenge}
+                    canNavigateNext={canNavigateNext}
                     onComplete={(correct) => handleChallengeComplete(correct, false)}
                     index={currentChallengeIndex}
                     total={challenges.length}

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { BookOpen, Trophy, User, LogOut, Sparkles, Menu } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 interface TopNavProps {
   userName?: string;
@@ -14,6 +15,7 @@ interface TopNavProps {
 export default function TopNav({ userName, totalXP = 0, onLogout }: TopNavProps) {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
 
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: Trophy },
@@ -22,7 +24,13 @@ export default function TopNav({ userName, totalXP = 0, onLogout }: TopNavProps)
   ];
 
   return (
-    <nav className="border-b bg-background sticky top-0 z-50">
+    <>
+      {user?.isAdmin && (
+        <div className="bg-yellow-500 text-black py-2 px-4 text-center font-semibold sticky top-0 z-50">
+          🔓 ADMIN MODE ACTIVE - All content unlocked
+        </div>
+      )}
+      <nav className="border-b bg-background sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
@@ -136,5 +144,6 @@ export default function TopNav({ userName, totalXP = 0, onLogout }: TopNavProps)
         </div>
       </div>
     </nav>
+    </>
   );
 }

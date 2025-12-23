@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Lock, CheckCircle2, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
+import { useAuth } from "@/lib/auth";
 
 interface LevelCardProps {
   id: string;
@@ -30,12 +31,20 @@ export default function LevelCard({
   nextLessonId,
   onClick
 }: LevelCardProps) {
+  const { user } = useAuth();
   const lessonToStart = nextLessonId || `${id}-1`;
+  const isAdminBypass = user?.isAdmin && isLocked;
+
   return (
-    <Card 
-      className={`${isLocked ? "opacity-60" : "hover-elevate"} relative`}
+    <Card
+      className={`${isLocked && !user?.isAdmin ? "opacity-60" : "hover-elevate"} relative`}
       data-testid={`card-level-${id}`}
     >
+      {isAdminBypass && (
+        <Badge className="absolute top-2 right-2 bg-yellow-500 text-black hover:bg-yellow-600">
+          ADMIN
+        </Badge>
+      )}
       {isCompleted && (
         <div className="absolute -top-2 -right-2 bg-primary rounded-full p-1">
           <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
@@ -68,7 +77,7 @@ export default function LevelCard({
           <Progress value={completionPercentage} className="h-2" style={{marginBottom: "1em"}} data-testid={`progress-level-${id}`} />
         </div>
         
-        {isLocked ? (
+        {isLocked && !user?.isAdmin ? (
           <Button
             className="w-full gap-2"
             disabled
@@ -83,7 +92,7 @@ export default function LevelCard({
               onClick={onClick}
               data-testid={`button-start-level-${id}`}
             >
-              {isCompleted ? "Review" : "Continue"}
+              {isAdminBypass ? "Access (Admin)" : isCompleted ? "Review" : "Continue"}
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>

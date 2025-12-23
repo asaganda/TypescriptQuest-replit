@@ -12,6 +12,12 @@ import { z } from "zod";
  * Level 1 is always available.
  */
 async function calculateCurrentLevel(userId: string): Promise<number> {
+  // Check if user is admin - admins bypass level restrictions
+  const user = await storage.getUser(userId);
+  if (user?.isAdmin) {
+    return 4; // Max level - admins can access everything
+  }
+
   const allLevels = await storage.getAllLevels();
   const sortedLevels = [...allLevels].sort((a, b) => a.order - b.order);
   const userProgress = await storage.getUserProgress(userId);
