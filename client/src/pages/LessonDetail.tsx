@@ -300,6 +300,7 @@ export default function LessonDetail() {
               title={lesson.title}
               content={lesson.content}
               isCompleted={isLessonCompleted}
+              levelName={level?.name}
             />
 
             {showCompletion ? (

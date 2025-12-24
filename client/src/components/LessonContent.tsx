@@ -6,12 +6,18 @@ interface LessonContentProps {
   title: string;
   content: string;
   isCompleted?: boolean;
+  levelName?: string;
 }
 
-export default function LessonContent({ title, content, isCompleted }: LessonContentProps) {
+export default function LessonContent({ title, content, isCompleted, levelName }: LessonContentProps) {
   return (
     <Card>
       <CardHeader className="gap-2">
+        {levelName && (
+          <div className="text-sm text-muted-foreground">
+            {levelName}
+          </div>
+        )}
         <div className="flex items-start justify-between gap-4">
           <CardTitle className="text-2xl">{title}</CardTitle>
           {isCompleted && (
