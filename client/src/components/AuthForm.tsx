@@ -74,17 +74,6 @@ export default function AuthForm({ onLogin, onSignup }: AuthFormProps) {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                {!isSignup && (
-                  <Link href="/forgot-password">
-                    <button
-                      type="button"
-                      className="text-sm text-primary hover:underline"
-                      data-testid="link-forgot-password"
-                    >
-                      Forgot password?
-                    </button>
-                  </Link>
-                )}
               </div>
               <Input
                 id="password"
@@ -95,6 +84,16 @@ export default function AuthForm({ onLogin, onSignup }: AuthFormProps) {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              {!isSignup && (
+                <Link href="/forgot-password" className="block">
+                  <a
+                    className="text-sm text-primary hover:underline"
+                    data-testid="link-forgot-password"
+                  >
+                    Forgot password?
+                  </a>
+                </Link>
+              )}
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
