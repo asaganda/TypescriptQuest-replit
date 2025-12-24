@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useLocation } from "wouter";
+import { queryClient } from "@/lib/queryClient";
 
 interface User {
   id: string;
@@ -58,6 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(error.error || "Login failed");
     }
 
+    // Clear all cached data to ensure fresh start for logged-in user
+    queryClient.clear();
+
     const userData = await response.json();
     setUser(userData);
     setLocation("/dashboard");
@@ -76,6 +80,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(error.error || "Signup failed");
     }
 
+    // Clear all cached data to ensure fresh start for new user
+    queryClient.clear();
+
     const userData = await response.json();
     setUser(userData);
     setLocation("/dashboard");
@@ -86,6 +93,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: "POST",
       credentials: "include",
     });
+
+    // Clear all cached data on logout
+    queryClient.clear();
+
     setUser(null);
     setLocation("/");
   };

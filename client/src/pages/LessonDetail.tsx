@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRoute, useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
-import { getLessonsByLevel, getLesson, getChallengesByLesson, completeChallenge, completeLesson, getUserProgress, type Lesson } from "@/lib/api";
+import { getLessonsByLevel, getLesson, getLevel, getChallengesByLesson, completeChallenge, completeLesson, getUserProgress, type Lesson } from "@/lib/api";
 import LessonContent from "@/components/LessonContent";
 import LessonList from "@/components/LessonList";
 import MultipleChoiceChallenge from "@/components/MultipleChoiceChallenge";
@@ -24,6 +24,12 @@ export default function LessonDetail() {
 
   const lessonId = params?.lessonId || "";
   const levelId = params?.levelId || "";
+
+  const { data: level } = useQuery({
+    queryKey: ["/api/levels", levelId],
+    queryFn: () => getLevel(levelId),
+    enabled: !!levelId,
+  });
 
   const { data: lessons } = useQuery({
     queryKey: ["/api/levels", levelId, "lessons"],
@@ -285,6 +291,7 @@ export default function LessonDetail() {
                 setLocation(`/level/${levelId}/lesson/${id}`);
               }}
               currentLessonId={lessonId}
+              levelName={level ? `Level ${level.order}` : undefined}
             />
           </div>
 
@@ -326,6 +333,7 @@ export default function LessonDetail() {
               <div className="space-y-6">
                 {currentChallenge.type === "multiple-choice" && currentChallenge.options && currentChallenge.correctAnswer !== undefined && currentChallenge.correctAnswer !== null ? (
                   <MultipleChoiceChallenge
+                    challengeId={currentChallenge.id}
                     question={currentChallenge.prompt}
                     options={currentChallenge.options}
                     correctAnswer={currentChallenge.correctAnswer}
@@ -341,6 +349,7 @@ export default function LessonDetail() {
                   />
                 ) : currentChallenge.type === "code" && currentChallenge.starterCode && currentChallenge.validationPatterns ? (
                   <CodeChallenge
+                    challengeId={currentChallenge.id}
                     title="Code Challenge"
                     prompt={currentChallenge.prompt}
                     starterCode={currentChallenge.starterCode}

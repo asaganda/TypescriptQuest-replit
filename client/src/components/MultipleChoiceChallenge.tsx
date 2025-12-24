@@ -5,10 +5,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, XCircle, HelpCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import DocumentationButton from "./DocumentationButton";
-import { parseDocumentationLinks } from "@/lib/api";
+import { parseDocumentationLinks, getUserAnswer, completeChallenge, type UserAnswer } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
 interface MultipleChoiceChallengeProps {
+  challengeId: string;
   question: string;
   options: string[];
   correctAnswer: number;
@@ -24,6 +25,7 @@ interface MultipleChoiceChallengeProps {
 }
 
 export default function MultipleChoiceChallenge({
+  challengeId,
   question,
   options,
   correctAnswer,
@@ -41,23 +43,52 @@ export default function MultipleChoiceChallenge({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [hasProgressed, setHasProgressed] = useState(false);
+  const [savedAnswer, setSavedAnswer] = useState<UserAnswer | null>(null);
   const { user } = useAuth();
 
   const parsedDocLinks = parseDocumentationLinks(documentationLinks);
 
-  // Reset state when moving to a new challenge
+  // Load saved answer when challenge changes
   useEffect(() => {
-    setSelectedAnswer(null);
-    setIsSubmitted(false);
+    async function loadSavedAnswer() {
+      try {
+        const answer = await getUserAnswer(challengeId);
+        if (answer) {
+          setSavedAnswer(answer);
+          setSelectedAnswer(answer.answerData.selectedAnswer ?? null);
+          setIsSubmitted(true);
+        } else {
+          setSavedAnswer(null);
+          setSelectedAnswer(null);
+          setIsSubmitted(false);
+        }
+      } catch (error) {
+        console.error("Failed to load saved answer:", error);
+        setSavedAnswer(null);
+        setSelectedAnswer(null);
+        setIsSubmitted(false);
+      }
+    }
+
+    loadSavedAnswer();
     setShowHint(false);
     setHasProgressed(false);
-  }, [index]);
+  }, [challengeId]);
 
   const handleSubmit = () => {
     if (selectedAnswer === null) return;
-    
+
     setIsSubmitted(true);
     const isCorrect = selectedAnswer === correctAnswer;
+
+    // Save answer to backend
+    completeChallenge(
+      challengeId,
+      showHint,
+      { selectedAnswer },
+      isCorrect
+    ).catch(err => console.error("Failed to save answer:", err));
+
     console.log('Answer submitted:', isCorrect ? 'Correct!' : 'Incorrect');
   };
 
@@ -89,6 +120,11 @@ export default function MultipleChoiceChallenge({
               </span>
             </CardTitle>
             <CardDescription>{question}</CardDescription>
+            {savedAnswer && (
+              <div className="text-xs text-muted-foreground mt-2">
+                Previously answered on {new Date(savedAnswer.submittedAt).toLocaleDateString()}
+              </div>
+            )}
           </div>
           <DocumentationButton links={parsedDocLinks} />
         </div>

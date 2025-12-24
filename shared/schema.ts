@@ -82,12 +82,29 @@ export const userProgress = pgTable("user_progress", {
   usedHint: boolean("used_hint").default(false),
 });
 
-export const insertUserProgressSchema = createInsertSchema(userProgress).omit({ 
-  id: true, 
-  completedAt: true 
+export const insertUserProgressSchema = createInsertSchema(userProgress).omit({
+  id: true,
+  completedAt: true
 });
 export type InsertUserProgress = z.infer<typeof insertUserProgressSchema>;
 export type UserProgress = typeof userProgress.$inferSelect;
+
+// User Answers table (stores user's submitted answers for review)
+export const userAnswers = pgTable("user_answers", {
+  id: varchar("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  challengeId: varchar("challenge_id").notNull().references(() => challenges.id),
+  answerData: text("answer_data").notNull(), // JSON: {selectedAnswer: 2} or {code: "..."}
+  isCorrect: boolean("is_correct").notNull(),
+  submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+});
+
+export const insertUserAnswerSchema = createInsertSchema(userAnswers).omit({
+  id: true,
+  submittedAt: true
+});
+export type InsertUserAnswer = z.infer<typeof insertUserAnswerSchema>;
+export type UserAnswer = typeof userAnswers.$inferSelect;
 
 // User Stats (aggregated data for each user)
 export const userStats = pgTable("user_stats", {

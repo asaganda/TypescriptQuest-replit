@@ -46,6 +46,10 @@ export async function getLevels(): Promise<Level[]> {
   return apiRequest<Level[]>("/api/levels");
 }
 
+export async function getLevel(id: string): Promise<Level> {
+  return apiRequest<Level>(`/api/levels/${id}`);
+}
+
 // Lessons
 export interface Lesson {
   id: string;
@@ -125,11 +129,37 @@ export async function completeLesson(lessonId: string, usedHint: boolean = false
   });
 }
 
-export async function completeChallenge(challengeId: string, usedHint: boolean = false) {
+export async function completeChallenge(
+  challengeId: string,
+  usedHint: boolean,
+  answerData: { selectedAnswer?: number; code?: string },
+  isCorrect: boolean
+) {
   return apiRequest(`/api/progress/challenge/${challengeId}`, {
     method: "POST",
-    body: JSON.stringify({ usedHint }),
+    body: JSON.stringify({ usedHint, answerData, isCorrect }),
   });
+}
+
+export interface UserAnswer {
+  answerData: {
+    selectedAnswer?: number;
+    code?: string;
+  };
+  isCorrect: boolean;
+  submittedAt: string;
+}
+
+export async function getUserAnswer(challengeId: string): Promise<UserAnswer | null> {
+  try {
+    return await apiRequest<UserAnswer>(`/api/challenges/${challengeId}/answer`);
+  } catch (error: any) {
+    // Return null if no answer found (404)
+    if (error.message?.includes("404") || error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 // Badges

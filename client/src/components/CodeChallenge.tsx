@@ -6,10 +6,11 @@ import Editor from "@monaco-editor/react";
 import * as ts from "typescript";
 import { useToast } from "@/hooks/use-toast";
 import DocumentationButton from "./DocumentationButton";
-import { parseDocumentationLinks } from "@/lib/api";
+import { parseDocumentationLinks, getUserAnswer, completeChallenge, type UserAnswer } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
 interface CodeChallengeProps {
+  challengeId: string;
   title: string;
   prompt: string;
   starterCode: string;
@@ -27,6 +28,7 @@ interface CodeChallengeProps {
 }
 
 export default function CodeChallenge({
+  challengeId,
   title,
   prompt,
   starterCode,
@@ -52,6 +54,7 @@ export default function CodeChallenge({
   const [editorTheme, setEditorTheme] = useState<"vs-dark" | "vs">("vs");
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [savedAnswer, setSavedAnswer] = useState<UserAnswer | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -73,18 +76,44 @@ export default function CodeChallenge({
     return () => observer.disconnect();
   }, []);
 
-  // Reset state when moving to a new challenge
+  // Load saved answer when challenge changes
   useEffect(() => {
-    setCode(starterCode);
-    setIsSubmitted(false);
-    setIsCorrect(false);
-    setFeedback("");
+    async function loadSavedAnswer() {
+      try {
+        const answer = await getUserAnswer(challengeId);
+        if (answer && answer.answerData.code) {
+          setSavedAnswer(answer);
+          setCode(answer.answerData.code);
+          setIsSubmitted(true);
+          setIsCorrect(answer.isCorrect);
+          if (answer.isCorrect) {
+            setFeedback("Great job! Your code meets all the requirements. +30 XP");
+          }
+        } else {
+          // No saved answer, use starter code
+          setSavedAnswer(null);
+          setCode(starterCode);
+          setIsSubmitted(false);
+          setIsCorrect(false);
+          setFeedback("");
+        }
+      } catch (error) {
+        console.error("Failed to load saved answer:", error);
+        setSavedAnswer(null);
+        setCode(starterCode);
+        setIsSubmitted(false);
+        setIsCorrect(false);
+        setFeedback("");
+      }
+    }
+
+    loadSavedAnswer();
     setShowHint(false);
     setHasProgressed(false);
     setTsErrors([]);
     setFailedAttempts(0);
     setShowAnswer(false);
-  }, [index, starterCode]);
+  }, [challengeId, starterCode]);
 
   const validateTypescript = () => {
     const result = ts.transpileModule(code, {
@@ -129,6 +158,15 @@ export default function CodeChallenge({
         } found. ${line !== undefined ? `Line ${line}: ` : ""}${message}`
       );
       console.log("Code challenge has TypeScript errors");
+
+      // Save failed attempt
+      completeChallenge(
+        challengeId,
+        showHint,
+        { code },
+        false
+      ).catch(err => console.error("Failed to save answer:", err));
+
       return;
     }
 
@@ -164,6 +202,14 @@ export default function CodeChallenge({
       console.log("Code challenge needs revision");
       setFailedAttempts(prev => prev + 1);
     }
+
+    // Save answer (whether correct or incorrect)
+    completeChallenge(
+      challengeId,
+      showHint,
+      { code },
+      allPatternsMatch
+    ).catch(err => console.error("Failed to save answer:", err));
   };
 
   const handleContinue = () => {
@@ -212,6 +258,11 @@ export default function CodeChallenge({
               </span>
             </CardTitle>
             <CardDescription>{prompt}</CardDescription>
+            {savedAnswer && (
+              <div className="text-xs text-muted-foreground mt-2">
+                Previously submitted on {new Date(savedAnswer.submittedAt).toLocaleDateString()}
+              </div>
+            )}
           </div>
           <DocumentationButton links={parsedDocLinks} />
         </div>

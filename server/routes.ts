@@ -353,57 +353,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/progress/challenge/:challengeId", requireAuth, async (req, res) => {
     try {
       const { challengeId } = req.params;
-      const { usedHint } = z.object({ usedHint: z.boolean().optional() }).parse(req.body);
+      const { usedHint, answerData, isCorrect } = z.object({
+        usedHint: z.boolean().optional(),
+        answerData: z.object({
+          selectedAnswer: z.number().optional(),
+          code: z.string().optional(),
+        }),
+        isCorrect: z.boolean(),
+      }).parse(req.body);
       const userId = req.session.userId!;
 
-      // Check if already completed
-      const alreadyCompleted = await storage.hasCompletedChallenge(userId, challengeId);
-      if (alreadyCompleted) {
-        return res.json({ message: "Already completed", xpEarned: 0 });
-      }
-
-      // Get challenge for XP reward
-      const challenge = await storage.getChallenge(challengeId);
-      if (!challenge) {
-        return res.status(404).json({ error: "Challenge not found" });
-      }
-
-      // Create progress record
-      await storage.createProgress({
+      // Save the user's answer (whether correct or not)
+      await storage.createUserAnswer({
         userId,
-        lessonId: null,
         challengeId,
-        usedHint: usedHint || false,
+        answerData: JSON.stringify(answerData),
+        isCorrect,
       });
 
-      // Update user stats
-      const stats = await storage.getUserStats(userId);
-      if (stats) {
-        const newTotalXP = stats.totalXP + challenge.xpReward;
-        const newCurrentLevel = await calculateCurrentLevel(userId);
+      // Only mark as complete and award XP if the answer is correct
+      if (isCorrect) {
+        // Check if already completed
+        const alreadyCompleted = await storage.hasCompletedChallenge(userId, challengeId);
+        if (alreadyCompleted) {
+          return res.json({ message: "Already completed", xpEarned: 0 });
+        }
 
-        await storage.updateUserStats(userId, {
-          totalXP: newTotalXP,
-          currentLevel: newCurrentLevel,
-          challengesCompleted: stats.challengesCompleted + 1,
+        // Get challenge for XP reward
+        const challenge = await storage.getChallenge(challengeId);
+        if (!challenge) {
+          return res.status(404).json({ error: "Challenge not found" });
+        }
+
+        // Create progress record
+        await storage.createProgress({
+          userId,
+          lessonId: null,
+          challengeId,
+          usedHint: usedHint || false,
         });
 
-        // Check for badge: 5 challenges
-        if (stats.challengesCompleted + 1 >= 5) {
-          const userBadges = await storage.getUserBadges(userId);
-          const hasFiveChallengesBadge = userBadges.some(ub => ub.badgeId === "five-challenges");
-          if (!hasFiveChallengesBadge) {
-            await storage.awardBadge({ userId, badgeId: "five-challenges" });
+        // Update user stats
+        const stats = await storage.getUserStats(userId);
+        if (stats) {
+          const newTotalXP = stats.totalXP + challenge.xpReward;
+          const newCurrentLevel = await calculateCurrentLevel(userId);
+
+          await storage.updateUserStats(userId, {
+            totalXP: newTotalXP,
+            currentLevel: newCurrentLevel,
+            challengesCompleted: stats.challengesCompleted + 1,
+          });
+
+          // Check for badge: 5 challenges
+          if (stats.challengesCompleted + 1 >= 5) {
+            const userBadges = await storage.getUserBadges(userId);
+            const hasFiveChallengesBadge = userBadges.some(ub => ub.badgeId === "five-challenges");
+            if (!hasFiveChallengesBadge) {
+              await storage.awardBadge({ userId, badgeId: "five-challenges" });
+            }
           }
         }
-      }
 
-      res.json({ success: true, xpEarned: challenge.xpReward });
+        res.json({ success: true, xpEarned: challenge.xpReward });
+      } else {
+        // Answer was incorrect - saved but no XP awarded
+        res.json({ success: true, xpEarned: 0 });
+      }
     } catch (error) {
       console.error("Error completing challenge:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: error.errors });
       }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Get user's answer for a specific challenge
+  app.get("/api/challenges/:challengeId/answer", requireAuth, async (req, res) => {
+    try {
+      const { challengeId } = req.params;
+      const userId = req.session.userId!;
+
+      const answer = await storage.getUserAnswer(userId, challengeId);
+
+      if (!answer) {
+        return res.status(404).json({ error: "No answer found" });
+      }
+
+      res.json({
+        answerData: JSON.parse(answer.answerData),
+        isCorrect: answer.isCorrect,
+        submittedAt: answer.submittedAt,
+      });
+    } catch (error) {
+      console.error("Error fetching user answer:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });

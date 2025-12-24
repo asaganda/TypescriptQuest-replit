@@ -22,16 +22,17 @@ interface LessonListProps {
   lessons: Lesson[];
   onLessonClick: (lessonId: string) => void;
   currentLessonId?: string;
+  levelName?: string;
 }
 
-export default function LessonList({ lessons, onLessonClick, currentLessonId }: LessonListProps) {
+export default function LessonList({ lessons, onLessonClick, currentLessonId, levelName }: LessonListProps) {
   const [openLessonId, setOpenLessonId] = useState<string | null>(null);
   const { user } = useAuth();
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Lessons</CardTitle>
+        <CardTitle>Lessons{levelName ? ` - ${levelName}` : ""}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">

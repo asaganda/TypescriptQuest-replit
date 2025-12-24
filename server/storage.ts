@@ -1,5 +1,5 @@
-import { 
-  type User, 
+import {
+  type User,
   type InsertUser,
   type Level,
   type InsertLevel,
@@ -9,6 +9,8 @@ import {
   type InsertChallenge,
   type UserProgress,
   type InsertUserProgress,
+  type UserAnswer,
+  type InsertUserAnswer,
   type UserStats,
   type InsertUserStats,
   type Badge,
@@ -24,6 +26,7 @@ import {
   lessons,
   challenges,
   userProgress as userProgressTable,
+  userAnswers as userAnswersTable,
   userStats as userStatsTable,
   badges,
   userBadges as userBadgesTable,
@@ -32,7 +35,7 @@ import {
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -57,7 +60,12 @@ export interface IStorage {
   hasCompletedLesson(userId: string, lessonId: string): Promise<boolean>;
   hasCompletedChallenge(userId: string, challengeId: string): Promise<boolean>;
   createProgress(progress: InsertUserProgress): Promise<UserProgress>;
-  
+
+  // User Answer methods
+  createUserAnswer(answer: InsertUserAnswer): Promise<UserAnswer>;
+  getUserAnswer(userId: string, challengeId: string): Promise<UserAnswer | undefined>;
+  getUserAnswers(userId: string): Promise<UserAnswer[]>;
+
   // User Stats methods
   getUserStats(userId: string): Promise<UserStats | undefined>;
   createUserStats(stats: InsertUserStats): Promise<UserStats>;
@@ -171,6 +179,38 @@ export class DatabaseStorage implements IStorage {
     return progress;
   }
 
+  // User Answer methods
+  async createUserAnswer(insertAnswer: InsertUserAnswer): Promise<UserAnswer> {
+    const id = randomUUID();
+    const [answer] = await db.insert(userAnswersTable)
+      .values({ ...insertAnswer, id })
+      .returning();
+    return answer;
+  }
+
+  async getUserAnswer(userId: string, challengeId: string): Promise<UserAnswer | undefined> {
+    const [answer] = await db
+      .select()
+      .from(userAnswersTable)
+      .where(
+        and(
+          eq(userAnswersTable.userId, userId),
+          eq(userAnswersTable.challengeId, challengeId)
+        )
+      )
+      .orderBy(desc(userAnswersTable.submittedAt))
+      .limit(1);
+    return answer;
+  }
+
+  async getUserAnswers(userId: string): Promise<UserAnswer[]> {
+    return await db
+      .select()
+      .from(userAnswersTable)
+      .where(eq(userAnswersTable.userId, userId))
+      .orderBy(desc(userAnswersTable.submittedAt));
+  }
+
   // User Stats methods
   async getUserStats(userId: string): Promise<UserStats | undefined> {
     const [stats] = await db.select().from(userStatsTable).where(eq(userStatsTable.userId, userId));
@@ -282,6 +322,7 @@ export class MemStorage implements IStorage {
   private lessons: Map<string, Lesson>;
   private challenges: Map<string, Challenge>;
   private userProgress: Map<string, UserProgress>;
+  private userAnswers: Map<string, UserAnswer>;
   private userStats: Map<string, UserStats>;
   private badges: Map<string, Badge>;
   private userBadges: Map<string, UserBadge>;
@@ -294,12 +335,13 @@ export class MemStorage implements IStorage {
     this.lessons = new Map();
     this.challenges = new Map();
     this.userProgress = new Map();
+    this.userAnswers = new Map();
     this.userStats = new Map();
     this.badges = new Map();
     this.userBadges = new Map();
     this.subscriptions = new Map();
     this.passwordResetTokens = new Map();
-    
+
     this.seedData();
   }
 
@@ -629,6 +671,33 @@ const staff: Staff = {
     };
     this.userProgress.set(id, progress);
     return progress;
+  }
+
+  // User Answer methods
+  async createUserAnswer(insertAnswer: InsertUserAnswer): Promise<UserAnswer> {
+    const id = randomUUID();
+    const answer: UserAnswer = {
+      id,
+      userId: insertAnswer.userId,
+      challengeId: insertAnswer.challengeId,
+      answerData: insertAnswer.answerData,
+      isCorrect: insertAnswer.isCorrect,
+      submittedAt: new Date()
+    };
+    this.userAnswers.set(id, answer);
+    return answer;
+  }
+
+  async getUserAnswer(userId: string, challengeId: string): Promise<UserAnswer | undefined> {
+    return Array.from(this.userAnswers.values())
+      .filter(answer => answer.userId === userId && answer.challengeId === challengeId)
+      .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime())[0];
+  }
+
+  async getUserAnswers(userId: string): Promise<UserAnswer[]> {
+    return Array.from(this.userAnswers.values())
+      .filter(answer => answer.userId === userId)
+      .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
   }
 
   // User Stats methods
