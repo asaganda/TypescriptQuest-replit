@@ -217,8 +217,8 @@ export default function MultipleChoiceChallenge({
               Show Hint
             </Button>
 
-            {/* Next Challenge Button - Admin Only */}
-            {user?.isAdmin && canNavigateNext && onNavigateNext && (
+            {/* Next Challenge Button - Show for admin or when viewing a completed challenge */}
+            {canNavigateNext && onNavigateNext && (user?.isAdmin || (savedAnswer && isSubmitted)) && (
               <Button
                 variant="outline"
                 onClick={onNavigateNext}
@@ -274,8 +274,8 @@ export default function MultipleChoiceChallenge({
                 {hasProgressed ? "Continuing..." : "Continue"}
               </Button>
 
-              {/* Next Challenge Button - Admin Only */}
-              {user?.isAdmin && canNavigateNext && onNavigateNext && (
+              {/* Next Challenge Button - Show for admin or when viewing a completed challenge */}
+              {canNavigateNext && onNavigateNext && (user?.isAdmin || (savedAnswer && isSubmitted)) && (
                 <Button
                   variant="outline"
                   onClick={onNavigateNext}
