@@ -30,7 +30,7 @@ export default function TopNav({ userName, totalXP = 0, onLogout }: TopNavProps)
           🔓 ADMIN MODE ACTIVE - All content unlocked
         </div>
       )}
-      <nav className="border-b bg-background sticky top-0 z-50">
+      <nav className={`border-b bg-background sticky ${user?.isAdmin ? 'top-[40px]' : 'top-0'} z-40`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
