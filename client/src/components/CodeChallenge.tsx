@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle, Play, HelpCircle, Eye, ChevronLeft, ChevronRight, Terminal } from "lucide-react";
+import { CheckCircle2, XCircle, Play, HelpCircle, Eye, ChevronLeft, ChevronRight, Terminal, ChevronDown } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import * as ts from "typescript";
 import { useToast } from "@/hooks/use-toast";
@@ -57,6 +57,7 @@ export default function CodeChallenge({
   const [savedAnswer, setSavedAnswer] = useState<UserAnswer | null>(null);
   const [consoleOutput, setConsoleOutput] = useState<string[]>([]);
   const [executionError, setExecutionError] = useState<string | null>(null);
+  const [showConsole, setShowConsole] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -117,6 +118,7 @@ export default function CodeChallenge({
     setShowAnswer(false);
     setConsoleOutput([]);
     setExecutionError(null);
+    setShowConsole(false);
   }, [challengeId, starterCode]);
 
   const validateTypescript = () => {
@@ -179,6 +181,9 @@ export default function CodeChallenge({
         executeFunc();
 
         setConsoleOutput(logs);
+        if (logs.length > 0) {
+          setShowConsole(true);
+        }
       } finally {
         // Always restore original console.log
         console.log = originalLog;
@@ -294,6 +299,7 @@ export default function CodeChallenge({
     setTsErrors([]);
     setConsoleOutput([]);
     setExecutionError(null);
+    setShowConsole(false);
   };
 
   const lineCount = code.split("\n").length;
@@ -371,23 +377,37 @@ export default function CodeChallenge({
 
         {/* Console Output Area */}
         <div className="border rounded-md bg-background/95">
-          <div className="flex items-center gap-2 px-3 py-2 border-b bg-muted/30">
-            <Terminal className="w-4 h-4 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground">Console Output</span>
-          </div>
-          <div className="p-3 font-mono text-sm max-h-[120px] overflow-y-auto space-y-1">
-            {consoleOutput.length > 0 ? (
-              consoleOutput.map((log, idx) => (
-                <div key={idx} className="text-foreground whitespace-pre-wrap break-all">
-                  {log}
-                </div>
-              ))
+          <button
+            onClick={() => setShowConsole(!showConsole)}
+            className="flex items-center justify-between w-full px-3 py-2 border-b bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+            aria-label={showConsole ? "Hide console output" : "Show console output"}
+            data-testid="button-toggle-console"
+          >
+            <div className="flex items-center gap-2">
+              <Terminal className="w-4 h-4 text-muted-foreground" />
+              <span className="text-xs font-medium text-muted-foreground">Console Output</span>
+            </div>
+            {showConsole ? (
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
             ) : (
-              <div className="text-muted-foreground text-xs italic">
-                No output yet. Run your code to see console.log output here.
-              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
             )}
-          </div>
+          </button>
+          {showConsole && (
+            <div className="p-3 font-mono text-sm max-h-[120px] overflow-y-auto space-y-1">
+              {consoleOutput.length > 0 ? (
+                consoleOutput.map((log, idx) => (
+                  <div key={idx} className="text-foreground whitespace-pre-wrap break-all">
+                    {log}
+                  </div>
+                ))
+              ) : (
+                <div className="text-muted-foreground text-xs italic">
+                  No output yet. Run your code to see console.log output here.
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {executionError && (
