@@ -344,48 +344,117 @@ function MyForm({ onSubmit, onChange }: FormProps) {
           title: "Introduction to Generics",
           description: "Learn the foundational generic syntax and patterns",
           content: `
-          <p>Generics provide a way to create reusable components that work over a variety of types rather than a single one, while preserving type information.</p>
-          
-          <h3>The Generic Syntax</h3>
-          <p>Use angle brackets <code>&lt;T&gt;</code> to define a type parameter:</p>
-          
+          <h3>What Are Generics?</h3>
+          <p>Imagine you have a box. You want to write a function that tells you what's inside the box. The problem is: you don't know what type of thing will be in the box - it could be a number, a string, an object, anything!</p>
+
+          <p><strong>Generics</strong> let you write code that works with <strong>any type</strong>, while still keeping TypeScript's type safety. Think of them as <strong>type placeholders</strong> or <strong>type variables</strong>.</p>
+
+          <h3>The Problem Without Generics</h3>
+          <p>Let's say you want a function that returns whatever you give it:</p>
+
+          <pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>// Without generics - we lose type information
+function returnWhatYouGiveMe(arg: any): any {
+  return arg;
+}
+
+const result = returnWhatYouGiveMe("hello");
+// result is 'any' - TypeScript doesn't know it's a string!</code></pre>
+
+          <p>The problem: using <code>any</code> means we lose all type safety. TypeScript can't help us anymore.</p>
+
+          <h3>The Solution: Generics!</h3>
+          <p>Generics let us say "this function works with any type, but remember what that type was":</p>
+
+          <pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>// With generics - we preserve type information!
+function returnWhatYouGiveMe&lt;T&gt;(arg: T): T {
+  return arg;
+}
+
+const result = returnWhatYouGiveMe("hello");
+// result is a string! TypeScript remembers the type.</code></pre>
+
+          <p><strong>Breaking down the syntax:</strong></p>
+          <ul>
+            <li><code>&lt;T&gt;</code> - This is a <strong>type parameter</strong>. Think of it like a variable, but for types!</li>
+            <li><code>T</code> can be <strong>any name</strong> (people commonly use T, Type, K, V)</li>
+            <li><code>(arg: T)</code> - The parameter is of type T (whatever T ends up being)</li>
+            <li><code>: T</code> - The function returns type T (the same type)</li>
+          </ul>
+
+          <h3>How TypeScript Figures Out T</h3>
+          <p>TypeScript is smart - it usually <strong>infers</strong> (figures out) what T should be:</p>
+
           <pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>function identity&lt;T&gt;(arg: T): T {
   return arg;
 }
 
-// Type is inferred
-let output = identity("hello");  // output: string
+// TypeScript infers T = string
+let text = identity("hello");  // text: string
 
-// Or specify explicitly
-let num = identity&lt;number&gt;(42);  // num: number</code></pre>
-          
-          <h3>Generic Functions</h3>
-          <p>Create flexible, reusable functions:</p>
-          
-          <pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>function firstElement&lt;Type&gt;(arr: Type[]): Type | undefined {
+// TypeScript infers T = number
+let num = identity(42);  // num: number
+
+// You can also be explicit if you want
+let explicit = identity&lt;boolean&gt;(true);  // explicit: boolean</code></pre>
+
+          <h3>Real Example: Getting First Element</h3>
+          <p>Here's a practical example - a function that gets the first element of any array:</p>
+
+          <pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>// Works with ANY type of array!
+function firstElement&lt;Type&gt;(arr: Type[]): Type | undefined {
   return arr[0];
 }
 
-const s = firstElement(["a", "b", "c"]);  // s: string
-const n = firstElement([1, 2, 3]);        // n: number</code></pre>
-          
-          <h3>Generic Constraints</h3>
-          <p>Limit what types can be used with <code>extends</code>:</p>
-          
-          <pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>function longest&lt;Type extends { length: number }&gt;(
-  a: Type,
-  b: Type
-): Type {
+// With string array - TypeScript knows result is string
+const firstWord = firstElement(["hello", "world"]);
+// firstWord: string | undefined
+
+// With number array - TypeScript knows result is number
+const firstNum = firstElement([1, 2, 3]);
+// firstNum: number | undefined
+
+// With object array - TypeScript knows result is that object type
+const firstUser = firstElement([{ name: "Alice" }, { name: "Bob" }]);
+// firstUser: { name: string } | undefined</code></pre>
+
+          <p><strong>Why this is powerful:</strong> One function works with every type of array, AND you get full type safety!</p>
+
+          <h3>Generic Constraints: Limiting What T Can Be</h3>
+          <p>Sometimes you need T to have certain properties. Use <code>extends</code> to add constraints:</p>
+
+          <pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>// T must have a 'length' property
+function longest&lt;T extends { length: number }&gt;(a: T, b: T): T {
   if (a.length >= b.length) {
     return a;
   }
   return b;
 }
 
-longest("alice", "bob");      // Works: strings have .length
-longest([1, 2], [1, 2, 3]);  // Works: arrays have .length</code></pre>
-          
-          <p class="mt-4"><strong>Coming up:</strong> You'll use generics extensively with React hooks like <code>useState&lt;T&gt;</code> and <code>useContext&lt;T&gt;</code>.</p>
+// Works - strings have .length
+const longestWord = longest("alice", "bob");  // returns "alice"
+
+// Works - arrays have .length
+const longestArray = longest([1, 2], [1, 2, 3]);  // returns [1, 2, 3]
+
+// Error - numbers don't have .length
+// const wrong = longest(10, 100);  // ✗ Won't compile!</code></pre>
+
+          <p><strong>The constraint <code>T extends { length: number }</code> means:</strong> "T can be any type, as long as it has a length property that's a number"</p>
+
+          <h3>Where You've Already Seen Generics</h3>
+          <p>You've actually been using generics already in React!</p>
+
+          <pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>// useState is a generic function!
+const [count, setCount] = useState&lt;number&gt;(0);
+// TypeScript knows count is a number
+
+const [name, setName] = useState&lt;string&gt;("");
+// TypeScript knows name is a string
+
+const [user, setUser] = useState&lt;User | null&gt;(null);
+// TypeScript knows user is either User or null</code></pre>
+
+          <p class="mt-4"><strong>Key Takeaway:</strong> Generics let you write flexible, reusable code that works with any type, while keeping full type safety. They're like "fill in the blank" for types - TypeScript fills in the blank based on how you use the function!</p>
         `,
           order: 3,
           xpReward: 20
@@ -1570,20 +1639,20 @@ type Employee = Person & Worker;`,
           id: "2-3-2",
           lessonId: "2-3",
           type: "code",
-          prompt: "Create a generic function 'getLastItem' that takes an array of type T and returns T | undefined",
+          prompt: "Create a generic function called 'getLastItem' that returns the last element of any array. The function should:\n- Accept a parameter called 'items' that is an array of any type (use the generic type T)\n- Return the last item in the array, or undefined if the array is empty\n- Use the syntax: items[items.length - 1]\n\nExample usage:\ngetLastItem([1, 2, 3]) should return 3\ngetLastItem(['a', 'b']) should return 'b'\ngetLastItem([]) should return undefined",
           order: 2,
           xpReward: 30,
           options: [],
           correctAnswer: null,
           explanation: null,
-          starterCode: `// Define your getLastItem function here\n`,
+          starterCode: `// Define your getLastItem function here\n// It should work with any type of array!\n`,
           validationPatterns: [
             "function getLastItem",
             "<T>",
             "(items: T[])",
             ": T | undefined"
           ],
-          hint: "Use <T> after the function name and T[] for the array parameter",
+          hint: "Use <T> after the function name and T[] for the array parameter. Return items[items.length - 1]",
           documentationLinks: [
             JSON.stringify({ title: "Generics", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html" }),
             JSON.stringify({ title: "Generic Constraints", url: "https://www.typescriptlang.org/docs/handbook/2/generics.html#generic-constraints" }),
