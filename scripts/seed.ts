@@ -249,44 +249,91 @@ pow(10, 3);   // 1000</code></pre>
           title: "Function Types in Interfaces",
           description: "Define function signatures for callback props",
           content: `
-          <p>In TypeScript, you can define function types within interfaces, which is essential for typing callback props in React components.</p>
-          
-          <h3>Function Type Syntax</h3>
-          <p>Define function types using arrow notation:</p>
-          
+          <h3>What Are Function Types?</h3>
+          <p>A <strong>function type</strong> describes what a function should look like: what parameters it takes and what it returns. Think of it like a recipe that tells you what ingredients (parameters) you need and what dish (return value) you'll make.</p>
+
+          <p><strong>Why do we need this?</strong> When you pass functions as props in React (like onClick handlers), TypeScript needs to know what that function should look like to catch errors before they happen.</p>
+
+          <h3>Basic Function Type Syntax</h3>
+          <p>The basic pattern is: <code>(parameters) => returnType</code></p>
+
+          <pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>// Simple function type: takes no parameters, returns nothing
+type SimpleClick = () => void;
+
+// Function type: takes a number, returns a number
+type DoubleNumber = (num: number) => number;
+
+// Function type: takes two numbers, returns a number
+type MathOperation = (a: number, b: number) => number;</code></pre>
+
+          <p><strong>Breaking it down:</strong></p>
+          <ul>
+            <li><code>()</code> - parameters the function takes (empty means no parameters)</li>
+            <li><code>=></code> - separates parameters from return type</li>
+            <li><code>void</code> - means the function doesn't return anything</li>
+          </ul>
+
+          <h3>Using Function Types</h3>
+          <p>Once you define a function type, you can use it to enforce that functions match that shape:</p>
+
           <pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>type MathOperation = (a: number, b: number) => number;
 
+// These match the MathOperation type ✓
 const add: MathOperation = (a, b) => a + b;
-const multiply: MathOperation = (a, b) => a * b;</code></pre>
-          
-          <h3>Functions in Interfaces</h3>
-          <p>Include function types as properties:</p>
-          
+const multiply: MathOperation = (a, b) => a * b;
+
+// This would error - wrong return type ✗
+// const broken: MathOperation = (a, b) => "wrong";</code></pre>
+
+          <h3>Function Types in Interfaces</h3>
+          <p>Now here's where it gets useful for React: you can put function types <strong>inside interfaces</strong> to describe component props that include functions.</p>
+
           <pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>interface ButtonProps {
-  label: string;
-  onClick: () => void;
-  onHover?: (isHovered: boolean) => void;
+  label: string;              // regular property
+  onClick: () => void;        // function property (no params, no return)
+  onHover?: (isHovered: boolean) => void;  // optional function
 }
 
+// Creating props that match the interface
 function handleClick() {
   console.log("Button clicked!");
 }
 
-const props: ButtonProps = {
+const myButton: ButtonProps = {
   label: "Submit",
-  onClick: handleClick
+  onClick: handleClick       // matches () => void
+  // onHover is optional, so we can skip it
 };</code></pre>
-          
-          <h3>Event Handler Types</h3>
-          <p>Common function signatures you'll use:</p>
-          
+
+          <h3>Real-World React Example</h3>
+          <p>Here's how you'd use this in an actual React component:</p>
+
           <pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>interface FormProps {
-  onSubmit: (data: FormData) => void;
-  onChange: (field: string, value: string) => void;
-  onValidate: (isValid: boolean) => Promise&lt;void&gt;;
+  onSubmit: (data: string) => void;
+  onChange: (value: string) => void;
+}
+
+function MyForm({ onSubmit, onChange }: FormProps) {
+  const [input, setInput] = useState("");
+
+  return (
+    &lt;form onSubmit={() => onSubmit(input)}&gt;
+      &lt;input onChange={(e) => onChange(e.target.value)} /&gt;
+    &lt;/form&gt;
+  );
 }</code></pre>
-          
-          <p class="mt-4"><strong>React Connection:</strong> These are exactly how you'll type event handlers and callback props in React components.</p>
+
+          <h3>Common Patterns You'll See</h3>
+          <pre class="bg-muted p-4 rounded-md overflow-x-auto my-4"><code>interface CommonHandlers {
+  onClick: () => void;                    // Click, no data needed
+  onClose: () => void;                    // Close/cancel, no data
+  onSubmit: (data: FormData) => void;     // Submit with data
+  onChange: (value: string) => void;      // Input changed
+  onError: (error: string) => void;       // Error occurred
+  onSuccess: () => Promise&lt;void&gt;;         // Async success handler
+}</code></pre>
+
+          <p class="mt-4"><strong>Key Takeaway:</strong> Function types in interfaces let you describe exactly what functions your component expects as props. This catches bugs early - if someone passes the wrong type of function, TypeScript will warn them immediately!</p>
         `,
           order: 2,
           xpReward: 20
