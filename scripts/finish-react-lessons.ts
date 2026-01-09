@@ -1,7 +1,8 @@
 /**
- * This script completes Lessons 1-4 and creates 1-5
- * - Updates Lesson 1-4 to "React State with useState"
- * - Creates new Lesson 1-5: "Event Handlers & User Interaction"
+ * This script fixes Level 1 lessons by:
+ * - Removing duplicate lessons (1-5, 1-6, 1-7 that were incorrectly created)
+ * - Updating Lesson 1-4 to "React State with useState" with proper challenges
+ * - Creating/Updating Lesson 1-5: "Event Handlers & User Interaction"
  *
  * Run with: npx tsx scripts/finish-react-lessons.ts
  */
@@ -9,10 +10,10 @@
 import "dotenv/config";
 import { db } from "../server/db";
 import { lessons, challenges, userProgress, userAnswers } from "@shared/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, inArray } from "drizzle-orm";
 
 async function finishReactLessons() {
-  console.log("Finishing React lessons 1-4 and 1-5...\n");
+  console.log("Fixing Level 1 lessons (1-4 and 1-5)...\n");
 
   try {
     await db.transaction(async (tx) => {
@@ -22,9 +23,14 @@ async function finishReactLessons() {
       await tx.delete(userProgress);
       console.log("✅ Deleted");
 
-      // Step 2: Delete old challenges for lesson 1-4
-      console.log("\nDeleting old challenges for lesson 1-4...");
-      await tx.delete(challenges).where(eq(challenges.lessonId, "1-4"));
+      // Step 2: Delete old challenges for lessons 1-4, 1-5, 1-6, 1-7
+      console.log("\nDeleting old challenges for lessons 1-4, 1-5, 1-6, 1-7...");
+      await tx.delete(challenges).where(inArray(challenges.lessonId, ["1-4", "1-5", "1-6", "1-7"]));
+      console.log("✅ Deleted");
+
+      // Step 3: Delete duplicate lessons 1-6 and 1-7
+      console.log("\nDeleting duplicate lessons 1-6 and 1-7...");
+      await tx.delete(lessons).where(inArray(lessons.id, ["1-6", "1-7"]));
       console.log("✅ Deleted");
 
       // Step 3: Update Lesson 1-4 - React State with useState
@@ -165,7 +171,7 @@ const [username, setUsername] = useState("");</code></pre>
           type: "multiple-choice" as const,
           order: 1,
           xpReward: 10,
-          choices: [
+          options: [
             "Just the current state value",
             "Just the setter function",
             "An array with [currentValue, setterFunction]",
@@ -184,12 +190,12 @@ const [username, setUsername] = useState("");</code></pre>
           order: 2,
           xpReward: 10,
           starterCode: "import { useState } from 'react';\n\n// Create your Counter component here\n",
-          solution: "import { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div>\n      <p>{count}</p>\n      <button onClick={() => setCount(count + 1)}>+</button>\n    </div>\n  );\n}",
-          testCode: `
-const result = Counter();
-if (!result) throw new Error('Counter should return JSX');
-return true;
-          `
+          sampleSolution: "import { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div>\n      <p>{count}</p>\n      <button onClick={() => setCount(count + 1)}>+</button>\n    </div>\n  );\n}",
+          validationPatterns: [
+            "function counter",
+            "usestate(0)",
+            "setcount"
+          ]
         },
         // Challenge 3: Code - Toggle
         {
@@ -201,12 +207,12 @@ return true;
           order: 3,
           xpReward: 10,
           starterCode: "import { useState } from 'react';\n\n// Create your Toggle component here\n",
-          solution: "import { useState } from 'react';\n\nfunction Toggle() {\n  const [isOn, setIsOn] = useState(false);\n\n  return (\n    <button onClick={() => setIsOn(!isOn)}>\n      {isOn ? 'ON' : 'OFF'}\n    </button>\n  );\n}",
-          testCode: `
-const result = Toggle();
-if (!result) throw new Error('Toggle should return JSX');
-return true;
-          `
+          sampleSolution: "import { useState } from 'react';\n\nfunction Toggle() {\n  const [isOn, setIsOn] = useState(false);\n\n  return (\n    <button onClick={() => setIsOn(!isOn)}>\n      {isOn ? 'ON' : 'OFF'}\n    </button>\n  );\n}",
+          validationPatterns: [
+            "function toggle",
+            "usestate(false)",
+            "setison"
+          ]
         },
         // Challenge 4: MC - Type Inference
         {
@@ -217,7 +223,7 @@ return true;
           type: "multiple-choice" as const,
           order: 4,
           xpReward: 10,
-          choices: [
+          options: [
             "any",
             "unknown",
             "number",
@@ -236,12 +242,13 @@ return true;
           order: 5,
           xpReward: 10,
           starterCode: "import { useState } from 'react';\n\n// Create your NameInput component here\n",
-          solution: "import { useState } from 'react';\n\nfunction NameInput() {\n  const [name, setName] = useState(\"\");\n\n  return (\n    <div>\n      <input value={name} onChange={(e) => setName(e.target.value)} />\n      <p>Hello, {name}!</p>\n    </div>\n  );\n}",
-          testCode: `
-const result = NameInput();
-if (!result) throw new Error('NameInput should return JSX');
-return true;
-          `
+          sampleSolution: "import { useState } from 'react';\n\nfunction NameInput() {\n  const [name, setName] = useState(\"\");\n\n  return (\n    <div>\n      <input value={name} onChange={(e) => setName(e.target.value)} />\n      <p>Hello, {name}!</p>\n    </div>\n  );\n}",
+          validationPatterns: [
+            "function nameinput",
+            "usestate(\"\")",
+            "setname",
+            "onchange"
+          ]
         },
         // Challenge 6: Code - Counter with Reset
         {
@@ -253,12 +260,14 @@ return true;
           order: 6,
           xpReward: 10,
           starterCode: "import { useState } from 'react';\n\n// Create your Counter component here\n",
-          solution: "import { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount(count + 1)}>+</button>\n      <button onClick={() => setCount(count - 1)}>-</button>\n      <button onClick={() => setCount(0)}>Reset</button>\n    </div>\n  );\n}",
-          testCode: `
-const result = Counter();
-if (!result) throw new Error('Counter should return JSX');
-return true;
-          `
+          sampleSolution: "import { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount(count + 1)}>+</button>\n      <button onClick={() => setCount(count - 1)}>-</button>\n      <button onClick={() => setCount(0)}>Reset</button>\n    </div>\n  );\n}",
+          validationPatterns: [
+            "function counter",
+            "usestate(0)",
+            "setcount(count + 1) || setcount(count+1)",
+            "setcount(count - 1) || setcount(count-1)",
+            "setcount(0)"
+          ]
         }
       ];
 
@@ -384,6 +393,9 @@ function ProductPage() {
     <p><em>Congratulations! You've completed Level 1 and learned the fundamentals of TypeScript + React!</em></p>
       `;
 
+      // Delete lesson 1-5 if it exists (so we can recreate it fresh)
+      await tx.delete(lessons).where(eq(lessons.id, "1-5"));
+
       await tx.insert(lessons).values({
         id: "1-5",
         levelId: "1",
@@ -407,7 +419,7 @@ function ProductPage() {
           type: "multiple-choice" as const,
           order: 1,
           xpReward: 10,
-          choices: [
+          options: [
             "<button onclick={handleClick}>Click</button>",
             "<button onClick={handleClick()}>Click</button>",
             "<button onClick={handleClick}>Click</button>",
@@ -426,12 +438,12 @@ function ProductPage() {
           order: 2,
           xpReward: 10,
           starterCode: "// Create your AlertButton component here\n",
-          solution: "function AlertButton() {\n  const handleClick = () => {\n    alert('Button clicked!');\n  };\n\n  return <button onClick={handleClick}>Click Me</button>;\n}",
-          testCode: `
-const result = AlertButton();
-if (!result) throw new Error('AlertButton should return JSX');
-return true;
-          `
+          sampleSolution: "function AlertButton() {\n  const handleClick = () => {\n    alert('Button clicked!');\n  };\n\n  return <button onClick={handleClick}>Click Me</button>;\n}",
+          validationPatterns: [
+            "function alertbutton",
+            "handleclick",
+            "onclick"
+          ]
         },
         // Challenge 3: Code
         {
@@ -443,12 +455,14 @@ return true;
           order: 3,
           xpReward: 10,
           starterCode: "// Create your GreetButtonProps and GreetButton component here\n",
-          solution: "interface GreetButtonProps {\n  name: string;\n}\n\nfunction GreetButton({ name }: GreetButtonProps) {\n  const handleClick = () => {\n    alert('Hello, ' + name + '!');\n  };\n\n  return <button onClick={handleClick}>Greet</button>;\n}",
-          testCode: `
-const result = GreetButton({ name: "Alice" });
-if (!result) throw new Error('GreetButton should return JSX');
-return true;
-          `
+          sampleSolution: "interface GreetButtonProps {\n  name: string;\n}\n\nfunction GreetButton({ name }: GreetButtonProps) {\n  const handleClick = () => {\n    alert('Hello, ' + name + '!');\n  };\n\n  return <button onClick={handleClick}>Greet</button>;\n}",
+          validationPatterns: [
+            "interface greetbuttonprops",
+            "name: string",
+            "function greetbutton",
+            ": greetbuttonprops",
+            "onclick"
+          ]
         },
         // Challenge 4: MC
         {
@@ -459,7 +473,7 @@ return true;
           type: "multiple-choice" as const,
           order: 4,
           xpReward: 10,
-          choices: [
+          options: [
             "onDelete: number => void",
             "onDelete: (id: number) => void",
             "onDelete: function(id: number)",
@@ -478,13 +492,15 @@ return true;
           order: 5,
           xpReward: 10,
           starterCode: "// Create your DeleteButtonProps and DeleteButton component here\n",
-          solution: "interface DeleteButtonProps {\n  productId: number;\n  onDelete: (id: number) => void;\n}\n\nfunction DeleteButton({ productId, onDelete }: DeleteButtonProps) {\n  return (\n    <button onClick={() => onDelete(productId)}>\n      Delete\n    </button>\n  );\n}",
-          testCode: `
-const mockDelete = (id: number) => {};
-const result = DeleteButton({ productId: 1, onDelete: mockDelete });
-if (!result) throw new Error('DeleteButton should return JSX');
-return true;
-          `
+          sampleSolution: "interface DeleteButtonProps {\n  productId: number;\n  onDelete: (id: number) => void;\n}\n\nfunction DeleteButton({ productId, onDelete }: DeleteButtonProps) {\n  return (\n    <button onClick={() => onDelete(productId)}>\n      Delete\n    </button>\n  );\n}",
+          validationPatterns: [
+            "interface deletebuttonprops",
+            "productid: number",
+            "(id: number) => void",
+            "function deletebutton",
+            ": deletebuttonprops",
+            "ondelete(productid)"
+          ]
         },
         // Challenge 6: Code
         {
@@ -496,12 +512,13 @@ return true;
           order: 6,
           xpReward: 10,
           starterCode: "import { useState } from 'react';\n\n// Create your SearchInput component here\n",
-          solution: "import { useState } from 'react';\n\nfunction SearchInput() {\n  const [query, setQuery] = useState(\"\");\n\n  return (\n    <input\n      value={query}\n      onChange={(e) => setQuery(e.target.value)}\n      placeholder=\"Search...\"\n    />\n  );\n}",
-          testCode: `
-const result = SearchInput();
-if (!result) throw new Error('SearchInput should return JSX');
-return true;
-          `
+          sampleSolution: "import { useState } from 'react';\n\nfunction SearchInput() {\n  const [query, setQuery] = useState(\"\");\n\n  return (\n    <input\n      value={query}\n      onChange={(e) => setQuery(e.target.value)}\n      placeholder=\"Search...\"\n    />\n  );\n}",
+          validationPatterns: [
+            "function searchinput",
+            "usestate(\"\")",
+            "setquery",
+            "onchange"
+          ]
         }
       ];
 

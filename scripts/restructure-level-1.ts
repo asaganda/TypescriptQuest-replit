@@ -289,7 +289,7 @@ async function restructure() {
           type: "multiple-choice" as const,
           order: 1,
           xpReward: 10,
-          choices: [
+          options: [
             "string",
             "number",
             "boolean",
@@ -323,27 +323,12 @@ Your code will be tested to ensure the type annotations are correct.`,
           order: 2,
           xpReward: 10,
           starterCode: `let username = "Alice";\nlet age = 25;\nlet isActive = true;`,
-          solution: `let username: string = "Alice";\nlet age: number = 25;\nlet isActive: boolean = true;`,
-          testCode: `
-const result = (function() {
-  let username: string = "Alice";
-  let age: number = 25;
-  let isActive: boolean = true;
-  return { username, age, isActive };
-})();
-
-// Type checks
-if (typeof result.username !== 'string') throw new Error('username should be a string');
-if (typeof result.age !== 'number') throw new Error('age should be a number');
-if (typeof result.isActive !== 'boolean') throw new Error('isActive should be a boolean');
-
-// Value checks
-if (result.username !== "Alice") throw new Error('username should be "Alice"');
-if (result.age !== 25) throw new Error('age should be 25');
-if (result.isActive !== true) throw new Error('isActive should be true');
-
-return true;
-          `
+          sampleSolution: `let username: string = "Alice";\nlet age: number = 25;\nlet isActive: boolean = true;`,
+          validationPatterns: [
+            "username: string",
+            "age: number",
+            "isactive: boolean"
+          ]
         },
 
         // Challenge 3: Code - Basic Interface
@@ -376,21 +361,13 @@ const user: User = {
           order: 3,
           xpReward: 10,
           starterCode: `// Create your User interface here\n`,
-          solution: `interface User {\n  id: number;\n  name: string;\n  email: string;\n}`,
-          testCode: `
-// Test that User interface exists and has correct shape
-const testUser: User = {
-  id: 1,
-  name: "Alice",
-  email: "alice@example.com"
-};
-
-if (typeof testUser.id !== 'number') throw new Error('id should be a number');
-if (typeof testUser.name !== 'string') throw new Error('name should be a string');
-if (typeof testUser.email !== 'string') throw new Error('email should be a string');
-
-return true;
-          `
+          sampleSolution: `interface User {\n  id: number;\n  name: string;\n  email: string;\n}`,
+          validationPatterns: [
+            "interface user",
+            "id: number",
+            "name: string",
+            "email: string"
+          ]
         },
 
         // Challenge 4: MC - Optional Properties
@@ -402,7 +379,7 @@ return true;
           type: "multiple-choice" as const,
           order: 4,
           xpReward: 10,
-          choices: [
+          options: [
             "The property is required",
             "The property is optional (can be included or omitted)",
             "The property is deprecated",
@@ -444,30 +421,14 @@ const mouse: Product = {
           order: 5,
           xpReward: 10,
           starterCode: `// Create your Product interface here\n`,
-          solution: `interface Product {\n  id: number;\n  name: string;\n  description?: string;\n  price: number;\n}`,
-          testCode: `
-// Test with all properties
-const laptop: Product = {
-  id: 1,
-  name: "Laptop",
-  description: "High-performance laptop",
-  price: 999
-};
-
-// Test with optional property omitted
-const mouse: Product = {
-  id: 2,
-  name: "Mouse",
-  price: 25
-};
-
-if (typeof laptop.id !== 'number') throw new Error('id should be a number');
-if (typeof laptop.name !== 'string') throw new Error('name should be a string');
-if (laptop.description !== undefined && typeof laptop.description !== 'string') throw new Error('description should be a string or undefined');
-if (typeof laptop.price !== 'number') throw new Error('price should be a number');
-
-return true;
-          `
+          sampleSolution: `interface Product {\n  id: number;\n  name: string;\n  description?: string;\n  price: number;\n}`,
+          validationPatterns: [
+            "interface product",
+            "id: number",
+            "name: string",
+            "description?: string || description? : string",
+            "price: number"
+          ]
         },
 
         // Challenge 6: MC - Union Types
@@ -479,7 +440,7 @@ return true;
           type: "multiple-choice" as const,
           order: 6,
           xpReward: 10,
-          choices: [
+          options: [
             "id must be both a string AND a number",
             "id can be either a string OR a number",
             "id is a string that contains numbers",
@@ -514,19 +475,14 @@ This is called a "string literal union type" - it restricts the variable to only
           order: 7,
           xpReward: 10,
           starterCode: `// Create your Status type and currentStatus variable here\n`,
-          solution: `type Status = 'pending' | 'approved' | 'rejected';\nlet currentStatus: Status = 'pending';`,
-          testCode: `
-type Status = 'pending' | 'approved' | 'rejected';
-let currentStatus: Status = 'pending';
-
-if (currentStatus !== 'pending') throw new Error('currentStatus should be "pending"');
-
-// Test that other values work
-currentStatus = 'approved';
-currentStatus = 'rejected';
-
-return true;
-          `
+          sampleSolution: `type Status = 'pending' | 'approved' | 'rejected';\nlet currentStatus: Status = 'pending';`,
+          validationPatterns: [
+            "type status",
+            "'pending' || \"pending\"",
+            "'approved' || \"approved\"",
+            "'rejected' || \"rejected\"",
+            "currentstatus: status"
+          ]
         },
 
         // Challenge 8: Code - Type Aliases
@@ -552,17 +508,13 @@ Type aliases let you create reusable names for complex types!`,
           order: 8,
           xpReward: 10,
           starterCode: `// Create your ID type and variables here\n`,
-          solution: `type ID = string | number;\nlet userId: ID = "user_123";\nlet productId: ID = 456;`,
-          testCode: `
-type ID = string | number;
-let userId: ID = "user_123";
-let productId: ID = 456;
-
-if (userId !== "user_123") throw new Error('userId should be "user_123"');
-if (productId !== 456) throw new Error('productId should be 456');
-
-return true;
-          `
+          sampleSolution: `type ID = string | number;\nlet userId: ID = "user_123";\nlet productId: ID = 456;`,
+          validationPatterns: [
+            "type id",
+            "string | number || number | string",
+            "userid: id",
+            "productid: id"
+          ]
         },
 
         // Challenge 9: Code - Array Types
@@ -588,26 +540,12 @@ let flags: boolean[] = [true, false, true];
           order: 9,
           xpReward: 10,
           starterCode: `// Create your typed arrays here\n`,
-          solution: `let names: string[] = ["Alice", "Bob", "Charlie"];\nlet scores: number[] = [95, 87, 92];\nlet flags: boolean[] = [true, false, true];`,
-          testCode: `
-let names: string[] = ["Alice", "Bob", "Charlie"];
-let scores: number[] = [95, 87, 92];
-let flags: boolean[] = [true, false, true];
-
-if (!Array.isArray(names)) throw new Error('names should be an array');
-if (!Array.isArray(scores)) throw new Error('scores should be an array');
-if (!Array.isArray(flags)) throw new Error('flags should be an array');
-
-if (names.length !== 3) throw new Error('names should have 3 elements');
-if (scores.length !== 3) throw new Error('scores should have 3 elements');
-if (flags.length !== 3) throw new Error('flags should have 3 elements');
-
-if (names[0] !== "Alice") throw new Error('names[0] should be "Alice"');
-if (scores[0] !== 95) throw new Error('scores[0] should be 95');
-if (flags[0] !== true) throw new Error('flags[0] should be true');
-
-return true;
-          `
+          sampleSolution: `let names: string[] = ["Alice", "Bob", "Charlie"];\nlet scores: number[] = [95, 87, 92];\nlet flags: boolean[] = [true, false, true];`,
+          validationPatterns: [
+            "names: string[]",
+            "scores: number[]",
+            "flags: boolean[]"
+          ]
         },
 
         // Challenge 10: Code - Complex Interface with Arrays
@@ -640,26 +578,13 @@ const devTeam: Team = {
           order: 10,
           xpReward: 10,
           starterCode: `// Create your Team interface here\n`,
-          solution: `interface Team {\n  name: string;\n  members: string[];\n  maxSize?: number;\n}`,
-          testCode: `
-const devTeam: Team = {
-  name: "Development",
-  members: ["Alice", "Bob", "Charlie"],
-  maxSize: 5
-};
-
-const designTeam: Team = {
-  name: "Design",
-  members: ["Diana", "Eve"]
-  // maxSize omitted
-};
-
-if (typeof devTeam.name !== 'string') throw new Error('name should be a string');
-if (!Array.isArray(devTeam.members)) throw new Error('members should be an array');
-if (devTeam.maxSize !== undefined && typeof devTeam.maxSize !== 'number') throw new Error('maxSize should be a number or undefined');
-
-return true;
-          `
+          sampleSolution: `interface Team {\n  name: string;\n  members: string[];\n  maxSize?: number;\n}`,
+          validationPatterns: [
+            "interface team",
+            "name: string",
+            "members: string[]",
+            "maxsize?: number || maxsize? : number"
+          ]
         }
       ];
 

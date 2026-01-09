@@ -145,7 +145,7 @@ function Badge({ text, status }: BadgeProps) {
           type: "multiple-choice" as const,
           order: 1,
           xpReward: 10,
-          choices: [
+          options: [
             "Using an interface or type alias",
             "Using a class",
             "Props are automatically typed",
@@ -182,13 +182,13 @@ function Greeting({ name }: GreetingProps) {
           order: 2,
           xpReward: 10,
           starterCode: `// Create your GreetingProps interface and Greeting component here\n`,
-          solution: `interface GreetingProps {\n  name: string;\n}\n\nfunction Greeting({ name }: GreetingProps) {\n  return <h1>Hello, {name}!</h1>;\n}`,
-          testCode: `
-// Test the component
-const TestGreeting = Greeting({ name: "Alice" });
-if (!TestGreeting) throw new Error('Component should return JSX');
-return true;
-          `
+          sampleSolution: `interface GreetingProps {\n  name: string;\n}\n\nfunction Greeting({ name }: GreetingProps) {\n  return <h1>Hello, {name}!</h1>;\n}`,
+          validationPatterns: [
+            "interface greetingprops",
+            "name: string",
+            "function greeting",
+            ": greetingprops"
+          ]
         },
         // Challenge 3: Code - Optional Props
         {
@@ -226,14 +226,14 @@ function Card({ title, description }: CardProps) {
           order: 3,
           xpReward: 10,
           starterCode: `// Create your CardProps interface and Card component here\n`,
-          solution: `interface CardProps {\n  title: string;\n  description?: string;\n}\n\nfunction Card({ title, description }: CardProps) {\n  return (\n    <div>\n      <h2>{title}</h2>\n      {description && <p>{description}</p>}\n    </div>\n  );\n}`,
-          testCode: `
-// Test with and without optional prop
-const card1 = Card({ title: "Test", description: "Desc" });
-const card2 = Card({ title: "Test" });
-if (!card1 || !card2) throw new Error('Component should work with and without optional props');
-return true;
-          `
+          sampleSolution: `interface CardProps {\n  title: string;\n  description?: string;\n}\n\nfunction Card({ title, description }: CardProps) {\n  return (\n    <div>\n      <h2>{title}</h2>\n      {description && <p>{description}</p>}\n    </div>\n  );\n}`,
+          validationPatterns: [
+            "interface cardprops",
+            "title: string",
+            "description?: string || description? : string",
+            "function card",
+            ": cardprops"
+          ]
         },
         // Challenge 4: MC - Union Types
         {
@@ -244,7 +244,7 @@ return true;
           type: "multiple-choice" as const,
           order: 4,
           xpReward: 10,
-          choices: [
+          options: [
             "variant can be any string",
             "variant must be exactly 'primary' or 'secondary'",
             "variant must be both 'primary' and 'secondary'",
@@ -283,14 +283,14 @@ function Button({ label, variant }: ButtonProps) {
           order: 5,
           xpReward: 10,
           starterCode: `// Create your ButtonProps interface and Button component here\n`,
-          solution: `interface ButtonProps {\n  label: string;\n  variant: 'primary' | 'secondary';\n}\n\nfunction Button({ label, variant }: ButtonProps) {\n  return <button>{label}</button>;\n}`,
-          testCode: `
-// Test with both variants
-const btn1 = Button({ label: "Click", variant: "primary" });
-const btn2 = Button({ label: "Click", variant: "secondary" });
-if (!btn1 || !btn2) throw new Error('Button should work with both variants');
-return true;
-          `
+          sampleSolution: `interface ButtonProps {\n  label: string;\n  variant: 'primary' | 'secondary';\n}\n\nfunction Button({ label, variant }: ButtonProps) {\n  return <button>{label}</button>;\n}`,
+          validationPatterns: [
+            "interface buttonprops",
+            "label: string",
+            "'primary' | 'secondary' || \"primary\" | \"secondary\"",
+            "function button",
+            ": buttonprops"
+          ]
         },
         // Challenge 6: Code - Default Values
         {
@@ -322,14 +322,14 @@ function Badge({ text, color = "blue" }: BadgeProps) {
           order: 6,
           xpReward: 10,
           starterCode: `// Create your BadgeProps interface and Badge component here\n`,
-          solution: `interface BadgeProps {\n  text: string;\n  color?: string;\n}\n\nfunction Badge({ text, color = "blue" }: BadgeProps) {\n  return <span>{text}</span>;\n}`,
-          testCode: `
-// Test with and without color
-const badge1 = Badge({ text: "New", color: "red" });
-const badge2 = Badge({ text: "New" });
-if (!badge1 || !badge2) throw new Error('Badge should work with and without color prop');
-return true;
-          `
+          sampleSolution: `interface BadgeProps {\n  text: string;\n  color?: string;\n}\n\nfunction Badge({ text, color = "blue" }: BadgeProps) {\n  return <span>{text}</span>;\n}`,
+          validationPatterns: [
+            "interface badgeprops",
+            "text: string",
+            "color?: string || color? : string",
+            "function badge",
+            "= \"blue\" || = 'blue'"
+          ]
         }
       ];
 
@@ -459,7 +459,7 @@ products.map(product =&gt; {
           type: "multiple-choice" as const,
           order: 1,
           xpReward: 10,
-          choices: [
+          options: [
             "User[]",
             "Array<User>",
             "Both User[] and Array<User>",
@@ -496,14 +496,14 @@ const products: Product[] = [];
           order: 2,
           xpReward: 10,
           starterCode: `// Create your Product interface and products array here\n`,
-          solution: `interface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nconst products: Product[] = [];`,
-          testCode: `
-const products: Product[] = [
-  { id: 1, name: "Laptop", price: 999 }
-];
-if (!Array.isArray(products)) throw new Error('products should be an array');
-return true;
-          `
+          sampleSolution: `interface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\nconst products: Product[] = [];`,
+          validationPatterns: [
+            "interface product",
+            "id: number",
+            "name: string",
+            "price: number",
+            "products: product[]"
+          ]
         },
         // Challenge 3: Code
         {
@@ -548,16 +548,14 @@ function UserList({ users }: UserListProps) {
           order: 3,
           xpReward: 10,
           starterCode: `interface User {\n  id: number;\n  name: string;\n}\n\n// Create your UserListProps interface and UserList component here\n`,
-          solution: `interface User {\n  id: number;\n  name: string;\n}\n\ninterface UserListProps {\n  users: User[];\n}\n\nfunction UserList({ users }: UserListProps) {\n  return (\n    <ul>\n      {users.map(user => (\n        <li key={user.id}>{user.name}</li>\n      ))}\n    </ul>\n  );\n}`,
-          testCode: `
-const testUsers: User[] = [
-  { id: 1, name: "Alice" },
-  { id: 2, name: "Bob" }
-];
-const list = UserList({ users: testUsers });
-if (!list) throw new Error('Component should return JSX');
-return true;
-          `
+          sampleSolution: `interface User {\n  id: number;\n  name: string;\n}\n\ninterface UserListProps {\n  users: User[];\n}\n\nfunction UserList({ users }: UserListProps) {\n  return (\n    <ul>\n      {users.map(user => (\n        <li key={user.id}>{user.name}</li>\n      ))}\n    </ul>\n  );\n}`,
+          validationPatterns: [
+            "interface userlistprops",
+            "users: user[]",
+            "function userlist",
+            ": userlistprops",
+            ".map("
+          ]
         },
         // Challenge 4: MC
         {
@@ -568,7 +566,7 @@ return true;
           type: "multiple-choice" as const,
           order: 4,
           xpReward: 10,
-          choices: [
+          options: [
             "To make the code look professional",
             "To help React identify which items have changed, been added, or removed",
             "To prevent TypeScript errors",
@@ -587,15 +585,14 @@ return true;
           order: 5,
           xpReward: 10,
           starterCode: `interface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\n// Create your ProductListProps interface and ProductList component here\n`,
-          solution: "interface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\ninterface ProductListProps {\n  products: Product[];\n}\n\nfunction ProductList({ products }: ProductListProps) {\n  return (\n    <div>\n      {products.map(product => (\n        <div key={product.id}>\n          <h3>{product.name}</h3>\n          <p>Price: $" + "{product.price}</p>\n        </div>\n      ))}\n    </div>\n  );\n}",
-          testCode: `
-const testProducts: Product[] = [
-  { id: 1, name: "Laptop", price: 999 }
-];
-const list = ProductList({ products: testProducts });
-if (!list) throw new Error('Component should return JSX');
-return true;
-          `
+          sampleSolution: "interface Product {\n  id: number;\n  name: string;\n  price: number;\n}\n\ninterface ProductListProps {\n  products: Product[];\n}\n\nfunction ProductList({ products }: ProductListProps) {\n  return (\n    <div>\n      {products.map(product => (\n        <div key={product.id}>\n          <h3>{product.name}</h3>\n          <p>Price: $" + "{product.price}</p>\n        </div>\n      ))}\n    </div>\n  );\n}",
+          validationPatterns: [
+            "interface productlistprops",
+            "products: product[]",
+            "function productlist",
+            ": productlistprops",
+            ".map("
+          ]
         },
         // Challenge 6: Code
         {
@@ -646,15 +643,14 @@ TypeScript will automatically infer that \`todo\` inside map() is of type \`Todo
           order: 6,
           xpReward: 10,
           starterCode: `interface Todo {\n  id: number;\n  text: string;\n  completed: boolean;\n}\n\n// Create your TodoListProps interface and TodoList component here\n`,
-          solution: `interface Todo {\n  id: number;\n  text: string;\n  completed: boolean;\n}\n\ninterface TodoListProps {\n  todos: Todo[];\n}\n\nfunction TodoList({ todos }: TodoListProps) {\n  return (\n    <ul>\n      {todos.map(todo => (\n        <li key={todo.id}>\n          {todo.text}{todo.completed && " (completed)"}\n        </li>\n      ))}\n    </ul>\n  );\n}`,
-          testCode: `
-const testTodos: Todo[] = [
-  { id: 1, text: "Learn TypeScript", completed: true }
-];
-const list = TodoList({ todos: testTodos });
-if (!list) throw new Error('Component should return JSX');
-return true;
-          `
+          sampleSolution: `interface Todo {\n  id: number;\n  text: string;\n  completed: boolean;\n}\n\ninterface TodoListProps {\n  todos: Todo[];\n}\n\nfunction TodoList({ todos }: TodoListProps) {\n  return (\n    <ul>\n      {todos.map(todo => (\n        <li key={todo.id}>\n          {todo.text}{todo.completed && " (completed)"}\n        </li>\n      ))}\n    </ul>\n  );\n}`,
+          validationPatterns: [
+            "interface todolistprops",
+            "todos: todo[]",
+            "function todolist",
+            ": todolistprops",
+            ".map("
+          ]
         }
       ];
 
