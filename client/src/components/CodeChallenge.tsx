@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, Play, HelpCircle, Eye, ChevronLeft, ChevronRight, Terminal, ChevronDown } from "lucide-react";
-import Editor from "@monaco-editor/react";
+import Editor, { type Monaco } from "@monaco-editor/react";
+import type { editor } from "monaco-editor";
 import * as ts from "typescript";
 import { useToast } from "@/hooks/use-toast";
 import DocumentationButton from "./DocumentationButton";
@@ -50,7 +51,6 @@ export default function CodeChallenge({
   const [showHint, setShowHint] = useState(false);
   const [feedback, setFeedback] = useState<string>("");
   const [hasProgressed, setHasProgressed] = useState(false);
-  const [tsErrors, setTsErrors] = useState<ts.Diagnostic[]>([]);
   const [editorTheme, setEditorTheme] = useState<"vs-dark" | "vs">("vs");
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -58,6 +58,7 @@ export default function CodeChallenge({
   const [consoleOutput, setConsoleOutput] = useState<string[]>([]);
   const [executionError, setExecutionError] = useState<string | null>(null);
   const [showConsole, setShowConsole] = useState(false);
+  const [monacoErrors, setMonacoErrors] = useState<editor.IMarker[]>([]);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -113,7 +114,6 @@ export default function CodeChallenge({
     loadSavedAnswer();
     setShowHint(false);
     setHasProgressed(false);
-    setTsErrors([]);
     setFailedAttempts(0);
     setShowAnswer(false);
     setConsoleOutput([]);
@@ -121,20 +121,14 @@ export default function CodeChallenge({
     setShowConsole(false);
   }, [challengeId, starterCode]);
 
-  const validateTypescript = () => {
-    const result = ts.transpileModule(code, {
-      compilerOptions: {
-        target: ts.ScriptTarget.ESNext,
-        module: ts.ModuleKind.ESNext,
-        strict: true,
-      },
-      reportDiagnostics: true,
-    });
-
-    const diagnostics = result.diagnostics ?? [];
-    setTsErrors(diagnostics);
-
-    return diagnostics;
+  const validateTypescript = (): { hasErrors: boolean; errorMessage?: string } => {
+    // Use errors captured by Monaco's onValidate callback
+    if (monacoErrors.length > 0) {
+      const firstError = monacoErrors[0];
+      const errorMessage = `Line ${firstError.startLineNumber}: ${firstError.message}`;
+      return { hasErrors: true, errorMessage };
+    }
+    return { hasErrors: false };
   };
 
   const executeCode = () => {
@@ -205,23 +199,13 @@ export default function CodeChallenge({
     });
 
     setIsSubmitted(true);
-    // First, validate with TypeScript
-    const diagnostics = validateTypescript();
 
-    if (diagnostics.length > 0) {
-      const first = diagnostics[0];
-      const message = ts.flattenDiagnosticMessageText(first.messageText, "\n");
-      const line =
-        first.file && typeof first.start === "number"
-          ? first.file.getLineAndCharacterOfPosition(first.start).line + 1
-          : undefined;
+    // Check Monaco's type errors first (zero overhead - reusing Monaco's work)
+    const validation = validateTypescript();
 
+    if (validation.hasErrors) {
       setIsCorrect(false);
-      setFeedback(
-        `TypeScript error${
-          diagnostics.length > 1 ? "s" : ""
-        } found. ${line !== undefined ? `Line ${line}: ` : ""}${message}`
-      );
+      setFeedback(`TypeScript error found. ${validation.errorMessage}`);
       console.log("Code challenge has TypeScript errors");
 
       // Save failed attempt
@@ -296,7 +280,6 @@ export default function CodeChallenge({
     setFeedback("");
     setShowHint(false);
     setHasProgressed(false);
-    setTsErrors([]);
     setConsoleOutput([]);
     setExecutionError(null);
     setShowConsole(false);
@@ -369,6 +352,17 @@ export default function CodeChallenge({
             value={code}
             onChange={(value) => setCode(value ?? "")}
             options={editorOptions}
+            beforeMount={(monaco: Monaco) => {
+              monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+                noSemanticValidation: false,
+                noSyntaxValidation: false,
+              });
+            }}
+            onValidate={(markers) => {
+              // Filter to errors only (severity 8 = MarkerSeverity.Error)
+              const errors = markers.filter(m => m.severity === 8);
+              setMonacoErrors(errors);
+            }}
           />
           <div className="absolute bottom-2 right-3 text-xs text-muted-foreground">
             {lineCount} {lineCount === 1 ? "line" : "lines"}
@@ -432,30 +426,6 @@ export default function CodeChallenge({
               )}
               <p className="text-sm flex-1">{feedback}</p>
             </div>
-          </div>
-        )}
-
-        {tsErrors.length > 0 && (
-          <div className="p-4 rounded-md bg-destructive/10">
-            <p className="font-semibold mb-1">TypeScript errors:</p>
-            <ul className="list-disc ml-5 space-y-1 text-sm">
-              {tsErrors.map((d, i) => {
-                const message = ts.flattenDiagnosticMessageText(
-                  d.messageText,
-                  "\n"
-                );
-                const line =
-                  d.file && typeof d.start === "number"
-                    ? d.file.getLineAndCharacterOfPosition(d.start).line + 1
-                    : undefined;
-                return (
-                  <li key={i}>
-                    {line !== undefined ? `Line ${line}: ` : ""}
-                    {message}
-                  </li>
-                );
-              })}
-            </ul>
           </div>
         )}
 
