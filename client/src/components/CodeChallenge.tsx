@@ -347,7 +347,8 @@ export default function CodeChallenge({
           data-testid="textarea-code"
         >
           <Editor
-            language="typescriptreact"
+            defaultLanguage="typescript"
+            path="challenge.tsx"
             theme={editorTheme}
             height="260px"
             value={code}
