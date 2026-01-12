@@ -141,6 +141,7 @@ export default function CodeChallenge({
         compilerOptions: {
           target: ts.ScriptTarget.ESNext,
           module: ts.ModuleKind.ESNext,
+          jsx: ts.JsxEmit.React,
           strict: true,
         },
       });
@@ -346,17 +347,80 @@ export default function CodeChallenge({
           data-testid="textarea-code"
         >
           <Editor
-            language="typescript"
+            language="typescriptreact"
             theme={editorTheme}
             height="260px"
             value={code}
             onChange={(value) => setCode(value ?? "")}
             options={editorOptions}
             beforeMount={(monaco: Monaco) => {
+              // Configure TypeScript compiler options for JSX support
+              monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+                target: monaco.languages.typescript.ScriptTarget.ESNext,
+                module: monaco.languages.typescript.ModuleKind.ESNext,
+                jsx: monaco.languages.typescript.JsxEmit.React,
+                jsxFactory: 'React.createElement',
+                reactNamespace: 'React',
+                allowNonTsExtensions: true,
+                allowJs: true,
+                typeRoots: ["node_modules/@types"],
+                strict: true,
+                noImplicitAny: true,
+                strictNullChecks: true,
+                noUnusedLocals: false,
+                noUnusedParameters: false,
+              });
+
               monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
                 noSemanticValidation: false,
                 noSyntaxValidation: false,
               });
+
+              // Add minimal React type definitions for JSX support
+              const reactTypes = `
+                declare namespace React {
+                  interface ReactElement<P = any> {
+                    type: any;
+                    props: P;
+                    key: string | null;
+                  }
+                  type ReactNode = ReactElement | string | number | boolean | null | undefined | ReactNode[];
+                  function createElement(type: any, props?: any, ...children: any[]): ReactElement;
+                  function useState<T>(initialState: T | (() => T)): [T, (newState: T | ((prev: T) => T)) => void];
+                }
+                declare namespace JSX {
+                  interface Element extends React.ReactElement<any> {}
+                  interface IntrinsicElements {
+                    div: any;
+                    span: any;
+                    p: any;
+                    h1: any;
+                    h2: any;
+                    h3: any;
+                    h4: any;
+                    h5: any;
+                    h6: any;
+                    button: any;
+                    input: any;
+                    form: any;
+                    label: any;
+                    ul: any;
+                    ol: any;
+                    li: any;
+                    a: any;
+                    img: any;
+                    header: any;
+                    footer: any;
+                    main: any;
+                    nav: any;
+                    section: any;
+                    article: any;
+                    aside: any;
+                    [elemName: string]: any;
+                  }
+                }
+              `;
+              monaco.languages.typescript.typescriptDefaults.addExtraLib(reactTypes, 'react.d.ts');
             }}
             onValidate={(markers) => {
               // Filter to errors only (severity 8 = MarkerSeverity.Error)
