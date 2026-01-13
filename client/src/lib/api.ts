@@ -1,9 +1,11 @@
 // API helper functions
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+
 export async function apiRequest<T>(
   url: string,
   options?: RequestInit
 ): Promise<T> {
-  const response = await fetch(url, {
+  const response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,
     credentials: "include",
     headers: {

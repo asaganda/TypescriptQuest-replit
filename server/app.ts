@@ -6,6 +6,7 @@ import express, {
   Response,
   NextFunction,
 } from "express";
+import cors from "cors";
 
 import { registerRoutes } from "./routes";
 
@@ -21,6 +22,29 @@ export function log(message: string, source = "express") {
 }
 
 export const app = express();
+
+// CORS configuration for cross-origin requests (frontend on Netlify, backend on AWS)
+const allowedOrigins = process.env.FRONTEND_URL
+  ? [process.env.FRONTEND_URL, "http://localhost:5173", "http://localhost:5000"]
+  : ["http://localhost:5173", "http://localhost:5000"];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true, // Required for cookies/sessions
+}));
+
+// Trust proxy for secure cookies behind load balancer
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
 
 declare module 'http' {
   interface IncomingMessage {

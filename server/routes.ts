@@ -4,6 +4,8 @@ import { storage } from "./storage";
 import { insertUserSchema } from "@shared/schema";
 import bcrypt from "bcryptjs";
 import session from "express-session";
+import pgSession from "connect-pg-simple";
+import { pool } from "./db";
 import { z } from "zod";
 
 /**
@@ -64,9 +66,20 @@ declare module "express-session" {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Session middleware
+  // Health check endpoint for AWS Elastic Beanstalk
+  app.get("/api/health", (_req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
+  // Session middleware with PostgreSQL store
+  const PgStore = pgSession(session);
   app.use(
     session({
+      store: new PgStore({
+        pool: pool,
+        tableName: "user_sessions",
+        createTableIfMissing: true,
+      }),
       secret: process.env.SESSION_SECRET || "typescript-quest-secret-key",
       resave: false,
       saveUninitialized: false,
@@ -74,6 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         secure: process.env.NODE_ENV === "production",
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       },
     })
   );

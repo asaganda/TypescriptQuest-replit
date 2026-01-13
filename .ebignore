@@ -1,0 +1,22 @@
+# Git
+.git
+.gitignore
+
+# Replit
+.replit
+replit.nix
+.config
+
+# Development
+node_modules
+.env
+.env.local
+
+# Client source (only need dist for backend-only deploy)
+client/
+
+# Other
+*.md
+.vscode
+.idea
+generated-icon.png
