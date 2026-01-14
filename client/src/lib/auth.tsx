@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { useLocation } from "wouter";
 import { queryClient } from "@/lib/queryClient";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+
 interface User {
   id: string;
   email: string;
@@ -31,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch("/api/auth/me", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
         credentials: "include",
       });
       
@@ -47,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
-    const response = await fetch("/api/auth/login", {
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -68,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signup = async (email: string, password: string, displayName: string) => {
-    const response = await fetch("/api/auth/signup", {
+    const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, displayName }),
@@ -89,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    await fetch("/api/auth/logout", {
+    await fetch(`${API_BASE_URL}/api/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
