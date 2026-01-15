@@ -14,7 +14,7 @@ async function updateLevel1() {
         .set({
           title: "Your First Typed Component",
           description: "Build React components with typed props",
-          content: \`
+          content: `
           <h3>Welcome to TypeScript + React!</h3>
           <p>You're going to build your first typed React component in the next 10 minutes. Ready? Let's go!</p>
 
@@ -62,7 +62,7 @@ function Button({ label, onClick }: ButtonProps) {
 function Button({ label, variant = 'primary', onClick }: ButtonProps) {
   return (
     <button
-      className={\\\`btn btn-\\\${variant}\\\`}
+      className={\`btn btn-\${variant}\`}
       onClick={onClick}
     >
       {label}
@@ -128,7 +128,7 @@ function Button({ label, variant = 'primary', onClick }: ButtonProps) {
             <li><strong>Use |</strong> for union types (this OR that)</li>
             <li><strong>TypeScript catches errors before you run your code!</strong></li>
           </ul>
-        \`
+        `
         })
         .where(eq(lessons.id, "1-1"));
 
