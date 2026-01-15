@@ -1,4 +1,6 @@
 import { useState } from "react";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -66,7 +68,7 @@ export default function ResetPassword() {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/auth/reset-password/confirm", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password/confirm`, {
         method: "POST",
         body: JSON.stringify({
           token,

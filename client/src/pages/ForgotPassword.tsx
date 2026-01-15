@@ -1,4 +1,6 @@
 import { useState } from "react";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -45,7 +47,7 @@ export default function ForgotPassword() {
   const onSubmit = async (data: ForgotPasswordForm) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/auth/reset-password/request", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password/request`, {
         method: "POST",
         body: JSON.stringify(data),
         headers: { "Content-Type": "application/json" },

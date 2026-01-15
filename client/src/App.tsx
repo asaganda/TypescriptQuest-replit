@@ -1,4 +1,6 @@
 import { Switch, Route, Redirect } from "wouter";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -70,7 +72,7 @@ function TopNavWithStats({ onLogout, userName }: { onLogout: () => void; userNam
   const { data: stats } = useQuery({
     queryKey: ["/api/stats"],
     queryFn: async () => {
-      const response = await fetch("/api/stats", { credentials: "include" });
+      const response = await fetch(`${API_BASE_URL}/api/stats`, { credentials: "include" });
       if (!response.ok) return { totalXP: 0 };
       return response.json();
     },
