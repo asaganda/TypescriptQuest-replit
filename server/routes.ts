@@ -80,7 +80,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tableName: "user_sessions",
         createTableIfMissing: true,
       }),
-      secret: process.env.SESSION_SECRET || "typescript-quest-secret-key",
+      secret: process.env.SESSION_SECRET || (process.env.NODE_ENV === "production"
+        ? (() => { throw new Error("SESSION_SECRET environment variable is required in production"); })()
+        : "typescript-quest-dev-secret-key"),
       resave: false,
       saveUninitialized: false,
       cookie: {

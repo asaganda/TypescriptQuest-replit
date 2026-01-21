@@ -24,6 +24,9 @@ export function log(message: string, source = "express") {
 export const app = express();
 
 // CORS configuration for cross-origin requests (frontend on Netlify, backend on AWS)
+if (process.env.NODE_ENV === "production" && !process.env.FRONTEND_URL) {
+  console.warn("WARNING: FRONTEND_URL not set in production. CORS may block your frontend.");
+}
 const allowedOrigins = process.env.FRONTEND_URL
   ? [process.env.FRONTEND_URL, "http://localhost:5173", "http://localhost:5000"]
   : ["http://localhost:5173", "http://localhost:5000"];
