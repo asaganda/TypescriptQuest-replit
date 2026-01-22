@@ -89,7 +89,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         secure: process.env.NODE_ENV === "production",
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        sameSite: "lax",
+        domain: process.env.NODE_ENV === "production" ? ".typescriptquest.com" : undefined,
       },
     })
   );
