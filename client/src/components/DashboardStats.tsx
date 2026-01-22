@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, Code, Trophy, Award } from "lucide-react";
+import { BookOpen, Code, Trophy, Award, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 import { XP_THRESHOLDS } from "@shared/xp-utils";
 
 interface DashboardStatsProps {
@@ -119,6 +121,14 @@ export default function DashboardStats({
                 : `${challengesRemaining} ${challengesRemaining === 1 ? 'challenge' : 'challenges'} remaining to unlock the next level`
             }
           </p>
+          {challengesCompleted === 0 && (
+            <Link href="/level/1/lesson/1-1">
+              <Button className="gap-2 mt-4">
+                Start First Lesson
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          )}
         </CardContent>
       </Card>
     </div>

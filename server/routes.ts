@@ -80,14 +80,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tableName: "user_sessions",
         createTableIfMissing: true,
       }),
-      secret: process.env.SESSION_SECRET || "typescript-quest-secret-key",
+      secret: process.env.SESSION_SECRET || (process.env.NODE_ENV === "production"
+        ? (() => { throw new Error("SESSION_SECRET environment variable is required in production"); })()
+        : "typescript-quest-dev-secret-key"),
       resave: false,
       saveUninitialized: false,
       cookie: {
         secure: process.env.NODE_ENV === "production",
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        sameSite: "lax",
+        domain: process.env.NODE_ENV === "production" ? ".typescriptquest.com" : undefined,
       },
     })
   );
