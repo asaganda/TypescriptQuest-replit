@@ -1,4 +1,5 @@
 import ProfileCard from "@/components/ProfileCard";
+import SubscriptionCard from "@/components/SubscriptionCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Target, Flame } from "lucide-react";
@@ -72,7 +73,7 @@ export default function Profile() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 space-y-6">
             <ProfileCard
               displayName={user.displayName}
               email={user.email}
@@ -80,6 +81,7 @@ export default function Profile() {
               currentLevel={stats.currentLevel}
               totalXP={stats.totalXP}
             />
+            <SubscriptionCard />
           </div>
 
           <div className="lg:col-span-2 space-y-6">

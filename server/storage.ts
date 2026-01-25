@@ -78,6 +78,8 @@ export interface IStorage {
   
   // Subscription methods
   getSubscription(userId: string): Promise<Subscription | undefined>;
+  getSubscriptionByStripeCustomerId(customerId: string): Promise<Subscription | undefined>;
+  getSubscriptionByStripeSubscriptionId(subscriptionId: string): Promise<Subscription | undefined>;
   createSubscription(subscription: InsertSubscription): Promise<Subscription>;
   updateSubscription(userId: string, updates: Partial<Subscription>): Promise<Subscription>;
   
@@ -269,6 +271,16 @@ export class DatabaseStorage implements IStorage {
   // Subscription methods
   async getSubscription(userId: string): Promise<Subscription | undefined> {
     const [subscription] = await db.select().from(subscriptions).where(eq(subscriptions.userId, userId));
+    return subscription;
+  }
+
+  async getSubscriptionByStripeCustomerId(customerId: string): Promise<Subscription | undefined> {
+    const [subscription] = await db.select().from(subscriptions).where(eq(subscriptions.stripeCustomerId, customerId));
+    return subscription;
+  }
+
+  async getSubscriptionByStripeSubscriptionId(subscriptionId: string): Promise<Subscription | undefined> {
+    const [subscription] = await db.select().from(subscriptions).where(eq(subscriptions.stripeSubscriptionId, subscriptionId));
     return subscription;
   }
 
@@ -599,9 +611,13 @@ const staff: Staff = {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { 
-      ...insertUser, 
+    const user: User = {
       id,
+      email: insertUser.email,
+      password: insertUser.password,
+      displayName: insertUser.displayName,
+      isAdmin: insertUser.isAdmin ?? false,
+      hasPremiumAccess: insertUser.hasPremiumAccess ?? false,
       createdAt: new Date()
     };
     this.users.set(id, user);
@@ -760,6 +776,16 @@ const staff: Staff = {
   async getSubscription(userId: string): Promise<Subscription | undefined> {
     return Array.from(this.subscriptions.values())
       .find(sub => sub.userId === userId);
+  }
+
+  async getSubscriptionByStripeCustomerId(customerId: string): Promise<Subscription | undefined> {
+    return Array.from(this.subscriptions.values())
+      .find(sub => sub.stripeCustomerId === customerId);
+  }
+
+  async getSubscriptionByStripeSubscriptionId(subscriptionId: string): Promise<Subscription | undefined> {
+    return Array.from(this.subscriptions.values())
+      .find(sub => sub.stripeSubscriptionId === subscriptionId);
   }
 
   async createSubscription(insertSubscription: InsertSubscription): Promise<Subscription> {

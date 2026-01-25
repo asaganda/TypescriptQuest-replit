@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { useLevelAccess } from "@/hooks/use-subscription";
+import { PaywallBanner } from "@/components/PaywallBanner";
 
 export default function LessonDetail() {
   const [, params] = useRoute("/level/:levelId/lesson/:lessonId");
@@ -53,6 +55,8 @@ export default function LessonDetail() {
     queryKey: ["/api/progress"],
     queryFn: getUserProgress,
   });
+
+  const { data: accessCheck, isLoading: accessLoading } = useLevelAccess(levelId);
 
   useEffect(() => {
     async function fetchAllLessonChallenges() {
@@ -110,8 +114,8 @@ export default function LessonDetail() {
   }, [lessonId, challenges, progress]);
 
   const completeMutation = useMutation({
-    mutationFn: (data: { challengeId: string; usedHint: boolean }) =>
-      completeChallenge(data.challengeId, data.usedHint),
+    mutationFn: (data: { challengeId: string; usedHint: boolean; answerData: { selectedAnswer?: number; code?: string }; isCorrect: boolean }) =>
+      completeChallenge(data.challengeId, data.usedHint, data.answerData, data.isCorrect),
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/progress"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
@@ -143,7 +147,24 @@ export default function LessonDetail() {
     },
   });
 
-  if (!lessons || !lesson || !challenges || !progress) {
+  // Show paywall if user doesn't have access (check this FIRST, before waiting for other data)
+  if (!accessLoading && accessCheck && !accessCheck.hasAccess) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="max-w-7xl mx-auto p-6">
+          <Link href="/levels">
+            <Button variant="ghost" className="mb-6 gap-2" data-testid="button-back">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Levels
+            </Button>
+          </Link>
+          <PaywallBanner variant="full" levelName={level?.name} />
+        </div>
+      </div>
+    );
+  }
+
+  if (!lessons || !lesson || !challenges || !progress || accessLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-muted-foreground">Loading...</div>
@@ -202,6 +223,8 @@ export default function LessonDetail() {
             {
               challengeId: currentChallenge.id,
               usedHint,
+              answerData: {},
+              isCorrect: correct,
             },
             {
               onSuccess: () => resolve(),
