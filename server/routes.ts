@@ -7,6 +7,10 @@ import session from "express-session";
 import pgSession from "connect-pg-simple";
 import { pool } from "./db";
 import { z } from "zod";
+import { getStripe, isStripeConfigured, getStripePublishableKey, getStripePriceId } from "./stripe";
+import { PAYWALL_CONFIG, PRICING_CONFIG } from "@shared/config";
+import { checkLevelAccess } from "./middleware/access-control";
+import type Stripe from "stripe";
 
 /**
  * Calculate the current level based on level completion (not XP).
@@ -245,10 +249,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Check access to a specific level
+  app.get("/api/access/level/:levelId", requireAuth, async (req, res) => {
+    try {
+      const level = await storage.getLevel(req.params.levelId);
+      if (!level) {
+        return res.status(404).json({ error: "Level not found" });
+      }
+
+      const accessCheck = await checkLevelAccess(req.session.userId!, level.order);
+      res.json({
+        levelId: level.id,
+        levelOrder: level.order,
+        ...accessCheck,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // ============= LESSONS ROUTES =============
   
   app.get("/api/levels/:levelId/lessons", requireAuth, async (req, res) => {
     try {
+      // Check access based on level
+      const level = await storage.getLevel(req.params.levelId);
+      if (level) {
+        const accessCheck = await checkLevelAccess(req.session.userId!, level.order);
+        if (!accessCheck.hasAccess) {
+          return res.status(403).json({
+            error: "Subscription required",
+            requiresSubscription: true,
+            levelOrder: level.order,
+          });
+        }
+      }
+
       const lessons = await storage.getLessonsByLevel(req.params.levelId);
       res.json(lessons);
     } catch (error) {
@@ -262,6 +298,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!lesson) {
         return res.status(404).json({ error: "Lesson not found" });
       }
+
+      // Check access based on level
+      const level = await storage.getLevel(lesson.levelId);
+      if (level) {
+        const accessCheck = await checkLevelAccess(req.session.userId!, level.order);
+        if (!accessCheck.hasAccess) {
+          return res.status(403).json({
+            error: "Subscription required",
+            requiresSubscription: true,
+            levelOrder: level.order,
+          });
+        }
+      }
+
       res.json(lesson);
     } catch (error) {
       res.status(500).json({ error: "Internal server error" });
@@ -272,6 +322,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get("/api/lessons/:lessonId/challenges", requireAuth, async (req, res) => {
     try {
+      // Check access based on level (lesson -> level)
+      const lesson = await storage.getLesson(req.params.lessonId);
+      if (lesson) {
+        const level = await storage.getLevel(lesson.levelId);
+        if (level) {
+          const accessCheck = await checkLevelAccess(req.session.userId!, level.order);
+          if (!accessCheck.hasAccess) {
+            return res.status(403).json({
+              error: "Subscription required",
+              requiresSubscription: true,
+              levelOrder: level.order,
+            });
+          }
+        }
+      }
+
       const challenges = await storage.getChallengesByLesson(req.params.lessonId);
       res.json(challenges);
     } catch (error) {
@@ -285,6 +351,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!challenge) {
         return res.status(404).json({ error: "Challenge not found" });
       }
+
+      // Check access based on level (challenge -> lesson -> level)
+      const lesson = await storage.getLesson(challenge.lessonId);
+      if (lesson) {
+        const level = await storage.getLevel(lesson.levelId);
+        if (level) {
+          const accessCheck = await checkLevelAccess(req.session.userId!, level.order);
+          if (!accessCheck.hasAccess) {
+            return res.status(403).json({
+              error: "Subscription required",
+              requiresSubscription: true,
+              levelOrder: level.order,
+            });
+          }
+        }
+      }
+
       res.json(challenge);
     } catch (error) {
       res.status(500).json({ error: "Internal server error" });
@@ -531,11 +614,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ============= SUBSCRIPTION ROUTES =============
 
+  // Get Stripe configuration status (for frontend)
+  app.get("/api/subscription/config", async (req, res) => {
+    res.json({
+      isConfigured: isStripeConfigured(),
+      publishableKey: getStripePublishableKey(),
+      pricing: PRICING_CONFIG,
+      paywallLevel: PAYWALL_CONFIG.paywallStartsAtLevel,
+    });
+  });
+
   // Get user subscription status
   app.get("/api/subscription", requireAuth, async (req, res) => {
     try {
       const subscription = await storage.getSubscription(req.session.userId!);
-      res.json(subscription || { status: "inactive", planType: "free" });
+      const user = await storage.getUser(req.session.userId!);
+
+      res.json({
+        ...(subscription || { status: "inactive", planType: "free" }),
+        hasPremiumAccess: user?.hasPremiumAccess || false,
+      });
     } catch (error) {
       res.status(500).json({ error: "Internal server error" });
     }
@@ -544,51 +642,276 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create Stripe checkout session
   app.post("/api/subscription/create-checkout", requireAuth, async (req, res) => {
     try {
-      const { priceId, planType } = z.object({
-        priceId: z.string(),
-        planType: z.string(),
+      const { planType } = z.object({
+        planType: z.enum(["monthly", "annual"]),
       }).parse(req.body);
 
-      // TODO: When Stripe API key is available, create checkout session
-      // For now, return a placeholder response
-      res.json({ 
-        message: "Stripe integration pending - API key not configured yet",
-        checkoutUrl: null,
-        requiresSetup: true 
+      const stripe = getStripe();
+      if (!stripe) {
+        return res.status(503).json({
+          error: "Payment processing unavailable",
+          requiresSetup: true,
+        });
+      }
+
+      const userId = req.session.userId!;
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const priceId = getStripePriceId(planType);
+      if (!priceId) {
+        return res.status(500).json({ error: "Price not configured" });
+      }
+
+      // Get or create Stripe customer
+      let subscription = await storage.getSubscription(userId);
+      let customerId = subscription?.stripeCustomerId;
+
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: user.email,
+          metadata: { userId },
+        });
+        customerId = customer.id;
+
+        // Create or update subscription record with customer ID
+        if (subscription) {
+          await storage.updateSubscription(userId, { stripeCustomerId: customerId });
+        } else {
+          await storage.createSubscription({
+            userId,
+            stripeCustomerId: customerId,
+            status: "inactive",
+          });
+        }
+      }
+
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
+      const session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price: priceId,
+            quantity: 1,
+          },
+        ],
+        mode: "subscription",
+        success_url: `${frontendUrl}/level/2/lesson/2-1?subscription=success`,
+        cancel_url: `${frontendUrl}/dashboard?subscription=canceled`,
+        metadata: {
+          userId,
+          planType,
+        },
       });
+
+      res.json({ checkoutUrl: session.url });
     } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
+      console.error("Checkout creation error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create checkout session" });
     }
   });
 
   // Stripe webhook handler
   app.post("/api/webhooks/stripe", async (req, res) => {
+    const stripe = getStripe();
+    if (!stripe) {
+      return res.status(503).json({ error: "Stripe not configured" });
+    }
+
+    const sig = req.headers["stripe-signature"] as string;
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!webhookSecret) {
+      console.error("STRIPE_WEBHOOK_SECRET not configured");
+      return res.status(500).json({ error: "Webhook secret not configured" });
+    }
+
+    let event: Stripe.Event;
+
     try {
-      // TODO: When Stripe API key is available, verify webhook signature
-      // For now, just acknowledge receipt
+      event = stripe.webhooks.constructEvent(req.rawBody as Buffer, sig, webhookSecret);
+    } catch (err: any) {
+      console.error("Webhook signature verification failed:", err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    try {
+      switch (event.type) {
+        case "checkout.session.completed": {
+          const session = event.data.object as Stripe.Checkout.Session;
+          await handleCheckoutComplete(session, stripe);
+          break;
+        }
+        case "customer.subscription.updated": {
+          const subscription = event.data.object as Stripe.Subscription;
+          await handleSubscriptionUpdated(subscription);
+          break;
+        }
+        case "customer.subscription.deleted": {
+          const subscription = event.data.object as Stripe.Subscription;
+          await handleSubscriptionDeleted(subscription);
+          break;
+        }
+        case "invoice.payment_failed": {
+          const invoice = event.data.object as Stripe.Invoice;
+          await handlePaymentFailed(invoice);
+          break;
+        }
+      }
+
       res.json({ received: true });
     } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
+      console.error("Webhook handler error:", error);
+      res.status(500).json({ error: "Webhook handler failed" });
     }
   });
+
+  // Webhook handler functions
+  async function handleCheckoutComplete(session: Stripe.Checkout.Session, stripe: Stripe) {
+    const userId = session.metadata?.userId;
+    const planType = session.metadata?.planType as "monthly" | "annual";
+
+    if (!userId) {
+      console.error("No userId in checkout session metadata");
+      return;
+    }
+
+    const stripeSubscription = await stripe.subscriptions.retrieve(session.subscription as string);
+
+    // Get period end from the first subscription item
+    const periodEnd = stripeSubscription.items.data[0].current_period_end;
+
+    await storage.updateSubscription(userId, {
+      stripeSubscriptionId: stripeSubscription.id,
+      stripePriceId: stripeSubscription.items.data[0].price.id,
+      status: "active",
+      planType,
+      currentPeriodEnd: new Date(periodEnd * 1000),
+      cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+    });
+  }
+
+  async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+    const dbSubscription = await storage.getSubscriptionByStripeSubscriptionId(subscription.id);
+    if (!dbSubscription) {
+      console.error("No subscription found for Stripe subscription:", subscription.id);
+      return;
+    }
+
+    let status: string = "active";
+    if (subscription.status === "canceled") status = "canceled";
+    else if (subscription.status === "past_due") status = "past_due";
+    else if (subscription.status === "unpaid") status = "inactive";
+
+    // Get period end from the first subscription item
+    const periodEnd = subscription.items.data[0].current_period_end;
+
+    await storage.updateSubscription(dbSubscription.userId, {
+      status,
+      currentPeriodEnd: new Date(periodEnd * 1000),
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    });
+  }
+
+  async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+    const dbSubscription = await storage.getSubscriptionByStripeSubscriptionId(subscription.id);
+    if (!dbSubscription) {
+      console.error("No subscription found for Stripe subscription:", subscription.id);
+      return;
+    }
+
+    await storage.updateSubscription(dbSubscription.userId, {
+      status: "inactive",
+      stripeSubscriptionId: null,
+    });
+  }
+
+  async function handlePaymentFailed(invoice: Stripe.Invoice) {
+    // Get subscription from the parent subscription_details (new Stripe API structure)
+    const subscriptionId = invoice.parent?.subscription_details?.subscription;
+    if (!subscriptionId) return;
+
+    const stripeSubscriptionId = typeof subscriptionId === 'string' ? subscriptionId : subscriptionId.id;
+    const dbSubscription = await storage.getSubscriptionByStripeSubscriptionId(stripeSubscriptionId);
+    if (!dbSubscription) {
+      console.error("No subscription found for invoice subscription:", stripeSubscriptionId);
+      return;
+    }
+
+    // Immediate block - no grace period
+    await storage.updateSubscription(dbSubscription.userId, {
+      status: "past_due",
+    });
+  }
 
   // Cancel subscription
   app.post("/api/subscription/cancel", requireAuth, async (req, res) => {
     try {
-      const subscription = await storage.getSubscription(req.session.userId!);
-      if (!subscription) {
+      const userId = req.session.userId!;
+      const subscription = await storage.getSubscription(userId);
+
+      if (!subscription?.stripeSubscriptionId) {
         return res.status(404).json({ error: "No active subscription" });
       }
 
-      // TODO: When Stripe API key is available, cancel in Stripe
-      // For now, update local status
-      await storage.updateSubscription(req.session.userId!, {
+      const stripe = getStripe();
+      if (!stripe) {
+        return res.status(503).json({ error: "Payment processing unavailable" });
+      }
+
+      // Cancel at period end (user keeps access until subscription ends)
+      await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
+        cancel_at_period_end: true,
+      });
+
+      await storage.updateSubscription(userId, {
         cancelAtPeriodEnd: true,
       });
 
-      res.json({ success: true });
+      res.json({
+        success: true,
+        message: "Subscription will cancel at end of billing period",
+        cancelAt: subscription.currentPeriodEnd,
+      });
     } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
+      console.error("Cancel subscription error:", error);
+      res.status(500).json({ error: "Failed to cancel subscription" });
+    }
+  });
+
+  // Create customer portal session (for managing billing)
+  app.post("/api/subscription/portal", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const subscription = await storage.getSubscription(userId);
+
+      if (!subscription?.stripeCustomerId) {
+        return res.status(404).json({ error: "No billing account found" });
+      }
+
+      const stripe = getStripe();
+      if (!stripe) {
+        return res.status(503).json({ error: "Payment processing unavailable" });
+      }
+
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+
+      const session = await stripe.billingPortal.sessions.create({
+        customer: subscription.stripeCustomerId,
+        return_url: `${frontendUrl}/profile`,
+      });
+
+      res.json({ portalUrl: session.url });
+    } catch (error) {
+      console.error("Portal session error:", error);
+      res.status(500).json({ error: "Failed to create portal session" });
     }
   });
 

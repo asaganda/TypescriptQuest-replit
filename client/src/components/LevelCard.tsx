@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Lock, CheckCircle2, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/lib/auth";
+import { ProBadge } from "@/components/PaywallBanner";
 
 interface LevelCardProps {
   id: string;
@@ -17,6 +18,8 @@ interface LevelCardProps {
   totalLessons: number;
   nextLessonId?: string | null;
   onClick?: () => void;
+  requiresSubscription?: boolean;
+  hasSubscription?: boolean;
 }
 
 export default function LevelCard({
@@ -29,11 +32,14 @@ export default function LevelCard({
   completionPercentage,
   totalLessons,
   nextLessonId,
-  onClick
+  onClick,
+  requiresSubscription = false,
+  hasSubscription = false,
 }: LevelCardProps) {
   const { user } = useAuth();
   const lessonToStart = nextLessonId || `${id}-1`;
   const isAdminBypass = user?.isAdmin && isLocked;
+  const isPaywalled = requiresSubscription && !hasSubscription && !user?.isAdmin;
 
   return (
     <Card
@@ -58,6 +64,7 @@ export default function LevelCard({
               <Badge variant={isCompleted ? "default" : "secondary"} data-testid={`badge-level-${id}`}>
                 Level {levelNumber}
               </Badge>
+              {requiresSubscription && <ProBadge />}
               {isLocked && <Lock className="w-4 h-4 text-muted-foreground" />}
             </div>
             <CardTitle className={isLocked ? "text-muted-foreground" : ""}>
@@ -85,6 +92,16 @@ export default function LevelCard({
           >
             Locked
           </Button>
+        ) : isPaywalled ? (
+          <Link href="/pricing">
+            <Button
+              className="w-full gap-2"
+              data-testid={`button-start-level-${id}`}
+            >
+              Upgrade to Pro
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
         ) : (
           <Link href={`/level/${id}/lesson/${lessonToStart}`}>
             <Button

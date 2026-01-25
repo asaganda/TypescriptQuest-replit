@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getLevels, getUserStats, getUserProgress, getLessonsByLevel, getChallengesByLesson } from "@/lib/api";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
+import { useSubscription, useSubscriptionConfig } from "@/hooks/use-subscription";
+import { PaywallBanner } from "@/components/PaywallBanner";
 
 interface LevelProgress {
   id: string;
@@ -35,6 +37,12 @@ export default function Levels() {
     queryKey: ["/api/progress"],
     queryFn: getUserProgress,
   });
+
+  const { data: subscription } = useSubscription();
+  const { data: config } = useSubscriptionConfig();
+
+  const hasSubscription = subscription?.status === "active" || subscription?.hasPremiumAccess;
+  const paywallLevel = config?.paywallLevel ?? 2;
 
   useEffect(() => {
     async function calculateProgress() {
@@ -166,11 +174,17 @@ export default function Levels() {
           </p>
         </div>
 
+        {!hasSubscription && (
+          <PaywallBanner variant="inline" />
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {levelsWithProgress.map((level) => (
             <LevelCard
               key={level.id}
               {...level}
+              requiresSubscription={level.levelNumber >= paywallLevel}
+              hasSubscription={hasSubscription}
               onClick={() => console.log(`Starting level ${level.id}`)}
             />
           ))}
