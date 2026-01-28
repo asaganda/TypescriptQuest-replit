@@ -88,6 +88,11 @@ export interface IStorage {
   getPasswordResetToken(token: string): Promise<PasswordResetToken | undefined>;
   markPasswordResetTokenUsed(token: string): Promise<void>;
   updateUserPassword(userId: string, hashedPassword: string): Promise<void>;
+
+  // OAuth methods
+  getUserByGithubId(githubId: string): Promise<User | undefined>;
+  getUserByGoogleId(googleId: string): Promise<User | undefined>;
+  updateUserOAuthId(userId: string, provider: 'github' | 'google', providerId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -325,6 +330,25 @@ export class DatabaseStorage implements IStorage {
     await db.update(users)
       .set({ password: hashedPassword })
       .where(eq(users.id, userId));
+  }
+
+  // OAuth methods
+  async getUserByGithubId(githubId: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.githubId, githubId));
+    return user;
+  }
+
+  async getUserByGoogleId(googleId: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.googleId, googleId));
+    return user;
+  }
+
+  async updateUserOAuthId(userId: string, provider: 'github' | 'google', providerId: string): Promise<void> {
+    if (provider === 'github') {
+      await db.update(users).set({ githubId: providerId }).where(eq(users.id, userId));
+    } else {
+      await db.update(users).set({ googleId: providerId }).where(eq(users.id, userId));
+    }
   }
 }
 
@@ -614,17 +638,19 @@ const staff: Staff = {
     const user: User = {
       id,
       email: insertUser.email,
-      password: insertUser.password,
+      password: insertUser.password ?? null,
       displayName: insertUser.displayName,
       isAdmin: insertUser.isAdmin ?? false,
       hasPremiumAccess: insertUser.hasPremiumAccess ?? false,
+      githubId: insertUser.githubId ?? null,
+      googleId: insertUser.googleId ?? null,
       createdAt: new Date()
     };
     this.users.set(id, user);
-    
+
     // Initialize user stats
     await this.createUserStats({ userId: id, totalXP: 0, currentLevel: 1, lessonsCompleted: 0, challengesCompleted: 0 });
-    
+
     return user;
   }
 
@@ -851,6 +877,27 @@ const staff: Staff = {
     const user = this.users.get(userId);
     if (user) {
       user.password = hashedPassword;
+      this.users.set(userId, user);
+    }
+  }
+
+  // OAuth methods
+  async getUserByGithubId(githubId: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(u => u.githubId === githubId);
+  }
+
+  async getUserByGoogleId(googleId: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(u => u.googleId === googleId);
+  }
+
+  async updateUserOAuthId(userId: string, provider: 'github' | 'google', providerId: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      if (provider === 'github') {
+        user.githubId = providerId;
+      } else {
+        user.googleId = providerId;
+      }
       this.users.set(userId, user);
     }
   }

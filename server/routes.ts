@@ -11,6 +11,15 @@ import { getStripe, isStripeConfigured, getStripePublishableKey, getStripePriceI
 import { PAYWALL_CONFIG, PRICING_CONFIG } from "@shared/config";
 import { checkLevelAccess } from "./middleware/access-control";
 import type Stripe from "stripe";
+import {
+  getGithubAuthUrl,
+  exchangeGithubCode,
+  getGithubUser,
+  getGoogleAuthUrl,
+  exchangeGoogleCode,
+  getGoogleUser,
+} from "./oauth";
+import { randomUUID } from "crypto";
 
 /**
  * Calculate the current level based on level completion (not XP).
@@ -113,7 +122,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/signup", async (req, res) => {
     try {
       const data = insertUserSchema.parse(req.body);
-      
+
+      // Password is required for email/password signup
+      if (!data.password) {
+        return res.status(400).json({ error: "Password is required" });
+      }
+
       // Check if user exists
       const existingUser = await storage.getUserByEmail(data.email);
       if (existingUser) {
@@ -177,6 +191,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: "Invalid credentials" });
       }
 
+      // Check if user has a password (OAuth-only users don't)
+      if (!user.password) {
+        return res.status(401).json({ error: "Please sign in using GitHub or Google" });
+      }
+
       // Verify password
       const validPassword = await bcrypt.compare(password, user.password);
       if (!validPassword) {
@@ -223,6 +242,133 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(userWithoutPassword);
     } catch (error) {
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // ============= OAUTH ROUTES =============
+
+  // Determine frontend URL for redirects
+  const getFrontendUrl = () => process.env.FRONTEND_URL || 'http://localhost:5173';
+
+  // GitHub OAuth - Initiate
+  app.get("/api/auth/github", (req, res) => {
+    const authUrl = getGithubAuthUrl();
+    res.redirect(authUrl);
+  });
+
+  // GitHub OAuth - Callback
+  app.get("/api/auth/github/callback", async (req, res) => {
+    try {
+      const { code } = req.query;
+      if (!code || typeof code !== 'string') {
+        return res.redirect(`${getFrontendUrl()}/?error=missing_code`);
+      }
+
+      // Exchange code for access token
+      const accessToken = await exchangeGithubCode(code);
+
+      // Get user profile from GitHub
+      const githubUser = await getGithubUser(accessToken);
+
+      if (!githubUser.email) {
+        return res.redirect(`${getFrontendUrl()}/?error=no_email`);
+      }
+
+      const githubId = String(githubUser.id);
+
+      // Check if user exists by GitHub ID
+      let user = await storage.getUserByGithubId(githubId);
+
+      if (!user) {
+        // Check if user exists by email (link accounts)
+        user = await storage.getUserByEmail(githubUser.email);
+
+        if (user) {
+          // Link GitHub to existing account
+          await storage.updateUserOAuthId(user.id, 'github', githubId);
+        } else {
+          // Create new user
+          user = await storage.createUser({
+            email: githubUser.email,
+            password: null,
+            displayName: githubUser.name || githubUser.login,
+            githubId: githubId,
+            googleId: null,
+            isAdmin: false,
+            hasPremiumAccess: false,
+          });
+        }
+      }
+
+      // Set session
+      req.session.userId = user.id;
+
+      // Redirect to dashboard
+      res.redirect(`${getFrontendUrl()}/dashboard`);
+    } catch (error) {
+      console.error("GitHub OAuth error:", error);
+      res.redirect(`${getFrontendUrl()}/?error=oauth_failed`);
+    }
+  });
+
+  // Google OAuth - Initiate
+  app.get("/api/auth/google", (req, res) => {
+    const authUrl = getGoogleAuthUrl();
+    res.redirect(authUrl);
+  });
+
+  // Google OAuth - Callback
+  app.get("/api/auth/google/callback", async (req, res) => {
+    try {
+      const { code } = req.query;
+      if (!code || typeof code !== 'string') {
+        return res.redirect(`${getFrontendUrl()}/?error=missing_code`);
+      }
+
+      // Exchange code for access token
+      const accessToken = await exchangeGoogleCode(code);
+
+      // Get user profile from Google
+      const googleUser = await getGoogleUser(accessToken);
+
+      if (!googleUser.email) {
+        return res.redirect(`${getFrontendUrl()}/?error=no_email`);
+      }
+
+      const googleId = googleUser.id;
+
+      // Check if user exists by Google ID
+      let user = await storage.getUserByGoogleId(googleId);
+
+      if (!user) {
+        // Check if user exists by email (link accounts)
+        user = await storage.getUserByEmail(googleUser.email);
+
+        if (user) {
+          // Link Google to existing account
+          await storage.updateUserOAuthId(user.id, 'google', googleId);
+        } else {
+          // Create new user
+          user = await storage.createUser({
+            email: googleUser.email,
+            password: null,
+            displayName: googleUser.name,
+            githubId: null,
+            googleId: googleId,
+            isAdmin: false,
+            hasPremiumAccess: false,
+          });
+        }
+      }
+
+      // Set session
+      req.session.userId = user.id;
+
+      // Redirect to dashboard
+      res.redirect(`${getFrontendUrl()}/dashboard`);
+    } catch (error) {
+      console.error("Google OAuth error:", error);
+      res.redirect(`${getFrontendUrl()}/?error=oauth_failed`);
     }
   });
 
