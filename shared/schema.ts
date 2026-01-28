@@ -6,10 +6,12 @@ import { z } from "zod";
 export const users = pgTable("users", {
   id: varchar("id").primaryKey(),
   email: text("email").notNull().unique(),
-  password: text("password").notNull(),
+  password: text("password"), // nullable for OAuth users
   displayName: text("display_name").notNull(),
   isAdmin: boolean("is_admin").notNull().default(false),
   hasPremiumAccess: boolean("has_premium_access").notNull().default(false),
+  githubId: text("github_id").unique(),
+  googleId: text("google_id").unique(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
