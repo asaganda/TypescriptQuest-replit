@@ -1,6 +1,6 @@
 # TypeScript Quest
 
-> A gamified learning platform to master TypeScript through interactive challenges and hands-on practice.
+> A gamified learning platform to master TypeScript with React through interactive challenges and hands-on practice.
 
 **[Live Demo](https://typescriptquest.com)**
 
