@@ -309,7 +309,7 @@ export default function CodeChallenge({
                 (Challenge {index + 1} of {total})
               </span>
             </CardTitle>
-            <CardDescription>{prompt}</CardDescription>
+            <CardDescription className="whitespace-pre-line">{prompt}</CardDescription>
             {savedAnswer && (
               <div className="text-xs text-muted-foreground mt-2">
                 Previously submitted on {new Date(savedAnswer.submittedAt).toLocaleDateString()}
