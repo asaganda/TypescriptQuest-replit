@@ -355,18 +355,22 @@ export default function CodeChallenge({
             onChange={(value) => setCode(value ?? "")}
             options={editorOptions}
             beforeMount={(monaco: Monaco) => {
+              // Determine if noImplicitAny should be enforced based on lesson
+              // Event typing is taught in lesson 1-5, so disable noImplicitAny for earlier lessons
+              const lessonId = challengeId.split('-').slice(0, 2).join('-'); // e.g., "1-4" from "1-4-5"
+              const [level, lesson] = lessonId.split('-').map(Number);
+              const requiresEventTyping = level > 1 || (level === 1 && lesson >= 5);
+
               // Configure TypeScript compiler options for JSX support
               monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
                 target: monaco.languages.typescript.ScriptTarget.ESNext,
                 module: monaco.languages.typescript.ModuleKind.ESNext,
-                jsx: monaco.languages.typescript.JsxEmit.React,
-                jsxFactory: 'React.createElement',
-                reactNamespace: 'React',
+                jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
                 allowNonTsExtensions: true,
                 allowJs: true,
                 typeRoots: ["node_modules/@types"],
-                strict: true,
-                noImplicitAny: true,
+                strict: requiresEventTyping,
+                noImplicitAny: requiresEventTyping,
                 strictNullChecks: true,
                 noUnusedLocals: false,
                 noUnusedParameters: false,
@@ -377,20 +381,52 @@ export default function CodeChallenge({
                 noSyntaxValidation: false,
               });
 
-              // Add minimal React type definitions for JSX support
+              // Add minimal React type definitions as a module for import support
               const reactTypes = `
-                declare namespace React {
-                  interface ReactElement<P = any> {
+                declare module 'react' {
+                  export interface ReactElement<P = any> {
                     type: any;
                     props: P;
                     key: string | null;
                   }
-                  type ReactNode = ReactElement | string | number | boolean | null | undefined | ReactNode[];
-                  function createElement(type: any, props?: any, ...children: any[]): ReactElement;
-                  function useState<T>(initialState: T | (() => T)): [T, (newState: T | ((prev: T) => T)) => void];
+                  export type ReactNode = ReactElement | string | number | boolean | null | undefined | ReactNode[];
+                  export function createElement(type: any, props?: any, ...children: any[]): ReactElement;
+                  export function useState<T>(initialState: T | (() => T)): [T, (newState: T | ((prev: T) => T)) => void];
+                  export function useEffect(effect: () => void | (() => void), deps?: any[]): void;
+                  export function useCallback<T extends (...args: any[]) => any>(callback: T, deps: any[]): T;
+                  export function useMemo<T>(factory: () => T, deps: any[]): T;
+                  export function useRef<T>(initialValue: T): { current: T };
+                  export function useContext<T>(context: Context<T>): T;
+                  export interface Context<T> {
+                    Provider: any;
+                    Consumer: any;
+                  }
+                  export function createContext<T>(defaultValue: T): Context<T>;
+                  export type ChangeEvent<T = Element> = { target: T & { value: string } };
+                  export type FormEvent<T = Element> = { preventDefault: () => void };
+                  export type MouseEvent<T = Element> = { preventDefault: () => void };
                 }
+              `;
+              monaco.languages.typescript.typescriptDefaults.addExtraLib(reactTypes, 'file:///node_modules/@types/react/index.d.ts');
+
+              // Add react/jsx-runtime module for the new JSX transform
+              const jsxRuntimeTypes = `
+                declare module 'react/jsx-runtime' {
+                  export function jsx(type: any, props: any, key?: string): any;
+                  export function jsxs(type: any, props: any, key?: string): any;
+                  export const Fragment: symbol;
+                }
+              `;
+              monaco.languages.typescript.typescriptDefaults.addExtraLib(jsxRuntimeTypes, 'file:///node_modules/@types/react/jsx-runtime.d.ts');
+
+              // Add JSX types separately as a global declaration
+              const jsxTypes = `
                 declare namespace JSX {
-                  interface Element extends React.ReactElement<any> {}
+                  interface Element {
+                    type: any;
+                    props: any;
+                    key: string | null;
+                  }
                   interface IntrinsicElements {
                     div: any;
                     span: any;
@@ -421,7 +457,7 @@ export default function CodeChallenge({
                   }
                 }
               `;
-              monaco.languages.typescript.typescriptDefaults.addExtraLib(reactTypes, 'react.d.ts');
+              monaco.languages.typescript.typescriptDefaults.addExtraLib(jsxTypes, 'file:///jsx.d.ts');
             }}
             onValidate={(markers) => {
               // Filter to errors only (severity 8 = MarkerSeverity.Error)
