@@ -264,15 +264,32 @@ export default function MultipleChoiceChallenge({
                 </Button>
               )}
 
-              {/* Continue Button */}
-              <Button
-                onClick={handleContinue}
-                className="w-full order-1 sm:order-2"
-                disabled={hasProgressed}
-                data-testid="button-continue"
-              >
-                {hasProgressed ? "Continuing..." : "Continue"}
-              </Button>
+              {/* Continue Button - only show if correct */}
+              {isCorrect && (
+                <Button
+                  onClick={handleContinue}
+                  className="w-full order-1 sm:order-2"
+                  disabled={hasProgressed}
+                  data-testid="button-continue"
+                >
+                  {hasProgressed ? "Continuing..." : "Continue"}
+                </Button>
+              )}
+
+              {/* Try Again Button - show if incorrect */}
+              {isIncorrect && (
+                <Button
+                  onClick={() => {
+                    setIsSubmitted(false);
+                    setSelectedAnswer(null);
+                    setShowHint(false);
+                  }}
+                  className="w-full order-1 sm:order-2"
+                  data-testid="button-try-again"
+                >
+                  Try Again
+                </Button>
+              )}
 
               {/* Next Challenge Button - Show for admin or when viewing a completed challenge */}
               {canNavigateNext && onNavigateNext && (user?.isAdmin || (savedAnswer && isSubmitted)) && (
