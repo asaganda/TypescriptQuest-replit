@@ -34,6 +34,6 @@
 
 **Infrastructure**
 - Netlify (frontend)
-- AWS Elastic Beanstalk (backend)
+- Digital Ocean App Platform (backend)
 - Neon serverless PostgreSQL
 - Stripe for payments
